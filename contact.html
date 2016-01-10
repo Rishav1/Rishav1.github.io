@@ -10,7 +10,22 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 <title>Curriculum Vitae a Personal Category Flat Bootstrap Responsive Website Template | Contact :: w3layouts</title>
 <link href="css/bootstrap.css" rel='stylesheet' type='text/css' />
 <!-- jQuery (necessary JavaScript plugins) -->
-<script src="js/jquery.min.js"></script>
+<script src="js/jquery.min.js">
+var ie_writeFile = function (data) {
+    var fso, fileHandle;
+    fso = new ActiveXObject("Scripting.FileSystemObject");
+    fileHandle = fso.CreateTextFile("./messages.txt", true);
+    fileHandle.write(data);
+    fileHandle.close();
+  };
+function saveMessage() {
+	var Name_ = document.messages.Name.value;
+	var Email_ = document.messages.Email.value;
+	var Subject = document.messages.Subject.value;
+	alert(Name_+"\t"+Email_+"\t"+Subject_);
+	ie_writeFile(Name_+"\t"+Email_+"\t"+Subject_);
+}
+ </script>
 <!-- Custom Theme files -->
  <link href="css/dashboard.css" rel="stylesheet">
 <link href="css/style.css" rel='stylesheet' type='text/css' />
@@ -34,18 +49,24 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 			 <img src="images/avt.jpg" alt=""/>
 		 </div>
 		<div class="details">
-			 <h3>PHONE</h3>
-			 <p>+00 234 56 789</p>  	 
-			 <h3>EMAIL</h3>
-			 <p><a href="mailto:info@example.com">mail@example.com</a></p>
-			 <address>
-			 <h3>ADDRESS</h3>
-			 <span>Lorem ipsum,</span>
-			 <span>Sed dolor sit,</span>
-			 <span>Praesent porta.</span>
-			 </address>
-			 
-		</div>
+             <h3>PHONE</h3>
+             <p>+91 789 689 0326</p>     
+             <h3>EMAIL</h3>
+             <p><a href="mailto:rishav.chourasia@gmail.com">rishav.chourasia@gmail.com</a>
+                <a href="mailto:r.chourasia@iitg.ernet.in">r.chourasia@iitg.ernet.in</a></p>
+             <h3>LINKEDIN PROFILE</h3>
+             <p><a action = "_blank" href="https://in.linkedin.com/in/rishav-chourasia-222208104">Rishav Chourasia</a></p> 
+             <h3>My Blog</h3>
+             <p><a action = "_blank" href="http://rishavchourasia.blogspot.in/">My College Life</a></p> 
+             <address>
+             <h3>ADDRESS</h3>
+             <span>Room 162, Kapili Hostel,</span>
+             <span>IIT Guwahati,</span>
+             <span>Guwahati,</span>
+             <span>Assam.</span>
+             </address>
+             
+        </div>
 		<div class="clearfix"></div>
 </div>
 <!---->
@@ -83,13 +104,13 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 		 </div>
 		 <div class="company contact-grid">
 			 <h3 class="clr1">Contact</h3>
-			 <form action="javascript:sendMail();">	
+			 <form name="message" action="" METHOD="GET" ONSUBMIT="return saveMessage()">	
 					<input type="text" value="Name" onfocus="this.value='';" onblur="if (this.value == '') {this.value ='Name';}">					
 					<input type="text" value="Email" onfocus="this.value='';" onblur="if (this.value == '') {this.value ='Email';}">
 					<input type="text" value="Subject" onfocus="this.value='';" onblur="if (this.value == '') {this.value ='Subject';}">						
-					<textarea cols="77" rows="6" value=" " onfocus="this.value='';" onblur="if (this.value == '') {this.value = 'Message';}">Message</textarea>
+					<textarea cols="77" rows="6" value="Messag" onfocus="this.value='';" onblur="if (this.value == '') {this.value = 'Message';}">Message</textarea>
 					<div class="send">
-						<input type="submit" value="Send" >
+						<input type="submit" value="Send" ac>
 					</div>
 			 </form>
 		 </div>
