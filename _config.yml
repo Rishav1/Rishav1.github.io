@@ -1,0 +1,62 @@
+# Welcome to Jekyll!
+
+# host: 0.0.0.0
+# port: 5000
+
+# Website settings
+title: Rishav Chourasia
+description: Rishav's projects, blogs and innovations.
+keywords: Robotics, Reinforcement Learing, Biped Robotics, Simple Bots, IIT Guwahati Robotics Club
+
+url: http://rishav1.github.io
+img_path: /static/assets/img/blog  # url should be changed to '/homepage/static/assets/img/blog' as before
+vid_path: /static/assets/vids/blog
+
+# author -- index page "about me" section
+author:  # change following line to your infomation.
+  name: Rishav Chourasia  # Be used at blog posts' author.
+  first_name: Rishav  # Be used at index page about me section.
+  last_name: Chourasia  # Be used at index page about me section.
+  short_desc: an Innovator
+  cv: /Rishav_CV.pdf  # A online CV can be printed as PDF, leave blank if you don't have now
+  email: r.chourasia@iitg.ac.in  # Leave blank if you don't have now
+  facebook_username: rishav.chourasia  # Leave blank if you don't have now
+  github_username: Rishav1  # Leave blank if you don't have now
+  twitter_username: Rishavdude
+  linkedin_id: rishav-chourasia
+  avatar: /static/assets/img/display_pic.jpg  # upload your avatar at directory and edit it.
+  skill_icon1:
+    - name: icon-apache
+    - name: fa-linux
+  skill_icon2:
+    - name: fa-linux
+    - name: icon-apache
+  desc: I am currently an undergrad student, majoring in Computer Science and Technology at Indian Institute of Technology, Guwahati, India. My research interest lies in Artificial Intelligence in Robotics. I also am currently the club manager at Robotics Club, IITG, doing some interesting projects on AI. I like to spend my time learning about advances in reinforcement learning, and doing small projects based on RL. I care about applications of AI in simplifying day to day life.
+
+# comment
+disqus:  # if you wanna comment feature, go to https://disqus.com/ to get your configuration; if not, comment following two lines.
+  name: rishav1-github-io 
+  public_key: 2aCdClaodjoH6eOSH9RAyvcDLXQvaa4MN0hQuGbXrbGVbWbh38PyBKdxBd1KLbBb
+
+# analytics
+## google analytics
+ga:  # if you wanna this feature, go to https://www.google.com/analytics/ to get your configuration; if not, comment following line.
+  # id:
+
+## growingIO
+gio:  # if you wanna this feature, go to https://www.growingio.com/ to get your configuration; if not, comment following line.
+  # id:
+
+## donation
+donation: off  # type 'on'/'off' to choice display donation button at post page or not
+
+
+# Build settings
+encoding: utf-8
+
+# other settings
+highlighter: rouge
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge

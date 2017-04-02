@@ -1,0 +1,71 @@
+# careers section data
+# if you don't have language feature(language.yml is empty), ignore "i18n" items
+- name:
+    detail: Grew up, completed High school
+    i18n: high_school_a
+  desc:
+    detail: I grew up in a small town, rough town. Topped in all the important subjects in my school (district rank-5 in class 10 Metric exam). Showed traits of a geek, had the biggest pokemon card collection among friends.
+    i18n: high_school_a_desc
+  date:
+    detail: 1996 - 2012
+    i18n: high_school_a_date
+  job:
+    detail: De-Nobili C.M.R.I, Dhanbad, Jharkhand.
+    i18n: high_school_a_name
+  icon: fa-plus-square
+
+- name:
+    detail: Completed plus two graduation
+    i18n: high_school_b
+  desc:
+    detail: I did my plus two from DPS Bokaro, one of the best schools in India. Was awarded the scholar badge for my academic performance. Scored highest in JEE mains 2014 among school mates.
+    i18n: high_school_b_desc
+  date:
+    detail: 2012 - 2014
+    i18n: high_school_b_date
+  job:
+    detail: DPS Bokaro, Sector 4, Bokaro, Jharkhand.
+    i18n: high_school_b_name
+  icon: fa-plus-square
+
+- name:
+    detail: Bachelor's in Computer Science and Engineering
+    i18n: college
+  desc:
+    detail: Met true experts and learnt from them. Did first colaborative projects that changed my ideas about colaboration. Discovered my interests. Lerant to build stuff. Learnt the art of learning.
+    i18n: college_desc
+  date:
+    detail: 2014 - NOW
+    i18n: college_date
+  job:
+    detail: Indian Institute of Technology, Guwahati, Assam.
+    i18n: college_name
+  icon: fa-plus-square
+
+- name:
+    detail: Research Internship in South Korea
+    i18n: experiences_a
+  desc:
+    detail: Got firsthand expeience in a good research environment under a renowned Professor. Realized the difference in scripting and writing novel research codes. Wrote first research paper(in submission now). 
+    i18n: experiences_a_desc
+  date:
+    detail: SUMMER 2016
+    i18n: experiences_a_date
+  job:
+    detail: Hanyang University, ERICA campus, Ansan, South Korea.
+    i18n: experiences_a_name
+  icon: fa-plus-square
+
+- name:
+    detail: Co-managed Institute's Robotics Club
+    i18n: experiences_a
+  desc:
+    detail: Along with other robotics enthusiast, contributed to some great projects. Organized events to encourage juniors to pursue a career in robotics research. Gave tutorials to juniors on basic robotics. Victored in a few reputed robotics competitons like Robothon Kolkata 2016, demonstration at Robofest, 2016, IIT Hyderabad. 
+    i18n: experiences_a_desc
+  date:
+    detail: MARCH 2016 - NOW
+    i18n: experiences_a_date
+  job:
+    detail: Robotics Club, IIT Guwahati.
+    i18n: experiences_a_name
+  icon: fa-plus-square

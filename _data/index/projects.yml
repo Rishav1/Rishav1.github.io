@@ -1,0 +1,32 @@
+# projects section data
+# If you don't have language feature(language.yml is empty), ignore "i18n" items
+# Suggest projects' img be located at '/static/assets/img/landing', and edit following img items.
+- name: Super Mario AI
+  i18n: sup_mar_ai
+  gh_user: Rishav1
+  repo: Super-Mario-Bros-RL-AI
+  img: /static/assets/img/landing/mario.jpg
+  desc: Super Mario AI is an epsilon soft policy based Markov Decision Process(MDP) model that learns to plays the famous Super Nintendo Entertainment System game Super Mario Bros. I have used a Lua scriptable SNES simulator to create the environment for RL models. I plan on implementing some more RL models to the same environment. 
+
+- name: Biped Robot
+  i18n: bip_rob
+  img: /static/assets/img/landing/biped.gif
+  desc: We are atempting to make a biped robot capable of static and dynamic walking without support. The bot has an array of gyro and angle sensors using which we aim to generate a dataset via static walking. This dataset will be used to generate the reward function, and this reward function will be used to train the bot via RL. 
+
+- name: Intranet Search Engine
+  i18n: int_sea_eng
+  img: /static/assets/img/landing/search_logo.png
+  desc: Worked on a local search engine to help find stuff easily on the institute intranet, which major search engines cannot access. The project was based on python web framework Django.
+
+- name: File Share Website
+  i18n: int_sea_eng
+  img: /static/assets/img/landing/share_logo.ico
+  desc: Worked on a local file sharing website for the intranet to utilize high bandwidth intranet conncetion of upto 1 GB/s to locally share large files. 
+
+- name: Destrangify
+  i18n: destran
+  gh_user: Rishav1
+  repo: Destrangify
+  img: /static/assets/img/landing/destrangify_logo.png
+  desc: Made an augmented reality android app that allows one to lookup the shared public details of surrounding people nearby, like name and job, by pointing the smartphone camera at them. The app uses geo-based AR to locate the surrounding users in the direction of camera and applies facial recognition to distinguish them.
+

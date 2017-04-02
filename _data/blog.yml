@@ -1,0 +1,25 @@
+# blog page sections
+- name: Blog
+  href: /blog/
+
+- name: Robotics Club
+  href: /roboticsclub/
+
+- name: Linux Hacks
+  href: /linux/
+
+- name: Reinforcement Learning
+  href: /rein_learning/
+
+# - name: Database
+#   href: /database/
+
+# - name: Mac
+#   href: /mac/
+
+- name: Life
+  href: /life/
+
+# Don't display donation page: change donation to off at file '_config.yml'
+- name: Donate
+  href: /donate/
