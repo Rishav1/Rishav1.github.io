@@ -37,9 +37,13 @@ Host *
    ProxyCommand corkscrew 202.141.80.22 3128 %h %p ~/.ssh/auth
 ```
 
-If the proxy server has no authentication, no need to add ~/.ssh/auth in the last line above. Otherwise, create a file auth and store user-name and password for the HTTPS proxy in there as shown.
+Make sure that the SSH config file created has correct ownership. If the proxy server has no authentication, no need to add ~/.ssh/auth in the last line above. Otherwise, create a file auth and store user-name and password for the HTTPS proxy in there as shown.
 
 ```bash
+# Set correct ownership
+chmod 600 ~/.ssh/config
+
+# Create auth file 
 touch ~/.ssh/auth
 gedit ~/.ssh/auth
 ```
