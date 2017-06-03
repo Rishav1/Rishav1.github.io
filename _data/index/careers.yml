@@ -4,7 +4,7 @@
     detail: Grew up, completed High school
     i18n: high_school_a
   desc:
-    detail: I grew up in a small town, rough town. Topped in all the important subjects in my school (district rank-5 in class 10 Metric exam). Showed traits of a geek, had the biggest pokemon card collection among friends.
+    detail: I grew up in a small town town. Topped in all the important subjects in my school (district rank-5 in class 10 Metric exam). Showed traits of a geek, had the biggest pokemon tazzo collection among friends.
     i18n: high_school_a_desc
   date:
     detail: 1996 - 2012
@@ -32,7 +32,7 @@
     detail: Bachelor's in Computer Science and Engineering
     i18n: college
   desc:
-    detail: Met true experts and learnt from them. Did first colaborative projects that changed my ideas about colaboration. Discovered my interests. Lerant to build stuff. Learnt the art of learning.
+    detail: Met true experts and geniuses, tried to learn from them. Discovered my interests and research inclination. Lerant to build cool stuff. Made great friends, whom I'll always cherish.
     i18n: college_desc
   date:
     detail: 2014 - NOW
@@ -46,7 +46,7 @@
     detail: Research Internship in South Korea
     i18n: experiences_a
   desc:
-    detail: Got firsthand expeience in a good research environment under a renowned Professor. Realized the difference in scripting and writing novel research codes. Wrote first research paper(in submission now). 
+    detail: Got firsthand expeience in a good research environment under a renowned Professor. Realized the difference in scripting and writing novel research codes. Wrote first research paper here. 
     i18n: experiences_a_desc
   date:
     detail: SUMMER 2016
@@ -67,5 +67,19 @@
     i18n: experiences_a_date
   job:
     detail: Robotics Club, IIT Guwahati.
+    i18n: experiences_a_name
+  icon: fa-plus-square
+
+- name:
+    detail: Software Development Engineering Internship at Amazon
+    i18n: experiences_a
+  desc:
+    detail: Worked on some huge-ass services! Non Disclosure Agreement forbids any further information ;).
+    i18n: experiences_a_desc
+  date:
+    detail: MAY 2017 - NOW
+    i18n: experiences_a_date
+  job:
+    detail: Amazon Development Center India Limited.
     i18n: experiences_a_name
   icon: fa-plus-square
