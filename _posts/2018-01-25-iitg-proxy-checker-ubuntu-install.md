@@ -29,7 +29,7 @@ For IIT Guwahati students, I have already preconfigured the default in the scrip
 {: .text-justify}
 
 ```bash
-proxy-script
+proxy-search
 ```
 
 I have also added a script to autoconfigure the internet settings throughout the system. The script "iitg-acproxy" uses the discovered open proxies to set up a [redsocks](https://github.com/darkk/redsocks) transparent proxy redirection. In short, no system proxy settings or environment proxy settings would be needed if you use this. After proxy-script discovers all open proxies, just run the following and your internet should work without any system proxy settings.
