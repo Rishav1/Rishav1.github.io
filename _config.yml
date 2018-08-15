@@ -22,7 +22,7 @@ author:  # change following line to your infomation.
   email: r.chourasia@iitg.ac.in  # Leave blank if you don't have now
   facebook_username: rishav.chourasia  # Leave blank if you don't have now
   github_username: Rishav1  # Leave blank if you don't have now
-  twitter_username: Rishavdude
+  twitter_username: Rishav84ia
   linkedin_id: rishav-chourasia
   avatar: /static/assets/img/display_pic.jpg  # upload your avatar at directory and edit it.
   skill_icon1:
@@ -31,11 +31,11 @@ author:  # change following line to your infomation.
   skill_icon2:
     - name: fa-linux
     - name: icon-apache
-  desc: I am currently an undergrad student, majoring in Computer Science and Technology at Indian Institute of Technology, Guwahati, India. My research interest lies in Artificial Intelligence in Robotics. I also am currently the club manager at Robotics Club, IITG, doing some interesting projects on AI. I like to spend my time learning about advances in reinforcement learning, and doing small projects based on RL. I care about applications of AI in simplifying day to day life.
+  desc: I am a software development engineer at Amazon India. I received my B.Tech in Computer Science and Engineering from Indian Institute of Technology, Guwahati. My research interests lies in knowledge sharing and coodination between Reinforcement Learning agents. I am also interested in application of AI in Robotics and in simplifying day to day life.
 
 # comment
 disqus:  # if you wanna comment feature, go to https://disqus.com/ to get your configuration; if not, comment following two lines.
-  name: rishav1-github-io 
+  name: rishav1-github-io
   public_key: 2aCdClaodjoH6eOSH9RAyvcDLXQvaa4MN0hQuGbXrbGVbWbh38PyBKdxBd1KLbBb
 
 # analytics

@@ -1,10 +1,10 @@
 # careers section data
 # if you don't have language feature(language.yml is empty), ignore "i18n" items
 - name:
-    detail: Grew up, completed High school
+    detail: Completed High school
     i18n: high_school_a
   desc:
-    detail: I grew up in a small town town. Topped in all the important subjects in my school (district rank-5 in class 10 Metric exam). Showed traits of a geek, had the biggest pokemon tazzo collection among friends.
+    detail:
     i18n: high_school_a_desc
   date:
     detail: 1996 - 2012
@@ -18,7 +18,7 @@
     detail: Completed plus two graduation
     i18n: high_school_b
   desc:
-    detail: I did my plus two from DPS Bokaro, one of the best schools in India. Was awarded the scholar badge for my academic performance. Scored highest in JEE mains 2014 among school mates.
+    detail:
     i18n: high_school_b_desc
   date:
     detail: 2012 - 2014
@@ -29,13 +29,13 @@
   icon: fa-plus-square
 
 - name:
-    detail: Bachelor's in Computer Science and Engineering
+    detail: Received Bachelor's in Computer Science and Engineering
     i18n: college
   desc:
-    detail: Met true experts and geniuses, tried to learn from them. Discovered my interests and research inclination. Lerant to build cool stuff. Made great friends, whom I'll always cherish.
+    detail: My <a href="https://www.w3schools.com">Bachelor Thesis</a> was on unification of Ensemble Q-learning algorithms in a class called Swarm RL and proposal of regret optimal algorithm for that class.
     i18n: college_desc
   date:
-    detail: 2014 - NOW
+    detail: 2014 - 2018
     i18n: college_date
   job:
     detail: Indian Institute of Technology, Guwahati, Assam.
@@ -46,7 +46,7 @@
     detail: Research Internship in South Korea
     i18n: experiences_a
   desc:
-    detail: Got firsthand expeience in a good research environment under a renowned Professor. Realized the difference in scripting and writing novel research codes. Wrote first research paper here. 
+    detail: The topic of research was efficient Type-reduction techniques for Multidimensional Type-2 Fuzzy sets. Worked on applications like improving Fuzzy Type-2 Clustering as well.
     i18n: experiences_a_desc
   date:
     detail: SUMMER 2016
@@ -60,10 +60,10 @@
     detail: Co-managed Institute's Robotics Club
     i18n: experiences_a
   desc:
-    detail: Along with other robotics enthusiast, contributed to some great projects. Organized events to encourage juniors to pursue a career in robotics research. Gave tutorials to juniors on basic robotics. Victored in a few reputed robotics competitons like Robothon Kolkata 2016, demonstration at Robofest, 2016, IIT Hyderabad. 
+    detail: Organized events to encourage juniors to pursue a career in robotics research. Gave tutorials to juniors on basic robotics. Won a few reputed robotics competitons like Robothon Kolkata 2016. Demonstrated projects in Tech Expo and TechEvince, IIT Guwahati.
     i18n: experiences_a_desc
   date:
-    detail: MARCH 2016 - NOW
+    detail: MARCH 2016 - JULY 2017
     i18n: experiences_a_date
   job:
     detail: Robotics Club, IIT Guwahati.
@@ -74,10 +74,10 @@
     detail: Software Development Engineering Internship at Amazon
     i18n: experiences_a
   desc:
-    detail: Worked on some huge-ass services! Non Disclosure Agreement forbids any further information ;).
+    detail: Worked as a Software Developlent Engineering as part of the Transaction Risk Management S-Team.
     i18n: experiences_a_desc
   date:
-    detail: MAY 2017 - NOW
+    detail: SUMMER 2017, JULY 2018 - NOW
     i18n: experiences_a_date
   job:
     detail: Amazon Development Center India Limited.

@@ -2,8 +2,8 @@
 - name: Blog
   href: /blog/
 
-- name: Robotics Club
-  href: /roboticsclub/
+# - name: Robotics Club
+#   href: /roboticsclub/
 
 - name: Linux Hacks
   href: /linux/
@@ -11,12 +11,8 @@
 - name: Reinforcement Learning
   href: /rein_learning/
 
-# - name: Database
-#   href: /database/
-
-# - name: Mac
-#   href: /mac/
+- name: research
+  href: /research/
 
 - name: Life
   href: /life/
-

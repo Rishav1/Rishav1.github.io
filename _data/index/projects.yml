@@ -1,32 +1,45 @@
 # projects section data
 # If you don't have language feature(language.yml is empty), ignore "i18n" items
 # Suggest projects' img be located at '/static/assets/img/landing', and edit following img items.
-- name: Super Mario AI
-  i18n: sup_mar_ai
-  gh_user: Rishav1
-  repo: Super-Mario-Bros-RL-AI
-  img: /static/assets/img/landing/mario.jpg
-  desc: Super Mario AI is an epsilon soft policy based Markov Decision Process(MDP) model that learns to plays the famous Super Nintendo Entertainment System game Super Mario Bros. I have used a Lua scriptable SNES simulator to create the environment for RL models. I plan on implementing some more RL models to the same environment. 
+
+- name: Dynamic Resource allocation for Fire Incidents
+  i18n: dyn_res_all
+  img: /static/assets/img/landing/pommerman.gif
+  repo: https://gitlab.com/Rishav1/TagdaAgent/tree/simulation
+  desc: As part of my AI course, we modified a Multi-agent OpenAI environment called Pommerman to simulate grid world representation of San Diego region's fire incident occurances. We trained Deep RL models to simulate efficient response/patrol paths for optimizing average response time for these incidents.
 
 - name: Biped Robot
   i18n: bip_rob
   img: /static/assets/img/landing/biped.gif
-  desc: We are atempting to make a biped robot capable of static and dynamic walking without support. The bot has an array of gyro and angle sensors using which we aim to generate a dataset via static walking. This dataset will be used to generate the reward function, and this reward function will be used to train the bot via RL. 
+  desc: We attempted to make a biped robot capable of dynamic walking without support. Using virtual simulations on MuJoCo, we trained a DDPG agent to make a virtual model of the biped bot walk. We attempted to transfer the learned model into the biped bot.
+
+- name: Super Mario Bros AI
+  i18n: sup_mar_ai
+  gh_user: Rishav1
+  repo: https://github.com/Rishav1/Super-Mario-Bros-RL-AI
+  img: /static/assets/img/landing/mario.gif
+  desc: Super Mario AI is an epsilon soft policy based Q-learning model that learns to plays the famous Super Nintendo Entertainment System game Super Mario Bros. I used a Lua scriptable SNES simulator to create the environment for RL models.
+
+- name: RL Algorithm Implementations
+  i18n: rl_alg_imp
+  gh_user: Rishav1
+  repo: https://github.com/Rishav1/baselines
+  img: /static/assets/img/landing/pacman.gif
+  desc: In my attempt to understand the practical difficulties of various RL algorithms, I implemented and tested a few of them like Double Q-learning Network (and it's variants like Double DQN, Recurrent DQN, Bootstrap DQN), Proximal Policy Optimization(PPO), Deep Deterministic Policy Gradient(DDPG), etc. on various environments like Atari 2600, OpenAI gym, MuJoCo and Gazebo physics engine.
 
 - name: Intranet Search Engine
   i18n: int_sea_eng
-  img: /static/assets/img/landing/search_logo.png
-  desc: Worked on a local search engine to help find stuff easily on the institute intranet, which major search engines cannot access. The project was based on python web framework Django.
+  img: /static/assets/img/landing/search_logo.gif
+  desc: Worked on an intranet search engine for the institute intranet, to help securely index internal VPN.
 
 - name: File Share Website
   i18n: int_sea_eng
-  img: /static/assets/img/landing/share_logo.ico
-  desc: Worked on a local file sharing website for the intranet to utilize high bandwidth intranet conncetion of upto 1 GB/s to locally share large files. 
+  img: /static/assets/img/landing/folder.gif
+  desc: Worked on a local file sharing website for the intranet to utilize high bandwidth intranet conncetion of upto 1 GB/s to locally share files.
 
 - name: Destrangify
   i18n: destran
   gh_user: Rishav1
-  repo: Destrangify
+  repo: https://github.com/Rishav1/Destrangify
   img: /static/assets/img/landing/destrangify_logo.png
   desc: Made an augmented reality android app that allows one to lookup the shared public details of surrounding people nearby, like name and job, by pointing the smartphone camera at them. The app uses geo-based AR to locate the surrounding users in the direction of camera and applies facial recognition to distinguish them.
-

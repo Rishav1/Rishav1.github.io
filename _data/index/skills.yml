@@ -2,5 +2,5 @@
 
 label: Ability
 id : cs
-aspects: Machine Learning, Motivation, Image Processing, Reinforcement Learning, Fuzzy Logic, Sleeping, Sports, Linux/Bash, Algorithm Design 
-percentage: 80, 90, 80, 90, 100, 40, 50, 70, 90
+aspects: Machine Learning, Reinforcement Learning, Fuzzy Logic, Software Developlent, Algorithm Design, Data Structures
+percentage: 80, 95, 90, 85, 80, 85
