@@ -71,15 +71,29 @@
   icon: fa-plus-square
 
 - name:
-    detail: Software Development Engineering Internship at Amazon
+    detail: Software Development Engineering at Amazon
     i18n: experiences_a
   desc:
     detail: Worked as a Software Developlent Engineering as part of the Transaction Risk Management S-Team.
     i18n: experiences_a_desc
   date:
-    detail: SUMMER 2017, JULY 2018 - NOW
+    detail: MAY 2017 - JULY 2017, JULY 2018 - NOV 2018
     i18n: experiences_a_date
   job:
     detail: Amazon Development Center India Limited.
+    i18n: experiences_a_name
+  icon: fa-plus-square
+
+- name:
+    detail: Research Fellowship in Germany
+    i18n: experiences_a
+  desc:
+    detail: Exploring Multi-agent coordination as part of Machine Teaching group.
+    i18n: experiences_a_desc
+  date:
+    detail: NOV 2018 - PRESENT
+    i18n: experiences_a_date
+  job:
+    detail: Max Planck Institute for Software Systems, Saarbrücken
     i18n: experiences_a_name
   icon: fa-plus-square
