@@ -9,6 +9,8 @@ tags: [Reinforcement Learning, Pommerman, Resource Allocation, DQN]
 icon: icon-html
 ---
 
+The code for this project can be found [here.](https://gitlab.com/Rishav1/TagdaAgent/tree/simulation)
+
 <object data="/research_files/dynamic-resource-allocation.pdf" type="application/pdf" style="width:100%" height="700px">
     <embed src="/research_files/dynamic-resource-allocation.pdf">
         <p>This browser does not support PDFs. Please download the PDF to view it: <a href="/research_files/dynamic-resource-allocation.pdf">Download PDF</a>.</p>
