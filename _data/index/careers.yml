@@ -1,13 +1,13 @@
 # careers section data
 # if you don't have language feature(language.yml is empty), ignore "i18n" items
 - name:
-    detail: Completed High school
+    detail: Completed Secondary Schooling
     i18n: high_school_a
   desc:
     detail:
     i18n: high_school_a_desc
   date:
-    detail: 1996 - 2012
+    detail: 2000 - 2012
     i18n: high_school_a_date
   job:
     detail: De-Nobili C.M.R.I, Dhanbad, Jharkhand.
@@ -15,7 +15,7 @@
   icon: fa-plus-square
 
 - name:
-    detail: Completed plus two graduation
+    detail: Graduated High School
     i18n: high_school_b
   desc:
     detail:
@@ -32,7 +32,7 @@
     detail: Received Bachelor's in Computer Science and Engineering
     i18n: college
   desc:
-    detail: My <a href="https://www.w3schools.com">Bachelor Thesis</a> was on unification of Ensemble Q-learning algorithms in a class called Swarm RL and proposal of regret optimal algorithm for that class.
+    detail: <a href="https://www.w3schools.com">Bachelor Thesis:</a> efficient exploration via Swarm RL.
     i18n: college_desc
   date:
     detail: 2014 - 2018
@@ -46,7 +46,7 @@
     detail: Research Internship in South Korea
     i18n: experiences_a
   desc:
-    detail: The topic of research was efficient Type-reduction techniques for Multidimensional Type-2 Fuzzy sets. Worked on applications like improving Fuzzy Type-2 Clustering as well.
+    detail: Developing type-reduction techniques for Multidimensional Type-2 Fuzzy sets.
     i18n: experiences_a_desc
   date:
     detail: SUMMER 2016
@@ -60,7 +60,7 @@
     detail: Co-managed Institute's Robotics Club
     i18n: experiences_a
   desc:
-    detail: Organized events to encourage juniors to pursue a career in robotics research. Gave tutorials to juniors on basic robotics. Won a few reputed robotics competitons like Robothon Kolkata 2016. Demonstrated projects in Tech Expo and TechEvince, IIT Guwahati.
+    detail: Organized events, conducted tutorials, guided & demonstrated robotics project.
     i18n: experiences_a_desc
   date:
     detail: MARCH 2016 - JULY 2017
@@ -74,7 +74,7 @@
     detail: Software Development Engineering at Amazon
     i18n: experiences_a
   desc:
-    detail: Worked as a Software Developlent Engineering as part of the Transaction Risk Management S-Team.
+    detail: Part of the Transaction Risk Management S-Team.
     i18n: experiences_a_desc
   date:
     detail: MAY 2017 - JULY 2017, JULY 2018 - NOV 2018
@@ -91,7 +91,7 @@
     detail: Exploring Multi-agent coordination as part of Machine Teaching group.
     i18n: experiences_a_desc
   date:
-    detail: NOV 2018 - PRESENT
+    detail: NOV 2018 - FEB 2019
     i18n: experiences_a_date
   job:
     detail: Max Planck Institute for Software Systems, Saarbrücken
