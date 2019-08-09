@@ -5,8 +5,8 @@
 
 # Website settings
 title: Rishav Chourasia
-description: Rishav's projects, blogs and innovations.
-keywords: Robotics, Reinforcement Learing, Biped Robotics, Simple Bots, IIT Guwahati Robotics Club
+description: Rishav's blog and personal webpage.
+keywords: Research, Reinforcement Learing, Linux Hacks
 
 url: http://rishav1.github.io
 img_path: /static/assets/img/blog  # url should be changed to '/homepage/static/assets/img/blog' as before
@@ -17,9 +17,9 @@ author:  # change following line to your infomation.
   name: Rishav Chourasia  # Be used at blog posts' author.
   first_name: Rishav  # Be used at index page about me section.
   last_name: Chourasia  # Be used at index page about me section.
-  short_desc: an Innovator
+  short_desc: a Machine Learning Researcher
   cv: /Rishav_CV.pdf  # A online CV can be printed as PDF, leave blank if you don't have now
-  email: r.chourasia@iitg.ac.in  # Leave blank if you don't have now
+  email: rishav1@comp.nus.edu.sg  # Leave blank if you don't have now
   facebook_username: rishav.chourasia  # Leave blank if you don't have now
   github_username: Rishav1  # Leave blank if you don't have now
   twitter_username: Rishav84ia
@@ -31,7 +31,9 @@ author:  # change following line to your infomation.
   skill_icon2:
     - name: fa-linux
     - name: icon-apache
-  desc: I am currently working as a research intern with Machine Teaching group at Max Planck Institute for Software Systems. I was a software developer at Amazon, India. I received my B.Tech in Computer Science and Engineering from Indian Institute of Technology, Guwahati. My research interests lies in knowledge sharing and coodination between Reinforcement Learning agents. I am also interested in application of AI in Robotics and in simplifying day to day life.
+  desc: "I am a first-year Ph.D. student at School of Computing, National University of Singapore under the supervision of Prof. Bryan Kian Hsiang Low.
+    As part of my Ph.D. research work, I am interested in studying benefits of knowledge sharing among group of learners (bandits, RL agents or basic 
+    function approximators) and finding ways to leverage it for speeding up learning. Non exhaustive range of topics I am interested in : <b>Social Choice Theory, Multi-agent Learning, Reinforcement Learning, Optimization algorithms</b>."
 
 # comment
 disqus:  # if you wanna comment feature, go to https://disqus.com/ to get your configuration; if not, comment following two lines.

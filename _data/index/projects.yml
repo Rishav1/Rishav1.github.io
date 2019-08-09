@@ -2,28 +2,40 @@
 # If you don't have language feature(language.yml is empty), ignore "i18n" items
 # Suggest projects' img be located at '/static/assets/img/landing', and edit following img items.
 
+- name: 'Extending Elichika: Support for continue, break, return and more'
+  i18n: chainer_comp
+  gh_user: pfnet-research
+  url: https://summerofcode.withgoogle.com/projects/#5827169626882048
+  repo: chainer-compiler
+  img: /static/assets/img/landing/chainer.png
+  desc: I am helping improve an experimental compiler for transforming Chainer ML models to Open Network Neural Exchange (ONNX) representation. My contributions so far include support for python dictionary datatype, python syntax like continue, break, with, return, etc. and support for python builtins such as len(), sum(), etc.
+
+- name: 'Optuna'
+  i18n: optuna
+  gh_user: pfnet
+  url: https://github.com/pfnet/optuna
+  repo: optuna
+  img: /static/assets/img/landing/optuna.png
+  desc: I am helping improve Optuna, a hyperparameter optimization framework. My contributions include suppoort for MXNet pruning callbacks and examples for PyTorch, Tensorflow, MXNet and Keras.
+
+# - name: RL Algorithm Implementations
+#   i18n: rl_alg_imp
+#   gh_user: Rishav1
+#   url: https://gitlab.com/Rishav1/baselines
+#   repo: baselines
+#   img: /static/assets/img/landing/pacman.gif
+#   desc: In my attempt to understand the practical difficulties of various RL algorithms, I implemented and tested a few of them like Double Q-learning Network (and it's variants like Double DQN, Recurrent DQN, Bootstrap DQN), Proximal Policy Optimization(PPO), Deep Deterministic Policy Gradient(DDPG), etc. on various environments like Atari 2600, OpenAI gym, MuJoCo and Gazebo physics engine.
+
 - name: Super Mario Bros AI
   i18n: sup_mar_ai
   gh_user: Rishav1
-  repo: https://github.com/Rishav1/Super-Mario-Bros-RL-AI
+  url: https://github.com/Rishav1/Super-Mario-Bros-RL-AI
+  repo: Super-Mario-Bros-RL-AI
   img: /static/assets/img/landing/mario.gif
   desc: Super Mario AI is an epsilon soft policy based Q-learning model that learns to plays the famous Super Nintendo Entertainment System game Super Mario Bros. I used a Lua scriptable SNES simulator to create the environment for RL models.
 
-- name: Biped Robot
-  i18n: bip_rob
-  img: /static/assets/img/landing/biped.gif
-  desc: We attempted to make a biped robot capable of dynamic walking without support. Using virtual simulations on MuJoCo, we trained a DDPG agent to make a virtual model of the biped bot walk. We attempted to transfer the learned model into the biped bot.
-
-
-- name: RL Algorithm Implementations
-  i18n: rl_alg_imp
-  gh_user: Rishav1
-  repo: https://github.com/Rishav1/baselines
-  img: /static/assets/img/landing/pacman.gif
-  desc: In my attempt to understand the practical difficulties of various RL algorithms, I implemented and tested a few of them like Double Q-learning Network (and it's variants like Double DQN, Recurrent DQN, Bootstrap DQN), Proximal Policy Optimization(PPO), Deep Deterministic Policy Gradient(DDPG), etc. on various environments like Atari 2600, OpenAI gym, MuJoCo and Gazebo physics engine.
-
-- name: Dynamic Resource allocation for Fire Incidents
-  i18n: dyn_res_all
-  img: /static/assets/img/landing/pommerman.gif
-  repo: https://gitlab.com/Rishav1/TagdaAgent/tree/simulation
-  desc: As part of my AI course, we modified a Multi-agent OpenAI environment called Pommerman to simulate grid world representation of San Diego region's fire incident occurances. We trained Deep RL models to simulate efficient response/patrol paths for optimizing average response time for these incidents.
+# - name: Dynamic Resource allocation for Fire Incidents
+#   i18n: dyn_res_all
+#   img: /static/assets/img/landing/pommerman.gif
+#   repo: https://gitlab.com/Rishav1/TagdaAgent/tree/simulation
+#   desc: As part of my AI course, we modified a Multi-agent OpenAI environment called Pommerman to simulate grid world representation of San Diego region's fire incident occurances. We trained Deep RL models to simulate efficient response/patrol paths for optimizing average response time for these incidents.

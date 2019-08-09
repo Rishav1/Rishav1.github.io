@@ -28,7 +28,7 @@ With all these benefits, Chainer is definitely an attractive ML framework, but T
   <img src="https://user-images.githubusercontent.com/26833433/56132991-b0094080-5f8b-11e9-89a1-62fb65b98d45.jpg" width="300" />
 </p>
 
-Both PyTorch and Tensoflow have IRs very similar to ONNX ([pytorch IR](https://github.com/pytorch/pytorch/wiki/PyTorch-IR) & [Tensorflow IR](https://www.tensorflow.org/guide/extend/model_files)) and therefore interconnection is pretty straightforward. As ONNX is becoming an industry standard, there is a need to onboard Chainer framework too, which is the goal of [Chainer Compiler](https://github.com/pfnet-research/chainer-compiler). Unlike other ML frameworks however, this compiler doesn't use the Intermediate IR (probably because the IR is dynamic and is defined only while execution of the model). Instead, it extracts the python abstract syntax tree (using [gast](https://pypi.org/project/gast/)) of the model's user defined functions (including `forward` and `__init__`) and translates it into ONNX computation graph by recursion over the AST nodes. While this seems like a super long and difficult process to design, it comes with benefits. For instance, operations on data types such as numpy and python list which, unlike Chainer `Variable', doesn't store the history of operations can also be backproped over. This is because while parsing the AST, we can generate appropriate nodes for them in the computation graph even though they are not part of Chainer's links and functions. Plus, the computation graph generated like this is not restricted to constructs that support backprop operations. Pre/post processing steps, optimizers, etc., which don't have an internal representation in Chainer can also be translated into ONNX by this approach.
+Tensoflow has IR very similar to ONNX [Tensorflow IR](https://www.tensorflow.org/guide/extend/model_files)) and therefore interconnection is pretty straightforward. PyTorch on the other hand uses a [just-in-time (JIT)](https://github.com/pytorch/pytorch/wiki/PyTorch-IR) compilation that converts the python code into it's own internal representation computation graph. As ONNX is becoming an industry standard, there is a need to onboard Chainer framework too, which is the goal of [Chainer Compiler](https://github.com/pfnet-research/chainer-compiler). Unlike other ML frameworks however, this compiler doesn't use the Intermediate IR (probably because the IR is dynamic and is defined only while execution of the model). Instead, it extracts the python abstract syntax tree (using [gast](https://pypi.org/project/gast/)) of the model's user defined functions (including `forward` and `__init__`) and translates it into ONNX computation graph by recursion over the AST nodes. While this seems like a super long and difficult process to design, it comes with benefits. For instance, operations on data types such as numpy and python list which, unlike Chainer `Variable', doesn't store the history of operations can also be backproped over. This is because while parsing the AST, we can generate appropriate nodes for them in the computation graph even though they are not part of Chainer's links and functions. Plus, the computation graph generated like this is not restricted to constructs that support backprop operations. Pre/post processing steps, optimizers, etc., which don't have an internal representation in Chainer can also be translated into ONNX by this approach.
 {: .text-justify}
 
 The approach followed by Elichika for ONNX translation is being explained in the flowchart below (not the official design). The compiler is passed a Chainer model of base type [chainer.Chain](https://docs.chainer.org/en/stable/reference/generated/chainer.Chain.html), which contains the user defined logic for model computation. After loading the mappings for different Chainer links and functions as well as numpy functions to computation nodes generators, the compiler starts the translation by extracting the AST from the passed model's constructor and user defined functions. Starting from the AST of the `forward` function, the recursive translation to an internal intermediate representation called `ONNXGraph` (not ONNX) is performed. This intermediate representation abstracts out the exact circuit of ONNX compute nodes required for a relatively higher level operation, such as looping or conditional statements.
@@ -66,7 +66,7 @@ In the computation graph however, we cannot have such copies as an operation on 
 >>> print(x)
 0
 ```
-Declarations with identical variable names in nested scopes are a bit tricky for creating a computation graph. In the above case, since we are overriding `x` inside the function `A` to `y + 1`, but right after the we exit the scope, the value of x is returned back to 0. In terms of generation of computation graph, this scenario calls for a versioning system for attribute `x`, so that we can have multiple stacked version of a variable based on the scope of operation. Whenever a compute node is generated, it looks up the attribute's current version for input (outside `A`, 'x''s version refers to the output of initializer node `0`, but inside `A`, it refers to the output of `Add` compute node).
+Declarations with identical variable names in nested scopes are a bit tricky for creating a computation graph. In the above case, since we are overriding `x` inside the function `A` to `y + 1`, but right after the we exit the scope, the value of x is returned back to 0. In terms of generation of computation graph, this scenario calls for a versioning system for attribute `x`, so that we can have multiple stacked version of a variable based on the scope of operation. Whenever a compute node is generated, it looks up the attribute's current version for input (outside `A`, `x`'s version refers to the output of initializer node `0`, but inside `A`, it refers to the output of `Add` compute node).
 {: .text-justify}
 
 ## **What is my project about?**
@@ -84,13 +84,74 @@ for i in range(x):
 
 # After preprocessing
 for i in range(x):
-    do_something1    
-        continued = False
+    continued_ = False
+    do_something1()
     if cond():
-        contiuned = True
-    if not continued:
+        continued_ = True
+    if not continued_:
         do_something2()
 ```
 
 In addition to enabling striping of jump statements from AST, the preprocessor can be utilized for simplifying the compiler's burden by standardizing some syntax and simplifying the AST. For example, the generated AST for `-1` looks like `gast.gast.UnaryOp(gast.USub, gast.gast.Num(1))`, which can be simplified to be `gast.gast.UnaryOp(gast.gast.Num(-1))` in the preprocessing step. Also, we can replace a single tuple assignment like `x, y, z = 1, 2, 3` to separate assignments or reformat double inequality like `1 < x < 2` as `1 < x and x < 2`. Implementing the first iteration of the preprocessor for the Chainer compiler is my GSoC project for the summer of 2019.
 {: .text-justify}
+
+### **Update**
+
+This task turned out to be not that difficult to handle and was surprisingly over within two weeks (PRs [#311](https://github.com/pfnet-research/chainer-compiler/pull/311), [#370](https://github.com/pfnet-research/chainer-compiler/pull/370), [#389](https://github.com/pfnet-research/chainer-compiler/pull/389)). It was handled using a recursive Canonicalizer that traversed the AST in a seperate precursor parse and modified it based on a stacked local information about previously encountered nodes (and applied modifications). Just to help understand how it happens, consider the above python example. The AST for the code looks the following.
+{: .text-justify}
+
+![example_ast](/static/assets/img/blog/Elichika/example_ast.png){:width="800px" style="display: block; margin: 0 auto" }
+<p align="center">Original AST</p>
+
+Our goal is to remove all `continue` nodes from the AST in a manner that the logic stays intact. A key point to understand about any `continue` keyword is that it only affects the immediate ancestor for loop's execution. This nice property enables the use of a stack for handling continue statements inside nested loops. For every level of nesting, the stack has an entry for remembering `continue` keywords encountered in the consequent loop body so far. All the statements in the `loop`'s body is encapsulated in an `if` block with condition that neither of the `continue` keywords in the topmost stack entry has been encountered. This basically achieves the translation we are looking for. A simplified code of this translation is the following:
+{: .text-justify}
+
+```Python
+import gast
+
+class Canonicalizer(gast.NodeTransformer):
+    def __init__(self):
+        super().__init__()
+        self.continued_flag = 'continued_'
+        self.for_continued_stack = []
+        self.flagid = -1
+
+    def getflag(self):
+        self.flagid += 1
+        return self.flagid
+
+    def stack_has_flags(self, stack):
+        return len(stack) > 0 and stack[-1]
+
+    def visit_For(self, node):
+        self.for_continued_stack.push(False)
+        modified_node = self.generic_visit(node)
+        continued_id = len(self.for_continued_stack)
+        continued_flag = self.for_continued_stack.pop()
+        if continued_flag:
+            node.body.insert(0, gast.Assign(targets=[gast.Name(id=self.continued_flag + str(continued_id), ctx=gast.Store(), annotation=None)], value=gast.NameConstant(value=False)))
+        return modified_node
+
+    def visit_stmt(self, node):
+        modified_node = self.generic_visit(node)
+        if self.stack_has_flags(self.for_continued_stack):
+            continued_id = len(self.for_continued_stack)
+            cond = gast.UnaryOp(op=gast.Not(), operand=gast.Name(id=self.continued_flag + str(continued_id), ctx=gast.Load(), annotation=None))
+            replacement = gast.If(test=cond, body=[modified_node], orelse=[])
+            return gast.copy_location(replacement, node)
+        return modified_node
+
+    def visit_Continue(self, node):
+        modified_node = self.generic_visit(node)
+        self.for_continued_stack[-1] = True
+        continued_id = len(self.for_continued_stack)
+        replacement = gast.Assign(targets=[gast.Name(id=self.continued_flag + str(continued_id), ctx=gast.Store(), annotation=None)], value=gast.NameConstant(value=True))
+        return gast.copy_location(replacement, node)
+```
+
+The above `NodeTransformer` when ran on the example AST results in the following AST which is the desideratum and reflects the logic for the expected preprocessed transformation in the above example snippet. Similar to this, we can handle `break` statements inside nested `loop` as well as multiple returns inside nested function definitions.  
+
+![transformed_ast](/static/assets/img/blog/Elichika/transformed_ast.png){:width="800px" style="display: block; margin: 0 auto"}
+<p align="center">Transformed AST</p>
+
+Since the start goal of the project was achieved quite early in the timeline, my tasks have been extended to add other interesting features in the compiler. For instance, support for python `Dict` datatype is an interesting and necessary feature that I implemented recently ([#436](https://github.com/pfnet-research/chainer-compiler/pull/436)). I also added support for compiling `LSTM` and `Resnet50` models ([#229](https://github.com/pfnet-research/chainer-compiler/pull/229), [#529](https://github.com/pfnet-research/chainer-compiler/pull/529)), which are fairly complex chainer model. Currently, I am working on compilation of an even complex model named `FastRCNNPFNResNet50` which requires some interesting SSA friendly compilation.
