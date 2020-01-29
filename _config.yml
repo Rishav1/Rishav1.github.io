@@ -17,7 +17,7 @@ author:  # change following line to your infomation.
   name: Rishav Chourasia  # Be used at blog posts' author.
   first_name: Rishav  # Be used at index page about me section.
   last_name: Chourasia  # Be used at index page about me section.
-  short_desc: a Machine Learning Researcher
+  short_desc: Machine Learning Researcher
   cv: /Rishav_CV.pdf  # A online CV can be printed as PDF, leave blank if you don't have now
   email: rishav1@comp.nus.edu.sg  # Leave blank if you don't have now
   facebook_username: rishav.chourasia  # Leave blank if you don't have now
@@ -31,9 +31,7 @@ author:  # change following line to your infomation.
   skill_icon2:
     - name: fa-linux
     - name: icon-apache
-  desc: "I am a first-year Ph.D. student at School of Computing, National University of Singapore under the supervision of Prof. Bryan Kian Hsiang Low.
-    As part of my Ph.D. research work, I am interested in studying benefits of knowledge sharing among group of learners (bandits, RL agents or basic 
-    function approximators) and finding ways to leverage it for speeding up learning. Non exhaustive range of topics I am interested in : <b>Social Choice Theory, Multi-agent Learning, Reinforcement Learning, Optimization algorithms</b>."
+  desc: 'I am a 1st-year Ph.D. student at NUS School of Computing and am very fortunate to be advised by <a href="https://www.comp.nus.edu.sg/~reza/">Dr. Reza Shokri</a> and <a href="https://www.comp.nus.edu.sg/~lowkh/research.html">Dr. Bryan Kian Hsiang Low</a>. I developed an interest in multi-agent learning during sophomore year of my undergraduate degree. Consequently, I try to understand problems and advantages of knowledge sharing among learners. In general, problems related to multi-agent learning such as divergence, adversarial attacks, exploration, etc., interest me.<br>Topics: <b>Differential Privacy, Multi-agent Learning, Reinforcement Learning</b>.'
 
 # comment
 disqus:  # if you wanna comment feature, go to https://disqus.com/ to get your configuration; if not, comment following two lines.

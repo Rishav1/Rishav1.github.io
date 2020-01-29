@@ -5,7 +5,7 @@
     detail: Ph.D. in Computer Science
     i18n: college
   desc:
-    detail: 'As part of <a href="https://www.comp.nus.edu.sg/~lowkh/research.html">MapleCG</a> lab, I am being advised by Prof. Bryan Kian Hsiang Low.'
+    detail: 'My Ph.D. research focuses on privacy preserving knowledge sharing among learners for mutual benefit such as improved generalization, faster learning speed, etc.'
     i18n: college_desc
   date:
     detail: Aug 2019 - Present
