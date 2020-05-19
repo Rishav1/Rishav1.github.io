@@ -101,7 +101,7 @@ Pr[M_{1:2}(D) \in S_1 \times S_2] &= \sum_{s_1 \in S_1} Pr[M_{1:2}(D) \in {s_1} 
 &\leq \sum_{s_1 \in S_1} Pr[M_1(D) \in \{s_1\}] \times (e^{\epsilon_2} Pr[M_2(D') \in S_2 \big\lvert s_1] + \delta_2) \\
 &= \sum_{s_1 \in S_1} e^{\epsilon_2} \times Pr[M_1(D) \in \{s_1\}] \times Pr[M_2(D') \in S_2 \big\lvert s_1] + \delta_2 \times \cancelto{1}{\sum_{s_1 \in S_1}Pr[M_1(D) \in \{s_1\}]} \\
 &\leq \delta_2 + e^{\epsilon_2} \sum_{s_1 \in S_1} \big( e^{\epsilon_1} Pr[M_1(D') \in \{s_1\}] + \mu(\{s_1\}) \big) \times Pr[M_2(D') \in S_2 \big\lvert s_1] \\
-&= \delta_2 + e^{\epsilon_1 + \epsilon_2} \sum_{s_1 \in S_1} \big(Pr[M_1(D') \in \{s_1\}] \times Pr[M_2(D') \in S_2 \big\lvert s_1]\big) +  \cancelto{\leq 1 }{e^{\epsilon_2} \times Pr[M_2(D') \in S_2 \big\lvert s_1]} \sum_{s_1 \in S_1} \mu(\{s_1\})  \tag{Because $e^{\epsilon_2} Pr[M_2(D') + \delta_2 \leq 1$}\\
+&= \delta_2 + e^{\epsilon_1 + \epsilon_2} \sum_{s_1 \in S_1} \big(Pr[M_1(D') \in \{s_1\}] \times Pr[M_2(D') \in S_2 \big\lvert s_1]\big) +  \cancelto{\leq 1 }{e^{\epsilon_2} \times Pr[M_2(D') \in S_2 \big\lvert s_1]} \sum_{s_1 \in S_1} \mu(\{s_1\}) \\
 &\leq \delta_2 + \mu(S_1) + e^{2\times\epsilon} \sum_{s_1 \in S_1} e^\epsilon Pr[M_{1:2}(D') \in \{s_1\} \times S_2] \\ 
 &\leq e^{\epsilon_1 + \epsilon_2} Pr[M_{1:2}(D') \in S_1 \times S_2] + \delta_1 + \delta_2 \\ 
 &\tag*{$\blacksquare$}
@@ -176,7 +176,8 @@ Notice that for $$o_{1:T} \sim M_{1:T}(D)$$, $$C_t \triangleq c(o_t; M_{1:T} \lv
 $$
 \begin{align}
 \underset{o \sim M_{1:T}(D)}{Pr} [c(o; M_{1:T}, D, D') \geq \epsilon'] &= Pr[\sum_{t=1}^T C_t \geq \epsilon'] \tag{Where $\epsilon'$ is given by (2)}\\
-&\leq T\delta + \delta' \tag{By Azuma's Inequality. Set $\alpha=\epsilon$, $\beta=\epsilon(e^\epsilon - 1)$ and $T\delta + \delta' = e^{-z^2/2}$} \\   
+&\leq T\delta + \delta' \tag{By Azuma's Inequality.} \\
+&\tag{Set $\alpha=\epsilon$, $\beta=\epsilon(e^\epsilon - 1)$ and $T\delta + \delta' = e^{-z^2/2}$} \\   
 &\tag*{$\blacksquare$}
 \end{align}
 $$
