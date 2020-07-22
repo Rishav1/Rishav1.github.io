@@ -31,7 +31,7 @@ author:  # change following line to your infomation.
   skill_icon2:
     - name: fa-linux
     - name: icon-apache
-  desc: 'I am a 1st-year Ph.D. student at NUS School of Computing and am very fortunate to be advised by <a href="https://www.comp.nus.edu.sg/~reza/">Dr. Reza Shokri</a> and <a href="https://www.comp.nus.edu.sg/~lowkh/research.html">Dr. Bryan Kian Hsiang Low</a>. I developed an interest in multi-agent learning during sophomore year of my undergraduate degree. Consequently, I try to understand problems and advantages of knowledge sharing among learners. In general, problems related to multi-agent learning such as divergence, adversarial attacks, exploration, etc., interest me.<br>Topics: <b>Differential Privacy, Multi-agent Learning, Reinforcement Learning</b>.'
+  desc: 'I am a 2nd-year Ph.D. student at NUS School of Computing and am very fortunate to be advised by <a href="https://www.comp.nus.edu.sg/~reza/">Dr. Reza Shokri</a>. I completed my B.Tech in Computer Science and Engineering from IIT Guwahati in May 2018. After that, I worked at Amazon India as a Software Development Engineer with Transaction Risk Management team.<br><br> During my undergrad, I developed an interest in Machine Learning algorithms and Reinforcement Learning. The unreliability and limited understanding of Deep Learning particularly interested me and consequently I tried to understand methods for analysing guarantees of RL/ML algorithms. Currently, I am working on improving the privacy guarantees of Machine Learning algorithms as well as developing attacks on ML models to extract private information.'
 
 # comment
 disqus:  # if you wanna comment feature, go to https://disqus.com/ to get your configuration; if not, comment following two lines.

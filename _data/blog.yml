@@ -2,8 +2,8 @@
 - name: Blog
   href: /blog/
 
-# - name: Robotics Club
-#   href: /roboticsclub/
+- name: Poems
+  href: /poems/
 
 - name: Linux Hacks
   href: /linux/
