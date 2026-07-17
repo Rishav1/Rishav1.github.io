@@ -1,0 +1,597 @@
+\documentclass[a4paper,11pt]{article}
+
+% Package imports
+\usepackage{latexsym}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{ragged2e}
+\usepackage[empty]{fullpage}
+\usepackage{wrapfig}
+\usepackage{lipsum}
+\usepackage{tabularx}
+\usepackage{titlesec}
+\usepackage{geometry}
+\usepackage{marvosym}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{cfr-lm}
+\usepackage[T1]{fontenc}
+\usepackage{fontawesome5}
+
+% Color definitions
+\definecolor{darkblue}{RGB}{0,0,139}
+
+% Page layout
+\setlength{\multicolsep}{0pt} 
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\geometry{left=1.4cm, top=0.8cm, right=1.2cm, bottom=1cm}
+\setlength{\footskip}{5pt} % Addressing fancyhdr warning
+
+% Hyperlink setup (moved after fancyhdr to address warning)
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=darkblue,
+    urlcolor=darkblue,
+}
+
+% Custom box settings
+\usepackage[most]{tcolorbox}
+\tcbset{
+    frame code={},
+    center title,
+    left=0pt,
+    right=0pt,
+    top=0pt,
+    bottom=0pt,
+    colback=gray!20,
+    colframe=white,
+    width=\dimexpr\textwidth\relax,
+    enlarge left by=-2mm,
+    boxsep=4pt,
+    arc=0pt,outer arc=0pt,
+}
+
+% URL style
+\urlstyle{same}
+
+% Text alignment
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Section formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-7pt}]
+
+% Custom commands
+\newcommand{\resumeItem}[2]{
+  \item{
+    \textbf{#1}{\hspace{0.5mm}#2 \vspace{-0.5mm}}
+  }
+}
+
+\newcommand{\resumePOR}[3]{
+\vspace{0.5mm}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+        \textbf{#1}\hspace{0.3mm}#2 & \textit{\small{#3}} 
+    \end{tabular*}
+    \vspace{-2mm}
+}
+
+\newcommand{\resumeSubheading}[4]{
+\vspace{0.5mm}\item
+    \begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
+        \textbf{#1} & \textit{\footnotesize{#4}} \\
+        \textit{\footnotesize{#3}} &  \footnotesize{#2}\\
+    \end{tabular*}
+    \vspace{-2.4mm}
+}
+
+\newcommand{\resumeProject}[4]{
+\vspace{0.5mm}\item
+    \begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
+        \textbf{#1} & \textit{\footnotesize{#3}} \\
+        \footnotesize{\textit{#2}} & \footnotesize{#4}
+    \end{tabular*}
+    \vspace{-2.4mm}
+}
+
+\newcommand{\resumeSubItem}[2]{\resumeItem{#1}{#2}\vspace{-4pt}}
+
+\renewcommand{\labelitemi}{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\renewcommand{\labelitemii}{$\vcenter{\hbox{\tiny$\circ$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=*,labelsep=1mm]}
+\newcommand{\resumeHeadingSkillStart}{\begin{itemize}[leftmargin=*,itemsep=1.7mm, rightmargin=2ex]}
+\newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=*,labelsep=1mm,itemsep=0.5mm]}
+
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}\vspace{2mm}}
+\newcommand{\resumeHeadingSkillEnd}{\end{itemize}\vspace{-2mm}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-2mm}}
+\newcommand{\cvsection}[1]{%
+\vspace{2mm}
+\begin{tcolorbox}
+    \textbf{\large #1}
+\end{tcolorbox}
+    \vspace{-4mm}
+}
+
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}%
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}%
+\newcolumntype{C}{>{\centering\arraybackslash}X}%
+
+% Commands for icon sizing and positioning
+\newcommand{\socialicon}[1]{\raisebox{-0.05em}{\resizebox{!}{1em}{#1}}}
+\newcommand{\ieeeicon}[1]{\raisebox{-0.3em}{\resizebox{!}{1.3em}{#1}}}
+
+% Font options
+\newcommand{\headerfonti}{\fontfamily{phv}\selectfont} % Helvetica-like (similar to Arial/Calibri)
+\newcommand{\headerfontii}{\fontfamily{ptm}\selectfont} % Times-like (similar to Times New Roman)
+\newcommand{\headerfontiii}{\fontfamily{ppl}\selectfont} % Palatino (elegant serif)
+\newcommand{\headerfontiv}{\fontfamily{pbk}\selectfont} % Bookman (readable serif)
+\newcommand{\headerfontv}{\fontfamily{pag}\selectfont} % Avant Garde-like (similar to Trebuchet MS)
+\newcommand{\headerfontvi}{\fontfamily{cmss}\selectfont} % Computer Modern Sans Serif
+\newcommand{\headerfontvii}{\fontfamily{qhv}\selectfont} % Quasi-Helvetica (another Arial/Calibri alternative)
+\newcommand{\headerfontviii}{\fontfamily{qpl}\selectfont} % Quasi-Palatino (another elegant serif option)
+\newcommand{\headerfontix}{\fontfamily{qtm}\selectfont} % Quasi-Times (another Times New Roman alternative)
+\newcommand{\headerfontx}{\fontfamily{bch}\selectfont} % Charter (clean serif font)
+
+\begin{document}
+\headerfontiii
+
+% Header
+\begin{center}
+    {\Huge\textbf{Rishav Chourasia}}
+\end{center}
+\vspace{-4mm}
+
+\begin{center}
+    \small{
+    \socialicon{\faPhone} +65-97168493 | 
+    \socialicon{\faEnvelope} \href{mailto:rishav@betterdata.ai}{rishav@betterdata.ai} | 
+    \socialicon{\faBlog} \href{https://rishav1.github.io/}{\url{rishav1.github.io}}} | 
+    \socialicon{\faGraduationCap} \href{https://scholar.google.com.sg/citations?user=UEAtkFYAAAAJ&hl=en}{Google Scholar}
+\end{center}
+\vspace{-4mm}
+
+% \begin{center}
+%     \small{
+%     \socialicon{\faLinkedin} \href{https://www.linkedin.com/in/rishav-chourasia/}{rishav-chourasia} | 
+%     %\socialicon{\faGithub} \href{https://github.com/Rishav1}{Rishav1} | 
+%     \socialicon{\faGraduationCap} \href{https://scholar.google.com.sg/citations?user=UEAtkFYAAAAJ&hl=en}{Google Scholar} 
+%     %| \socialicon{\faTwitter} \href{https://bsky.app/profile/rishav84ia.bsky.social}{rishav84ia.bsky.social}
+%     }
+% \end{center}
+% \vspace{-6mm}
+% \begin{center}
+%     \small{Database Lab 2 COM1, 13 Computing Drive, School of Computing, NUS, Singapore - 117417}
+% \end{center}
+
+\vspace{-4mm}
+
+\section{\textbf{Objective}}
+\vspace{1mm}
+\small{
+%Author of the bug report (OE11032488676518) that identifies critical flaws in Apple's `\textsf{DifferentialPrivacy.framework}'.
+Veteran AI/ML researcher with a Ph.D. and over 6 years of experience with privacy engineering. Expert in differential privacy, multiparty computation, and cryptography with published works in venues like FORC, TPDP, and NeurIPS. Presently, my research focuses on Privacy-Preserving ML, Machine Unlearning, and Differential Privacy Auditing. 
+
+%Dr. Rishav Chourasia is the Research Scientist at Betterdata, specializing in Privacy Auditing in Generative AI. He obtained his Ph.D. in Machine Learning from School of Computing at National University of Singapore, and his B.Tech degree in Computer Science from Indian Institute of Technology, Guwahati. His research has focused on Privacy-Preserving Machine Learning, Machine Unlearning, and Differential Privacy Auditing. His privacy research has been recognised as breakthrough and has won several academic awards during his study, with his research accepted at top AI/ML venues like NeurIPS, ICML, and AAAI. Previously, he has worked as a student research scientist at Google Brain and as a software developer at Amazon.
+%Results-driven Engineer with a Ph.D. and over 5 years of experience with ML theory, seeking to design, develop, and implement quantitative strategies. Experienced in modeling and analyzing discrete-time diffusion processes, with a specialized expertise in the learning dynamics of noisy stochastic gradient descent.
+% %Results-driven Engineer with a Ph.D. and over 5 years of experience with ML/AI, seeking to design, develop, and implement advanced ML models and algorithms. Particularly adept at building scalable ML pipelines and deploying solutions into production, with specialized expertise in privacy-preserving machine learning and Generative AI.
+}
+\vspace{-2mm}
+
+
+
+\section{\textbf{Experience}}
+\vspace{-0.4mm}
+  \resumeSubHeadingListStart
+  \resumeSubheading
+    {Betterdata.ai}{Singapore}
+    {Head of Product (Earlier: Research Scientist / Privacy Engineer)}{Dec 2025 - Present \& Aug 2023 - Nov 2025}
+    \resumeItemListStart
+      \item Lead development of the IRG1 platform; won IEEE S\&P Distinguished Paper Award for auditing Apple's proprietary DP framework running on billions of devices.
+      \item Authored 4 papers on differential privacy quantification and auditing, with accepts at IEEE S\&P, FMSD @ ICML, PPAI @ AAAI, FORC, and TPDP.
+      \item Coauthored grant proposal to secure \href{https://www.dhs.gov/science-and-technology/news/2024/10/08/st-awards-contracts-four-startups-develop-privacy-enhancing-synthetic-data-generation-capabilities}{US Department of Homeland Security’s S\&T Awards Contract}.
+      
+    \resumeItemListEnd
+  \resumeSubheading
+    {Google Brain}{Singapore}
+    {PhD Student Researcher with \href{https://athakurta.squarespace.com/}{Dr. Abhradeep Guha Thakurta} and \href{https://dvij.github.io/}{Dr. Krishnamurthy (Dj) Dvijotham}}{May 2022 - Aug 2022}
+    \resumeItemListStart
+      % \item Worked with \href{https://athakurta.squarespace.com/}{Dr. Abhradeep Guha Thakurta} and \href{https://dvij.github.io/}{Dr. Krishnamurthy (Dj) Dvijotham} on differentially private uncertainty estimation in machine learning.
+      \item Derived high-confidence bounds on predictions for differentially private uncertainty estimation in Lasso regression.
+      % \item Implemented experiments to compare the tightness of the uncertainty bounds.
+    \resumeItemListEnd
+  \resumeSubheading
+    {Google Summer of Code}{Remote}
+    {Student Developer with \href{https://www.preferred.jp/en/news/pr20181025/}{Preferred Networks}}{May 2019 - Aug 2019}
+    \resumeItemListStart
+      \item Contributed to a \href{https://github.com/pfnet-research/chainer-compiler?tab=readme-ov-file}{Python-to-ONNX JIT compiler} for \href{https://github.com/chainer/chainer}{Chainer ML framework}.
+      % \item Added \href{https://rishav1.github.io/blog/2019/gsoc19-project-introduction/}{core language features} to the compiler, such as support for lambda functions, looping, and return statement.
+      \item Contributions enabled \href{https://gist.github.com/Rishav1/eb2ddb5d7fee46d26ef9680181bdfbe9}{JIT compilation support for complex models} like LSTMs, AlexNet and ResNet50.
+      \item Esteemed \href{https://x.com/shinh}{Shinichiro Hamaji} described my contributions as \href{https://www.linkedin.com/posts/rishav-chourasia_gsoc-chainer-activity-6574657433958998016-oGXY?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAABpfDzoBX4CC0lwJ8krtUMnI9JwFNR9maf8}{``\emph{outstanding}''}.
+    \resumeItemListEnd
+  \resumeSubheading
+      {{Max-Planck Institute of Software Systems}}{Saarbrücken, Germany}
+      {Research Fellow with \href{https://machineteaching.mpi-sws.org/adishsingla.html}{Dr. Adish Singla}}{Nov 2018 - Feb 2019}
+      \resumeItemListStart
+        % \item Worked on multi-agent RL projects with \href{https://machineteaching.mpi-sws.org/adishsingla.html}{Dr. Adish Singla}.
+        \item Studied how voting rules affect exploration/exploitation in multi-agent Q-learning, resulting in a NeurIPS paper.
+        % \item Co-authored a NeurIPS workshop paper studying how different consensus protocols / voting rules affect exploration / exploitation behavior in an ensemble of Q-learning agents.
+  \resumeItemListEnd 
+  \resumeSubheading
+      {{Amazon Fraud Detection Team}}{Bangalore, India}
+      {Software Development Engineer \& Software Development Intern}{July 2018 - Nov 2018 \& May 2017 - July 2017}
+      \resumeItemListStart
+        \item Performance optimizations and bug fixes on the fraud detection ML platform (<800 ms latency with 99.9\% SLA).
+        \item Developed tooling to track changes in pipeline configurations and raise alerts.
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+\vspace{-6mm}
+
+\section{\textbf{Education}}
+\vspace{-0.4mm}
+\resumeSubHeadingListStart
+
+\resumeSubheading
+{National University of Singapore}{Singapore}
+{Ph.D. in Computer Science with advisor \href{https://www.comp.nus.edu.sg/~xiaoxk/}{Dr. Xiaokui Xiao}}{Aug 2019 - May 2025}
+\resumeItemListStart
+\item GPA: 4.83/5.00 - \href{https://rishav1.github.io/assets/pdf/Phd-thesis.pdf}{PhD Thesis}
+\resumeItemListEnd
+
+\resumeSubheading
+{Indian Institute of Technology Guwahati}{Guwahati, India}
+{B.Tech in Computer Science and Engineering}{July 2014 - June 2018}
+\resumeItemListStart
+\item GPA: 9.26/10.00
+\resumeItemListEnd
+
+\resumeSubHeadingListEnd
+\vspace{-6mm}
+
+\section{\textbf{Selected Projects}}
+\vspace{-0.4mm}
+\resumeSubHeadingListStart
+
+\resumeProject
+  {Privacy Auditing: Empirically Detecting Violations of Differential Privacy}
+  {Keywords: [Differential Privacy, Private Federated Learning, Reconstruction Attacks]}
+  {March 2023 - Aug 2025}
+  {{}[\href{https://rishav1.github.io/blog/2025/AuditingDP/}{\textcolor{darkblue}{\faBlog}}]}
+\resumeItemListStart
+  \item Reverse-engineered Apple's \href{https://github.com/userlandkernel/ios17-dyld-headers/blob/master/DifferentialPrivacy/DifferentialPrivacy.h}{\textsf{DifferentialPrivacy.framework}} to find DP bugs affecting 87\% of audited macOS Sonoma collection; IEEE S\&P Distinguished Paper Award.
+  
+  % Identified privacy bugs in Apple's differential privacy framework that runs across billions of devices, including iPhones, iPads, and Macs.
+
+  \item Pioneered a new operational interpretation of differential privacy, simplifying privacy analysis. This work received an oral acceptance at \href{https://responsiblecomputing.org/forc-2025/}{FORC}, \href{https://tpdp.journalprivacyconfidentiality.org/2025/}{TPDP} and \href{https://ppai-workshop.github.io/}{PPAI}, three of the most prestigious gatherings for privacy researchers.
+  
+  % Developed a new operational interpretation of differential privacy that makes privacy analysis easier. This work received an oral acceptance at three of the world's most prestigious gatherings of privacy theory researchers---\href{https://responsiblecomputing.org/forc-2025/}{FORC}, \href{https://tpdp.journalprivacyconfidentiality.org/2025/}{TPDP} and \href{https://ppai-workshop.github.io/}{PPAI}.  
+
+  % \item Developed a novel DP auditing technique using reconstruction attacks that overcomes a key theoretical limitation of membership inference attacks, leading to a top 15\% acceptance at an ICML workshop.
+  
+  % \item Identified major flaws in emerging notions of data deletion from ML models.
+  % \item Built a \href{https://dl.acm.org/doi/10.5555/3618408.3618648}{rigorous and sound notion} for quantifying data-deletion capacity of unlearning algorithms.
+  % \item Proved that \emph{unlearning via Noisy Gradient Descent} has optimal privacy-utility trade-offs with few training passes.
+  % \item Results published at \href{https://icml.cc/virtual/2023/poster/23753}{ICML 2023} and at \href{https://responsiblecomputing.org/forc-2023/forc-2023-accepted-papers/}{FORC 2023} (20-minute oral presentation).
+\resumeItemListEnd
+
+\resumeProject
+  {Machine Unlearning: How to Guarantee Deletion in ML}
+  {Keywords: [Noisy Gradient Descent, Trustworthy Deletion]}
+  {March 2022 - Feb 2023}
+  {{}[\href{https://rishav1.github.io/blog/2023/ForgetUnlearning/}{\textcolor{darkblue}{\faBlog}}]}
+\resumeItemListStart
+  % \item Identified major flaws in emerging notions of data deletion from ML models.
+  \item Built a \href{https://dl.acm.org/doi/10.5555/3618408.3618648}{rigorous and sound notion} for quantifying data-deletion capacity of unlearning algorithms.
+  \item Proved that \emph{unlearning via Noisy Gradient Descent} has optimal privacy-utility trade-offs with few training passes.
+  \item Results published at \href{https://icml.cc/virtual/2023/poster/23753}{ICML 2023} and at \href{https://responsiblecomputing.org/forc-2023/forc-2023-accepted-papers/}{FORC 2023} (20-minute oral presentation).
+\resumeItemListEnd
+
+\resumeProject
+  {Privacy-Preserving ML: Maximizing Utility with Minimal Compute}
+  {Keywords: [Differential Privacy, Noisy Gradient Descent]}
+  {March 2020 - Feb 2022}
+  {{}[\href{https://rishav1.github.io/blog/2021/DPDynamics/}{\textcolor{darkblue}{\faBlog}}]}
+\resumeItemListStart
+  \item Proved \href{https://rishav1.github.io/blog/2021/DPDynamics/}{$O(1)$ privacy bound for Noisy Gradient Descent}, a result that is regarded as a \href{https://ar5iv.labs.arxiv.org/html/2205.13710#:~:text=culminate%20in%20the,%5D}{``breakthrough''}.
+  \item Collaborated with NEC researchers to develop the \href{https://www.semanticscholar.org/paper/Knowledge-Cross-Distillation-for-Membership-Privacy-Chourasia-Enkhtaivan/6eb50dbb59ebb64df3ad425d6d959ea08595ad6b}{cross-distillation technique} to enhance privacy.
+  \item Research works published in \href{https://proceedings.neurips.cc/paper/2021/hash/7c6c1a7bfde175bed616b39247ccace1-Abstract.html}{NeurIPS 2021} (spotlight) and \href{https://petsymposium.org/2022/paperlist.php#:~:text=Knowledge%20Cross%2DDistillation%20for%20Membership%20Privacy}{PETS 2021}.
+\resumeItemListEnd
+
+\resumeProject
+  {Chainer Compiler: An experimental Python-to-ONNX converter}
+  {Tools: [\href{https://onnx.ai/}{ONNX}, \href{https://github.com/chainer/chainer}{Chainer ML}]}
+  {May 2019 - Aug 2019}
+  {{}[\href{https://github.com/pfnet-research/chainer-compiler/}{\textcolor{darkblue}{\faGithub}}, \href{https://rishav1.github.io/blog/2019/gsoc19-project-introduction/}{\textcolor{darkblue}{\faBlog}}]}
+\resumeItemListStart
+  \item Developed \href{https://rishav1.github.io/blog/2019/gsoc19-project-introduction/}{Elichika}, a compiler to convert Python source of a \href{https://docs.chainer.org/en/stable/reference/generated/chainer.Chain.html}{chainer.Chain} object into ONNX computation graph.
+  \item Added \href{https://rishav1.github.io/blog/2019/gsoc19-project-introduction/}{core language features} to the compiler, such as support for lambda functions, looping, and return.
+  \item Contributions were featured in \href{https://numfocus.org/blog/meet-our-2019-gsoc-students-part-2#:~:text=Rishav%20Chourasia-,Rishav%20Chourasia,-is%20an%20Artificial}{NumFOCUS blog}.
+\resumeItemListEnd
+
+\resumeSubHeadingListEnd
+
+\section{\textbf{Publications} \hfill \textcolor{darkblue}{\scriptsize Authorship order by contribution.} \textcolor{darkblue}{\scriptsize C=Conference, W=Workshop, T=Thesis}}
+\vspace{0.2mm}
+
+\small{
+\begin{enumerate}[leftmargin=*, labelsep=0.5em, align=left, widest={[\textbf{C.1}]}, itemindent=0em, label={\textbf{[\arabic*]}]}]
+
+\item[\textbf{[C.1]}] Rishav Chourasia, Ergute Bao, Uzair Javaid, and Xiaokui Xiao. (2026). \href{https://doi.ieeecomputersociety.org/10.1109/SP63933.2026.00225}{\textbf{Auditing Apple's DifferentialPrivacy.framework: Implementation Bugs, Misconfigurations, and Practical Risks}}. In \textit{IEEE S\&P 2026}, pp. 1815--1834. Distinguished Paper Award.
+
+\item[\textbf{[C.2]}] Rishav Chourasia, et al. (2025). \href{https://responsiblecomputing.org/forc-2025-accepted-papers/#:~:text=Laplace%20Transform%20Interpretation%20of%20Differential%20Privacy}{\textbf{Laplace Transform Interpretation of Differential Privacy}}. In \textit{6th Symposium on Foundations of Responsible Computing (FORC 2025)} (pp 11:1--11:22).
+
+\item[\textbf{[C.3]}] Rishav Chourasia and Neil Shah. (2023). \href{https://proceedings.mlr.press/v202/chourasia23a}{\textbf{Forget Unlearning: Towards True Data-Deletion in Machine Learning}}. In \textit{International Conference on Machine Learning (ICML 2023)} (pp. 6028-6073). PMLR.
+
+\item[\textbf{[C.4]}] Rishav Chourasia, et al. (2021). \href{https://proceedings.neurips.cc/paper/2021/hash/7c6c1a7bfde175bed616b39247ccace1-Abstract.html}{\textbf{Differential Privacy Dynamics of Langevin Diffusion and Noisy Gradient Descent}}. In \textit{Advances in Neural Information Processing Systems 34 (NeurIPS 2021)}, pp. 14771-14781.
+
+\item[\textbf{[C.5]}] Rishav Chourasia, et al. (2021). \href{https://petsymposium.org/2022/paperlist.php#:~:text=Knowledge%20Cross%2DDistillation%20for%20Membership%20Privacy}{\textbf{Knowledge Cross-Distillation for Membership Privacy}}. In \textit{Proceedings on Privacy Enhancing Technologies (PETS 2021)}, pp 362-377.
+
+\item[\textbf{[C.6]}] Rishav Chourasia, et al. (2017). \href{https://ieeexplore.ieee.org/abstract/document/8023274/}{\textbf{Visualization of Two-Dimensional Interval Type-2 Fuzzy Membership Functions using General Type-2 Fuzzy Membership Functions}}. In \textit{17th World Congress of International Fuzzy Systems Association (IFSA-SCIS 2017)}, pp. 1-5.
+
+\item[\textbf{[C.7]}] V Saxena, N Yadala, Rishav Chourasia, et al. (2017). \href{https://ieeexplore.ieee.org/abstract/document/8015724}{\textbf{Type Reduction Techniques for Two-Dimensional Interval Type-2 Fuzzy Sets}}. In \textit{International Conference on Fuzzy Systems (FUZZ-IEEE 2017)}, pp. 1-6.
+\end{enumerate}
+}
+
+\small{
+\begin{enumerate}[leftmargin=*, labelsep=0.5em, align=left, widest={[\textbf{W.1}]}, itemindent=0em, label={\textbf{[\arabic*]}]}]
+
+\item[\textbf{[W.1]}] Rishav Chourasia and Adish Singla (2019). \href{https://sites.google.com/view/neurips2019lire/accepted-papers#:~:text=Unifying%20Ensemble%20Methods%20for%20Q%2Dlearning%20via%20Social%20Choice%20Theory}{\textbf{Unifying Ensemble Methods for Q-learning via Social Choice Theory}}. In \textit{Learning with Rich Experience workshop (LIRE 2019)} at NeurIPS 2019. 
+
+\item[\textbf{[W.2]}] Rishav Chourasia, et al. (2025). \href{https://openreview.net/forum?id=H29DxWgRbb}{\textbf{One-Run Privacy Auditing for Structured Generative and Foundation Models}}. In the $1^\mathrm{st}$ ICML Workshop on Foundation Models for Structured Data, Vancouver, Canada. 2025.
+
+\end{enumerate}
+}
+
+\small{
+\begin{enumerate}[leftmargin=*, labelsep=0.5em, align=left, widest={[\textbf{T.1}]}, itemindent=0em, label={\textbf{[\arabic*]}]}]
+
+\item[\textbf{[T.1]}] Rishav Chourasia. (2025). \href{https://rishav1.github.io/assets/pdf/Phd-thesis.pdf}{\textbf{Learning and Unlearning via Noisy Gradient Descent}}. Doctoral Dissertation, \textit{National University of Singapore}.
+
+\item[\textbf{[T.2]}] Rishav Chourasia. (2018). \href{https://rishav1.github.io/assets/pdf/BTP-thesis.pdf}{\textbf{Optimal Swarm RL: An Improved Deep-Exploration Strategy}}. Bachelor Dissertation, \textit{Indian Institute of Technology Guwahati}.
+
+\end{enumerate}
+}
+
+% \section{\textbf{Publications} \hfill \textcolor{darkblue}{\scriptsize C=Conference, T=Thesis}}
+% \vspace{0.2mm}
+% \small{
+% \begin{enumerate}[leftmargin=*, labelsep=0.5em, align=left, widest={[\textbf{S.1}]}, itemindent=0em, label={\textbf{[\arabic*]}]}]
+% \item[\textbf{[C.1]}] Your Name, et al. (Year). \href{https://doi.org/XX.XXXX/XXXXXXX.XXXX.XXXXXXX}{\textbf{Title of Conference Paper}}. In \textit{Name of Conference Proceedings}, pp. XX-XX. Publisher. Date, Location. DOI: XX.XXXX/XXXXXXX.XXXX.XXXXXXX
+
+% \item[\textbf{[S.1]}] Your Name, et al. (Year). \textbf{Title of Submitted Paper}. Manuscript submitted for publication in \textit{Journal Name}.
+
+
+% \item[\textbf{[J.1]}] Author 1, Your Name, Author 3, et al. (Year). \href{https://doi.org/XX.XXXX/XXXXX.XXXX.XXXXXXX}{\textbf{Title of Journal Article}}. \textit{Journal Name}, Vol. XX, Issue X, pp. XXX-XXX. DOI: XX.XXXX/XXXXX.XXXX.XXXXXXX
+% \end{enumerate}
+% }
+
+\section{\textbf{Skills}}
+\vspace{-0.4mm}
+ \resumeHeadingSkillStart
+  \resumeSubItem{Programming Languages:}
+    {Python, C, C++, Objective C, Java}
+  \resumeSubItem{Machine Learning Frameworks:}
+    {JAX, PyTorch, Keras, ONNX, Fastai, Scikit-learn, XGBoost, Chainer}
+  \resumeSubItem{Cloud Technologies:}
+    {AWS, GCP, Docker, CI/CD}
+  \resumeSubItem{Mathematical \& Statistical Tools:}
+    {Mathematica, MATLAB, SymPy, NumPy, Jupyter, Pandas, Polars}
+  \resumeSubItem{Database Systems:}
+    {MySQL,PostgreSQL,SQLite,MongoDB}
+  % \resumeSubItem{Data Science \& Machine Learning:}
+  %   {Tool 1, Tool 2, Tool 3, Tool 4, Tool 5, Tool 6}
+  \resumeSubItem{DevOps \& Version Control:}
+    {Git, CircleCI, Github Actions, Jenkins}
+  \resumeSubItem{Specialized Area:}
+    {Performance Optimization, ML Theory, Trustworthy AI Fundamentals}
+  \resumeSubItem{Other Tools \& Technologies:}
+    {Weights \& Biases, Comet ML, FastAPI, Flask}
+  \resumeSubItem{Research Skills:}{Problem Formulation, Critical Thinking, Data Collection, Grant Writing, Presentation}
+ \resumeHeadingSkillEnd
+
+\section{\textbf{Honors and Awards}}
+\vspace{-0.4mm}
+\resumeSubHeadingListStart
+
+\resumeProject
+  {SoC Research Incentive Award}
+  {National University of Singapore}
+  {Oct 2023}
+  {{}[\href{https://drive.google.com/file/d/1mx0c-APPoKve0heInM1_cqCYTXoGGZNO/view?usp=sharing}{\textcolor{darkblue}{\faIcon{link}}}]}
+\resumeItemListStart
+  \item Presented to students who have demonstrated good academic standing and research progress.
+\resumeItemListEnd
+
+\resumeProject
+  {Research Achievement Award}
+  {National University of Singapore}
+  {June 2022}
+  {{}[\href{https://www.comp.nus.edu.sg/programmes/pg/awards/deans-research}{\textcolor{darkblue}{\faIcon{link}}}]}
+\resumeItemListStart
+  \item Presented to PhD students who have achieved outstanding research performance over the past academic year.
+\resumeItemListEnd
+
+\resumeProject
+  {1st Prize, CS6101 Deep Unsupervised Learning course}
+  {15th SoC Term Project Showcase, School of Computing}
+  {Dec 2019}
+  {}
+\resumeProject
+  {PhD Research Scholarship}
+  {National University of Singapore}
+  {May 2019}
+  {}
+\resumeItemListStart
+  \item Awarded to promising PhD candidates accepted at NUS; 100\% tuition fee-waiver and stipend for four years.
+\resumeItemListEnd
+
+\resumeProject
+  {Research Fellowship}
+  {Max Planck Institute for Software Systems}
+  {Sept 2018}
+  {{}[\href{https://drive.google.com/file/d/180UdsCDy0j7lsmDJ-KECoG1ATPcJI-s2/view?usp=sharing}{\textcolor{darkblue}{\faIcon{link}}}]}
+\resumeItemListStart
+  \item Invited as a visiting scholar to work on a research project in the area of machine teaching.
+\resumeItemListEnd
+
+\resumeProject
+  {Department Topper}
+  {Indian Institute of Technology, Guwahati}
+  {July 2015}
+  {}
+\resumeItemListStart
+  \item Achieved highest GPA among freshman students in my department and was among top 8/440 students that year.
+\resumeItemListEnd
+
+\resumeProject
+  {High School Matriculation Topper}
+  {DeNobili C.M.R.I, Dhanbad}
+  {March 2012}
+  {}
+\resumeItemListStart
+  \item Achieved the highest percentage (96.4\%) in ICSE matriculation among over 500 students.
+\resumeItemListEnd
+
+\resumeSubHeadingListEnd
+
+% \vspace{-6mm}
+% \section{\textbf{Leadership Experience}}
+% \vspace{-0.4mm}
+% \resumeSubHeadingListStart
+% \resumeProject
+%   {Leadership Role A}
+%   {Organization/Institution Name}
+%   {Month Year - Month Year}
+%   {{}[\href{https://organization-a-link.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Key responsibility or achievement in this role
+%   \item Quantifiable impact or improvement made during tenure
+%   \item Initiative taken or project led
+% \resumeItemListEnd
+
+% \resumeProject
+%   {Leadership Role B}
+%   {Organization/Institution Name}
+%   {Month Year - Month Year}
+%   {{}[\href{https://organization-b-link.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Key responsibility or achievement in this role
+%   \item Quantifiable impact or improvement made during tenure
+%   \item Initiative taken or project led
+% \resumeItemListEnd
+
+% \resumeSubHeadingListEnd
+
+% \vspace{-6mm}
+
+% \section{\textbf{Volunteer Experience}}
+% \vspace{-0.4mm}
+% \resumeSubHeadingListStart
+% \resumeProject
+%   {Volunteer Role A}
+%   {Organization Name}
+%   {Month Year - Month Year}
+%   {{}[\href{https://volunteer-org-a-link.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Key responsibility or contribution in this role
+%   \item Impact of your volunteer work
+%   \item Skills developed or applied during this experience
+% \resumeItemListEnd
+
+% \resumeProject
+%   {Volunteer Role B}
+%   {Organization Name}
+%   {Month Year - Present}
+%   {{}[\href{https://volunteer-org-b-link.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Key responsibility or contribution in this role
+%   \item Impact of your volunteer work
+%   \item Skills developed or applied during this experience
+% \resumeItemListEnd
+
+% \resumeSubHeadingListEnd
+% \vspace{-6mm}
+
+% \section{\textbf{Professional Memberships}}
+% \vspace{-0.4mm}
+% \resumeSubHeadingListStart
+% \resumePOR{Professional Organization A}
+%     {, Membership ID: XXXXXXXX}
+%     {Month Year - Present}
+% \resumePOR{Professional Organization B}
+%     {, \href{https://membership-certificate-link.com}{Membership ID: XXXXXXXX}}
+%     {Month Year - Present}
+% \resumePOR{Professional Organization C}
+%     {, \href{https://membership-certificate-link.com}{Membership ID: XXXXXXXX}}
+%     {Month Year - Present}
+
+% \resumeSubHeadingListEnd
+% \vspace{-6mm}
+
+% \section{\textbf{Certifications}}
+% \vspace{-0.2mm}
+% \resumeSubHeadingListStart
+% \resumePOR{}{\href{https://certification-link-a.com}{
+% \textbf{Certification A}
+% }}{Month Year}
+% \resumePOR{}{
+% \textbf{Certifying Body:} {{\href{https://certification-link-b.com}{Certification B}}}}{Month Year}
+% \resumePOR{}{
+% \textbf{Certifying Body:} {{\href{https://certification-link-c.com}{Certification C}}}}{Month Year}
+% \resumePOR{}{\href{https://certification-link-d.com}{
+% \textbf{Certification D}
+% }}{Month Year}
+
+% \resumeSubHeadingListEnd
+% \vspace{-6mm}
+
+% \section{\textbf{Additional Information}}
+% \vspace{-0.4mm}
+% \small{
+% \textbf{Languages:} Language A (Proficiency level), Language B (Proficiency level), Language C (Proficiency level)
+
+% \textbf{Interests:} Interest 1, Interest 2, Interest 3, Interest 4
+% }
+% \vspace{-4mm}
+
+% \vspace{-6mm}
+% \section{\textbf{References}}
+% \vspace{-0.2mm}
+% \small{
+% \begin{enumerate}[leftmargin=*,labelsep=2mm]
+% \item \textbf{Reference Person 1}\\
+%    Job Title, Department\\
+%    Organization/Institution Name\\
+%    Email: email1@example.com\\
+%    Phone: +X-XXX-XXX-XXXX\\
+%    \textit{Relationship: [e.g., Thesis Advisor, Manager, etc.]}
+
+% \item \textbf{Reference Person 2}\\
+%    Job Title, Department\\
+%    Organization/Institution Name\\
+%    Email: email2@example.com\\
+%    Phone: +X-XXX-XXX-XXXX\\
+%    \textit{Relationship: [e.g., Project Supervisor, Colleague, etc.]}
+
+% \item \textbf{Reference Person 3}\\
+%    Job Title, Department\\
+%    Organization/Institution Name\\
+%    Email: email3@example.com\\
+%    Phone: +X-XXX-XXX-XXXX\\
+%    \textit{Relationship: [e.g., Mentor, Collaborator, etc.]}
+% \end{enumerate}
+% }
+
+\end{document}

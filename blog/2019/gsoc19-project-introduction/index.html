@@ -1,0 +1,452 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> GSoC 2019 Project: Extending Chainer compiler to support python jump syntax | Rishav Chourasia </title> <meta name="author" content="Rishav Chourasia"> <meta name="description" content="GSoC 2019 Project: Extending Chainer compiler to support python jump syntax"> <meta name="keywords" content="Chainer, Abstract Syntax Tree, Compiler, Open Neural Network Exchange"> <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;"> <style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style> <link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="/assets/img/favicon.png?v=5a6655cbde81d8d5849dbbed8761ec35"> <link rel="stylesheet" href="/assets/css/main.css?v=f0b101217084a90093badfe99ff9a7d1"> <link rel="canonical" href="https://rishav1.github.io/blog/2019/gsoc19-project-introduction/"> <script src="/assets/js/theme.js?v=7af685e2ba20b37fef545c97b8064050"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> <link rel="stylesheet" href="/assets/css/custom.css?v=6c4714f6ff69b3745e6236aee8c8114f"> </head> <body class="fixed-top-nav sticky-bottom-footer"> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/"> <span class="font-weight-bold">Rishav</span> Chourasia </a> <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav"> <ul class="navbar-nav navbar-menu-list flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/">about </a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog/">blog </a> </li> <li class="nav-item "> <a class="nav-link" href="/publications/">publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/projects/">projects </a> </li> <li class="nav-item "> <a class="nav-link" href="/cv/">cv </a> </li> <li class="nav-item "> <a class="nav-link" href="/teaching/">teaching </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="post"> <header class="post-header"> <h1 class="post-title">GSoC 2019 Project: Extending Chainer compiler to support python jump syntax</h1> <p class="post-meta"> Created on May 25, 2019 </p> <p class="post-tags"> <a href="/blog/2019"> <i class="fa-solid fa-calendar fa-sm"></i> 2019 </a>   ·   <a href="/blog/tag/chainer"> <i class="fa-solid fa-hashtag fa-sm"></i> Chainer</a>   <a href="/blog/tag/ast"> <i class="fa-solid fa-hashtag fa-sm"></i> AST</a>   <a href="/blog/tag/onnx"> <i class="fa-solid fa-hashtag fa-sm"></i> ONNX</a>   <a href="/blog/tag/compiler"> <i class="fa-solid fa-hashtag fa-sm"></i> Compiler</a>   <a href="/blog/tag/ir"> <i class="fa-solid fa-hashtag fa-sm"></i> IR</a>   ·   <a href="/blog/category/research"> <i class="fa-solid fa-tag fa-sm"></i> Research</a> </p> </header> <article class="post-content"> <div id="markdown-content"> <p><img src="/assets/img/blog/Elichika/chainer_logo.png" alt="Chainer_logo" width="600px" style="display: block; margin: 0 auto"></p> <p class="text-justify"><a href="https://github.com/chainer/chainer" rel="external nofollow noopener" target="_blank">Chainer</a> is a popular and relatively nascent ML framework that uses a <code class="language-plaintext highlighter-rouge">define-by-run</code> architecture. Unlike Tensorflow, the intermediate computation graph representation in Chainer is not defined before computation begins but is dynamically generated, thus allowing considerably more flexibility. The API for Chainer offers a better abstraction over the IR generation by enabling python syntax such as <code class="language-plaintext highlighter-rouge">if-else</code> and <code class="language-plaintext highlighter-rouge">for</code> in generation as opposed to Tensorflow which requires constructs like <code class="language-plaintext highlighter-rouge">tf.cond</code> and <code class="language-plaintext highlighter-rouge">tf.while_loop</code> for control flow and iteration. There are some subtle but useful advantages of using Chainer framework which makes rapid prototyping and testing really simple. For instance, since the computation graph is defined while execution, the variables involved store the history of computation that resulted in their values (which is used during backprop). This allows debugging a model really simple as you can directly probe the gradients being computed.</p> <p class="text-justify">With all these benefits, Chainer is definitely an attractive ML framework, but Tensoflow’s <code class="language-plaintext highlighter-rouge">define-and-run</code> emerges as the champion when it comes to deep learning research and industry. In the research field, the primary reason in favor of Tensoflow is that the direct control of computation graph definition enables unforeseen use cases, like engineering a non trivial neural-net architecture (say GAN) for the fist time. In industry also, where the models run in production, changes in the computation graph can be monitored reliably and easily in Tensorflow thanks to it’s really handy Tensorboard. Also, a static and shippable computation graph IR is desireable in any ML framework due to growing use of AI in mobile apps and browser extensions.</p> <p><img src="/assets/img/blog/Elichika/onnx_logo.png" alt="ONNX_logo" width="600px" style="display: block; margin: 0 auto"></p> <p class="text-justify"><a href="https://onnx.ai/" rel="external nofollow noopener" target="_blank">Open Network Neural Exchange</a> is an impressive effort to standardize the intermediate representation for several ML frameworks, bridging the gap between them by allowing interchangeability, e.g. <a href="https://github.com/onnx/tensorflow-onnx" rel="external nofollow noopener" target="_blank">tensorflow-onnx</a>, <a href="https://pytorch.org/docs/stable/onnx.html" rel="external nofollow noopener" target="_blank">torch.onnx</a>, etc. A direct consequence of this effort has resulted in development of interesting applications such as <a href="https://github.com/microsoft/onnxjs" rel="external nofollow noopener" target="_blank">ONNX.js</a> (a Javascript library for running ONNX models on browsers and on Node.js), <a href="https://github.com/microsoft/onnxruntime" rel="external nofollow noopener" target="_blank">onnxruntime</a> (a cross-platform scoring engine for onnx models) and <a href="https://github.com/microsoft/onnxruntime" rel="external nofollow noopener" target="_blank">YOLOv3</a> (an iOS app that uses onnx for shipping pre-trained image recognition models).</p> <p align="center"> <img src="https://user-images.githubusercontent.com/26833433/56132957-9d8f0700-5f8b-11e9-9067-0d91364c57c0.jpg" width="300"> <img src="https://user-images.githubusercontent.com/26833433/56132991-b0094080-5f8b-11e9-89a1-62fb65b98d45.jpg" width="300"> </p> <p class="text-justify">Tensoflow has IR very similar to ONNX <a href="https://www.tensorflow.org/guide/extend/model_files" rel="external nofollow noopener" target="_blank">Tensorflow IR</a>) and therefore interconnection is pretty straightforward. PyTorch on the other hand uses a <a href="https://github.com/pytorch/pytorch/wiki/PyTorch-IR" rel="external nofollow noopener" target="_blank">just-in-time (JIT)</a> compilation that converts the python code into it’s own internal representation computation graph. As ONNX is becoming an industry standard, there is a need to onboard Chainer framework too, which is the goal of <a href="https://github.com/pfnet-research/chainer-compiler" rel="external nofollow noopener" target="_blank">Chainer Compiler</a>. Unlike other ML frameworks however, this compiler doesn’t use the Intermediate IR (probably because the IR is dynamic and is defined only while execution of the model). Instead, it extracts the python abstract syntax tree (using <a href="https://pypi.org/project/gast/" rel="external nofollow noopener" target="_blank">gast</a>) of the model’s user defined functions (including <code class="language-plaintext highlighter-rouge">forward</code> and <code class="language-plaintext highlighter-rouge">__init__</code>) and translates it into ONNX computation graph by recursion over the AST nodes. While this seems like a super long and difficult process to design, it comes with benefits. For instance, operations on data types such as numpy and python list which, unlike Chainer `Variable’, doesn’t store the history of operations can also be backproped over. This is because while parsing the AST, we can generate appropriate nodes for them in the computation graph even though they are not part of Chainer’s links and functions. Plus, the computation graph generated like this is not restricted to constructs that support backprop operations. Pre/post processing steps, optimizers, etc., which don’t have an internal representation in Chainer can also be translated into ONNX by this approach.</p> <p class="text-justify">The approach followed by Elichika for ONNX translation is being explained in the flowchart below (not the official design). The compiler is passed a Chainer model of base type <a href="https://docs.chainer.org/en/stable/reference/generated/chainer.Chain.html" rel="external nofollow noopener" target="_blank">chainer.Chain</a>, which contains the user defined logic for model computation. After loading the mappings for different Chainer links and functions as well as numpy functions to computation nodes generators, the compiler starts the translation by extracting the AST from the passed model’s constructor and user defined functions. Starting from the AST of the <code class="language-plaintext highlighter-rouge">forward</code> function, the recursive translation to an internal intermediate representation called <code class="language-plaintext highlighter-rouge">ONNXGraph</code> (not ONNX) is performed. This intermediate representation abstracts out the exact circuit of ONNX compute nodes required for a relatively higher level operation, such as looping or conditional statements.</p> <p><img src="/assets/img/blog/Elichika/elichika_flow.png" alt="ch2o_design" width="800px" style="display: block; margin: 0 auto"></p> <h2 id="how-does-the-translation-happen"><strong>How does the translation happen?</strong></h2> <p class="text-justify">The basic idea is that we do a <a href="https://www.geeksforgeeks.org/tree-traversals-inorder-preorder-and-postorder/" rel="external nofollow noopener" target="_blank">postorder tree traversal</a> of the extracted abstract syntax tree. While processing any intermediate units of the AST, one or more computation graph nodes are generated which links to the outputs of previously generated nodes. The type of nodes generated depends on the type of AST unit being processed. This recursive translation is very interesting and also quite complex. The design of the compiler gracefully tackles the requirements of this translation. Some of the most interesting features of the compiler design is discussed below.</p> <p><strong>1. Dereferencing attributes:</strong> In python, object variables are assigned by reference. Multiple alias to the same object can exist simultaneously like shown in the following example.</p> <pre><code class="language-Python">&gt;&gt;&gt; a = list()
+&gt;&gt;&gt; b = a
+&gt;&gt;&gt; b.append(1)
+&gt;&gt;&gt; print(a)
+[1]
+</code></pre> <p class="text-justify">In the computation graph however, we cannot have such copies as an operation on either of them won’t be reflected in the other. Therefore, the translation logic must have a mechanism to dereference such copies into a singular instance on which all the operations would be performed.</p> <p><strong>2. Versioning attributes:</strong> Scopes in python allow for existence of variables with the same name but different values as shown below.</p> <pre><code class="language-Python">&gt;&gt;&gt; x = 0
+&gt;&gt;&gt; y = 1
+&gt;&gt;&gt; def A():
+...     x = y + 1
+...     return x
+...
+&gt;&gt;&gt; print(x)
+0
+&gt;&gt;&gt; print(A())
+2
+&gt;&gt;&gt; print(x)
+0
+</code></pre> <p class="text-justify">Declarations with identical variable names in nested scopes are a bit tricky for creating a computation graph. In the above case, since we are overriding <code class="language-plaintext highlighter-rouge">x</code> inside the function <code class="language-plaintext highlighter-rouge">A</code> to <code class="language-plaintext highlighter-rouge">y + 1</code>, but right after the we exit the scope, the value of x is returned back to 0. In terms of generation of computation graph, this scenario calls for a versioning system for attribute <code class="language-plaintext highlighter-rouge">x</code>, so that we can have multiple stacked version of a variable based on the scope of operation. Whenever a compute node is generated, it looks up the attribute’s current version for input (outside <code class="language-plaintext highlighter-rouge">A</code>, <code class="language-plaintext highlighter-rouge">x</code>’s version refers to the output of initializer node <code class="language-plaintext highlighter-rouge">0</code>, but inside <code class="language-plaintext highlighter-rouge">A</code>, it refers to the output of <code class="language-plaintext highlighter-rouge">Add</code> compute node).</p> <h2 id="what-is-my-project-about"><strong>What is my project about?</strong></h2> <p class="text-justify">This AST to computation graph translation mechanism works on the assumption that there are no jump statements in the code to be compiled. Example of python jump statements are <code class="language-plaintext highlighter-rouge">break</code>, <code class="language-plaintext highlighter-rouge">continue</code> and <code class="language-plaintext highlighter-rouge">pass</code>. With the exception of <code class="language-plaintext highlighter-rouge">pass</code> statement, both the other jump statements disrupt the sequentiality of control flow, adding runtime uncertainty in the execution. Extending the compiler to support python code that exhibit such a behavior without modifying the AST could be quite a challenging task. Given the already complex state of the compiler, it was decided to extend support for jump statements (as well as non-terminal return statements) by preprocessing the AST to strip such statements. Basically, we simplify the code beforehand to strip all jump statements and wrap them in <code class="language-plaintext highlighter-rouge">if</code> blocks to mimic the behavior as the original code. An example of the proposed solution is the following.</p> <figure class="highlight"><pre><code class="language-python" data-lang="python"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td> <td class="code"><pre><span class="c1"># Before preprocessing
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="nf">do_something1</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nf">cond</span><span class="p">():</span>
+        <span class="k">continue</span>
+    <span class="nf">do_something2</span><span class="p">()</span>
+
+<span class="c1"># After preprocessing
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">continued_</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="nf">do_something1</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nf">cond</span><span class="p">():</span>
+        <span class="n">continued_</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">continued_</span><span class="p">:</span>
+        <span class="nf">do_something2</span><span class="p">()</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p class="text-justify">In addition to enabling striping of jump statements from AST, the preprocessor can be utilized for simplifying the compiler’s burden by standardizing some syntax and simplifying the AST. For example, the generated AST for <code class="language-plaintext highlighter-rouge">-1</code> looks like <code class="language-plaintext highlighter-rouge">gast.gast.UnaryOp(gast.USub, gast.gast.Num(1))</code>, which can be simplified to be <code class="language-plaintext highlighter-rouge">gast.gast.UnaryOp(gast.gast.Num(-1))</code> in the preprocessing step. Also, we can replace a single tuple assignment like <code class="language-plaintext highlighter-rouge">x, y, z = 1, 2, 3</code> to separate assignments or reformat double inequality like <code class="language-plaintext highlighter-rouge">1 &lt; x &lt; 2</code> as <code class="language-plaintext highlighter-rouge">1 &lt; x and x &lt; 2</code>. Implementing the first iteration of the preprocessor for the Chainer compiler is my GSoC project for the summer of 2019.</p> <h3 id="update"><strong>Update</strong></h3> <p class="text-justify">This task turned out to be not that difficult to handle and was surprisingly over within two weeks (PRs <a href="https://github.com/pfnet-research/chainer-compiler/pull/311" rel="external nofollow noopener" target="_blank">#311</a>, <a href="https://github.com/pfnet-research/chainer-compiler/pull/370" rel="external nofollow noopener" target="_blank">#370</a>, <a href="https://github.com/pfnet-research/chainer-compiler/pull/389" rel="external nofollow noopener" target="_blank">#389</a>). It was handled using a recursive Canonicalizer that traversed the AST in a seperate precursor parse and modified it based on a stacked local information about previously encountered nodes (and applied modifications). Just to help understand how it happens, consider the above python example. The AST for the code looks the following.</p> <p><img src="/assets/img/blog/Elichika/example_ast.png" alt="example_ast" width="800px" style="display: block; margin: 0 auto"></p> <p align="center">Original AST</p> <p class="text-justify">Our goal is to remove all <code class="language-plaintext highlighter-rouge">continue</code> nodes from the AST in a manner that the logic stays intact. A key point to understand about any <code class="language-plaintext highlighter-rouge">continue</code> keyword is that it only affects the immediate ancestor for loop’s execution. This nice property enables the use of a stack for handling continue statements inside nested loops. For every level of nesting, the stack has an entry for remembering <code class="language-plaintext highlighter-rouge">continue</code> keywords encountered in the consequent loop body so far. All the statements in the <code class="language-plaintext highlighter-rouge">loop</code>’s body is encapsulated in an <code class="language-plaintext highlighter-rouge">if</code> block with condition that neither of the <code class="language-plaintext highlighter-rouge">continue</code> keywords in the topmost stack entry has been encountered. This basically achieves the translation we are looking for. A simplified code of this translation is the following:</p> <figure class="highlight"><pre><code class="language-python" data-lang="python"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+</pre></td> <td class="code"><pre><span class="kn">import</span> <span class="n">gast</span>
+
+<span class="k">class</span> <span class="nc">Canonicalizer</span><span class="p">(</span><span class="n">gast</span><span class="p">.</span><span class="n">NodeTransformer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="nf">super</span><span class="p">().</span><span class="nf">__init__</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">continued_flag</span> <span class="o">=</span> <span class="sh">'</span><span class="s">continued_</span><span class="sh">'</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">for_continued_stack</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">flagid</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">getflag</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">flagid</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">flagid</span>
+
+    <span class="k">def</span> <span class="nf">stack_has_flags</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">stack</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nf">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">visit_For</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">for_continued_stack</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">modified_node</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">continued_id</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">for_continued_stack</span><span class="p">)</span>
+        <span class="n">continued_flag</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">for_continued_stack</span><span class="p">.</span><span class="nf">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">continued_flag</span><span class="p">:</span>
+            <span class="n">node</span><span class="p">.</span><span class="n">body</span><span class="p">.</span><span class="nf">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">gast</span><span class="p">.</span><span class="nc">Assign</span><span class="p">(</span><span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="n">gast</span><span class="p">.</span><span class="nc">Name</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">continued_flag</span> <span class="o">+</span> <span class="nf">str</span><span class="p">(</span><span class="n">continued_id</span><span class="p">),</span> <span class="n">ctx</span><span class="o">=</span><span class="n">gast</span><span class="p">.</span><span class="nc">Store</span><span class="p">(),</span> <span class="n">annotation</span><span class="o">=</span><span class="bp">None</span><span class="p">)],</span> <span class="n">value</span><span class="o">=</span><span class="n">gast</span><span class="p">.</span><span class="nc">NameConstant</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="bp">False</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">modified_node</span>
+
+    <span class="k">def</span> <span class="nf">visit_stmt</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">modified_node</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="nf">stack_has_flags</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">for_continued_stack</span><span class="p">):</span>
+            <span class="n">continued_id</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">for_continued_stack</span><span class="p">)</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="n">gast</span><span class="p">.</span><span class="nc">UnaryOp</span><span class="p">(</span><span class="n">op</span><span class="o">=</span><span class="n">gast</span><span class="p">.</span><span class="nc">Not</span><span class="p">(),</span> <span class="n">operand</span><span class="o">=</span><span class="n">gast</span><span class="p">.</span><span class="nc">Name</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">continued_flag</span> <span class="o">+</span> <span class="nf">str</span><span class="p">(</span><span class="n">continued_id</span><span class="p">),</span> <span class="n">ctx</span><span class="o">=</span><span class="n">gast</span><span class="p">.</span><span class="nc">Load</span><span class="p">(),</span> <span class="n">annotation</span><span class="o">=</span><span class="bp">None</span><span class="p">))</span>
+            <span class="n">replacement</span> <span class="o">=</span> <span class="n">gast</span><span class="p">.</span><span class="nc">If</span><span class="p">(</span><span class="n">test</span><span class="o">=</span><span class="n">cond</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="p">[</span><span class="n">modified_node</span><span class="p">],</span> <span class="n">orelse</span><span class="o">=</span><span class="p">[])</span>
+            <span class="k">return</span> <span class="n">gast</span><span class="p">.</span><span class="nf">copy_location</span><span class="p">(</span><span class="n">replacement</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">modified_node</span>
+
+    <span class="k">def</span> <span class="nf">visit_Continue</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">modified_node</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">for_continued_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">continued_id</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">for_continued_stack</span><span class="p">)</span>
+        <span class="n">replacement</span> <span class="o">=</span> <span class="n">gast</span><span class="p">.</span><span class="nc">Assign</span><span class="p">(</span><span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="n">gast</span><span class="p">.</span><span class="nc">Name</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">continued_flag</span> <span class="o">+</span> <span class="nf">str</span><span class="p">(</span><span class="n">continued_id</span><span class="p">),</span> <span class="n">ctx</span><span class="o">=</span><span class="n">gast</span><span class="p">.</span><span class="nc">Store</span><span class="p">(),</span> <span class="n">annotation</span><span class="o">=</span><span class="bp">None</span><span class="p">)],</span> <span class="n">value</span><span class="o">=</span><span class="n">gast</span><span class="p">.</span><span class="nc">NameConstant</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">gast</span><span class="p">.</span><span class="nf">copy_location</span><span class="p">(</span><span class="n">replacement</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p class="text-justify">The above <code class="language-plaintext highlighter-rouge">NodeTransformer</code> when ran on the example AST results in the following AST which is the desideratum and reflects the logic for the expected preprocessed transformation in the above example snippet. Similar to this, we can handle <code class="language-plaintext highlighter-rouge">break</code> statements inside nested <code class="language-plaintext highlighter-rouge">loop</code> as well as multiple returns inside nested function definitions.</p> <p><img src="/assets/img/blog/Elichika/transformed_ast.png" alt="transformed_ast" width="800px" style="display: block; margin: 0 auto"></p> <p align="center">Transformed AST</p> <p class="text-justify">Since the start goal of the project was achieved quite early in the timeline, my tasks have been extended to add other interesting features in the compiler. For instance, support for python <code class="language-plaintext highlighter-rouge">Dict</code> datatype is an interesting and necessary feature that I implemented recently (<a href="https://github.com/pfnet-research/chainer-compiler/pull/436" rel="external nofollow noopener" target="_blank">#436</a>). I also added support for compiling <code class="language-plaintext highlighter-rouge">LSTM</code> and <code class="language-plaintext highlighter-rouge">Resnet50</code> models (<a href="https://github.com/pfnet-research/chainer-compiler/pull/229" rel="external nofollow noopener" target="_blank">#229</a>, <a href="https://github.com/pfnet-research/chainer-compiler/pull/529" rel="external nofollow noopener" target="_blank">#529</a>), which are fairly complex chainer model. Currently, I am working on compilation of an even complex model named <code class="language-plaintext highlighter-rouge">FastRCNNPFNResNet50</code> which requires some interesting SSA friendly compilation.</p> </div> </article> <br> <hr> <br> <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2> <p class="mb-2">Here are some more articles you might like to read next:</p> <ul class="list-disc pl-7 my-3 space-y-2 marker:text-[var(--global-theme-color)]"> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2025/AuditingDP/">Auditing ε-DP using Reconstruction Attacks</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2023/ForgetUnlearning/">Failure in Machine Unlearning and How to Guarantee Deletion</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2021/DPDynamics/">DP Dynamics of Noisy Gradient Descent (Part 2)</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2020/understanding-privacy-leakage-in-machine-learning-part1/">Understanding Privacy leakage in Machine Learning (Part 1)</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2018/Understanding-GAIL/">Understanding Generative Adverserial Imitation Learning</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2018/iitg-proxy-checker-ubuntu-install/">IITG proxy-checker and autoconfiguration package for ubuntu.</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2017/iitg-netspeed-hack-using-ssh-tunneling/">How to establish SSH behind a firewall, and use it to bypass port restrictions (Better than OpenVPN).</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2017/simple-swarm-intelligence-optimization-for-cartpole-balancing-problem/">Particle Swarm Optimization balancing Cart-Pole</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2016/mario-bros-RL/">Mario Bros Rl</a> </li> </ul> </div> </div> <footer class="sticky-bottom mt-5" role="contentinfo"> <div class="container"> © Copyright 2026 Rishav Chourasia. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. Photos from <a href="https://unsplash.com" target="_blank" rel="external nofollow noopener">Unsplash</a>. Last updated: July 17, 2026. </div> </footer> <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script> <script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script> <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script> <script src="/assets/al_math/js/mathjax-setup.js"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script> <script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script> <script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script> <script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-N54C9YQE94"></script> <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "G-N54C9YQE94");
+</script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/assets/al_img_tools/js/zoom.js"></script> <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script> <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script> <script>
+    addBackToTop();
+  </script> <script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script> <ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys> <script src="/assets/al_search/js/search-setup.js"></script> <script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-blog",
+          title: "blog",
+          description: "",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/blog/";
+          },
+        },{id: "nav-publications",
+          title: "publications",
+          description: "publications by categories in reversed chronological order. generated by jekyll-scholar.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-projects",
+          title: "projects",
+          description: "Research threads and side projects — privacy, ML, and compilers.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/projects/";
+          },
+        },{id: "nav-cv",
+          title: "cv",
+          description: "My full CV / résumé (PDF).",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/cv/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "My teaching experience.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "post-auditing-ε-dp-using-reconstruction-attacks",
+        
+          title: "Auditing ε-DP using Reconstruction Attacks",
+        
+        description: "Auditing Differential Privacy using Reconstruction Attacks",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2025/AuditingDP/";
+          
+        },
+      },{id: "post-failure-in-machine-unlearning-and-how-to-guarantee-deletion",
+        
+          title: "Failure in Machine Unlearning and How to Guarantee Deletion",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2023/ForgetUnlearning/";
+          
+        },
+      },{id: "post-dp-dynamics-of-noisy-gradient-descent-part-2",
+        
+          title: "DP Dynamics of Noisy Gradient Descent (Part 2)",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2021/DPDynamics/";
+          
+        },
+      },{id: "post-understanding-privacy-leakage-in-machine-learning-part-1",
+        
+          title: "Understanding Privacy leakage in Machine Learning (Part 1)",
+        
+        description: "Understanding Privacy leakage in Machine Learning (Part 1)",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2020/understanding-privacy-leakage-in-machine-learning-part1/";
+          
+        },
+      },{id: "post-gsoc-2019-project-extending-chainer-compiler-to-support-python-jump-syntax",
+        
+          title: "GSoC 2019 Project: Extending Chainer compiler to support python jump syntax",
+        
+        description: "GSoC 2019 Project: Extending Chainer compiler to support python jump syntax",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2019/gsoc19-project-introduction/";
+          
+        },
+      },{id: "post-understanding-generative-adverserial-imitation-learning",
+        
+          title: "Understanding Generative Adverserial Imitation Learning",
+        
+        description: "Understanding Generative Adverserial Imitation Learning",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2018/Understanding-GAIL/";
+          
+        },
+      },{id: "post-iitg-proxy-checker-and-autoconfiguration-package-for-ubuntu",
+        
+          title: "IITG proxy-checker and autoconfiguration package for ubuntu.",
+        
+        description: "IITG proxy-checker and autoconfiguration package for ubuntu.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2018/iitg-proxy-checker-ubuntu-install/";
+          
+        },
+      },{id: "post-how-to-establish-ssh-behind-a-firewall-and-use-it-to-bypass-port-restrictions-better-than-openvpn",
+        
+          title: "How to establish SSH behind a firewall, and use it to bypass port...",
+        
+        description: "How to establish SSH behind a firewall, and use it to bypass port restrictions (Better than OpenVPN).",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2017/iitg-netspeed-hack-using-ssh-tunneling/";
+          
+        },
+      },{id: "post-particle-swarm-optimization-balancing-cart-pole",
+        
+          title: "Particle Swarm Optimization balancing Cart-Pole",
+        
+        description: "Particle Swarm Optimization balancing Cart-Pole",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2017/simple-swarm-intelligence-optimization-for-cartpole-balancing-problem/";
+          
+        },
+      },{id: "post-mario-bros-rl",
+        
+          title: "Mario Bros Rl",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2016/mario-bros-RL/";
+          
+        },
+      },{id: "news-updated-my-blog-on-differential-privacy-in-ml-site-baseurl-blog-2020-understanding-privacy-leakage-in-machine-learning-part1",
+          title: 'Updated my blog on [Differential Privacy in ML]({{ site.baseurl }}/blog/2020/understanding-privacy-leakage-in-machine-learning-part1/)!',
+          description: "",
+          section: "News",},{id: "news-my-paper-on-differential-privacy-dynamics-of-langevin-diffusionand-noisy-gradient-descent-https-arxiv-org-abs-2102-05855-got-accepted-as-spotlight-https-proceedings-neurips-cc-paper-2021-hash-7c6c1a7bfde175bed616b39247ccace1-abstract-html-at-neurips-2021-among-3-of-submissions",
+          title: 'My paper on [Differential Privacy Dynamics of Langevin Diffusionand Noisy Gradient Descent](https://arxiv.org/abs/2102.05855) got...',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-interning-at-google-brain-this-summer-collaborating-with-krishnamurthy-dvijotham-https-dj-research-netlify-app-and-abhradeep-thakurta-https-athakurta-squarespace-com-in-the-privacy-and-security-research-team",
+          title: 'I&amp;#39;ll be interning at Google Brain this summer, collaborating with [Krishnamurthy Dvijotham](https://dj-research.netlify.app/) and...',
+          description: "",
+          section: "News",},{id: "news-added-a-blog-post-on-flaws-in-machine-unlearning-site-baseurl-blog-2023-forgetunlearning",
+          title: 'Added a blog post on [Flaws in Machine Unlearning]({{ site.baseurl }}/blog/2023/ForgetUnlearning/)!',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-giving-a-talk-on-my-icml-2023-paper-forget-unlearning-towards-true-data-deletion-in-machine-learning-https-arxiv-org-pdf-2210-08911-pdf-at-forc-2023-https-responsiblecomputing-org-forc-2023-at-stanford-university",
+          title: 'I&amp;#39;ll be giving a talk on my ICML 2023 paper [Forget Unlearning: Towards...',
+          description: "",
+          section: "News",},{id: "news-i-joined-betterdata-https-www-betterdata-ai-as-a-part-time-student-researcher-i-39-ll-be-working-on-privacy-auditing-for-tabular-synthetic-data-generators",
+          title: 'I joined **[Betterdata](https://www.betterdata.ai/)** as a part-time student researcher. I&amp;#39;ll be working on privacy...',
+          description: "",
+          section: "News",},{id: "news-i-successfully-cleared-my-thesis-proposal-with-wonderful-reviews-assets-pdf-proposal-feedback-pdf",
+          title: 'I successfully cleared my thesis proposal with **[wonderful reviews](assets/pdf/proposal-feedback.pdf)**!',
+          description: "",
+          section: "News",},{id: "news-betterdata-won-the-us-department-of-homeland-security-39-s-s-amp-t-awards-contract-https-www-dhs-gov-science-and-technology-news-2024-10-08-st-awards-contracts-four-startups-develop-privacy-enhancing-synthetic-data-generation-capabilities-to-develop-privacy-enhancing-synthetic-data-generation-capabilities",
+          title: 'Betterdata won the **[US Department of Homeland Security&amp;#39;s S&amp;amp;T Awards Contract](https://www.dhs.gov/science-and-technology/news/2024/10/08/st-awards-contracts-four-startups-develop-privacy-enhancing-synthetic-data-generation-capabilities)** to develop...',
+          description: "",
+          section: "News",},{id: "news-i-submitted-my-ph-d-thesis-quot-learning-and-unlearning-with-noisy-gradient-descent-quot-assets-pdf-phd-thesis-pdf-for-evaluation",
+          title: 'I submitted my Ph.D. thesis [&amp;quot;Learning and Unlearning with Noisy Gradient Descent&amp;quot;](assets/pdf/Phd-thesis.pdf) for...',
+          description: "",
+          section: "News",},{id: "news-my-paper-on-laplace-transform-interpretation-of-differential-privacy-https-arxiv-org-abs-2411-09142-was-accepted-at-forc-2025-https-responsiblecomputing-org-forc-2025-accepted-papers",
+          title: 'My paper on [Laplace Transform Interpretation of Differential Privacy](https://arxiv.org/abs/2411.09142) was accepted at [FORC...',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-giving-a-talk-on-laplace-transform-interpretation-of-differential-privacy-https-arxiv-org-abs-2411-09142-at-the-ppai-workshop-https-ppai-workshop-github-io-accepted-papers",
+          title: 'I&amp;#39;ll be giving a talk on [Laplace Transform Interpretation of Differential Privacy](https://arxiv.org/abs/2411.09142) at...',
+          description: "",
+          section: "News",},{id: "news-i-39-m-giving-a-contributed-talk-at-tpdp-2025-https-tpdp-journalprivacyconfidentiality-org-2025-which-is-being-held-at-google-in-mountain-view-ca-on-june-2-3-2025",
+          title: 'I&amp;#39;m giving a contributed talk at [TPDP 2025](https://tpdp.journalprivacyconfidentiality.org/2025/), which is being held at...',
+          description: "",
+          section: "News",},{id: "news-i-39-m-giving-a-talk-at-forc-2025-https-tpdp-journalprivacyconfidentiality-org-2025-being-organized-this-year-at-stanford-university-on-june-4-7-2025",
+          title: 'I&amp;#39;m giving a talk at [FORC 2025](https://tpdp.journalprivacyconfidentiality.org/2025/), being organized this year at Stanford...',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-defending-my-ph-d-thesis-on-may-26th-venue-sr9-com1-02-09-school-of-computing-national-university-of-singapore",
+          title: 'I&amp;#39;ll be **[defending my Ph.D. Thesis on May 26th]()**. Venue: SR9 COM1 02-09,...',
+          description: "",
+          section: "News",},{id: "news-my-paper-on-one-run-privacy-auditing-for-structured-generative-and-foundation-models-site-baseurl-assets-pdf-chourasiaone-pdf-was-accepted-at-the-fmsd-workshop-https-icml-structured-fm-workshop-github-io-in-icml-2025",
+          title: 'My paper on [One-Run Privacy Auditing for Structured Generative and Foundation Models]({{ site.baseurl...',
+          description: "",
+          section: "News",},{id: "news-i-39-ve-taken-on-the-role-of-head-of-product-at-betterdata-https-www-betterdata-ai-leading-our-privacy-preserving-synthetic-data-platform",
+          title: 'I&amp;#39;ve taken on the role of **Head of Product** at [Betterdata](https://www.betterdata.ai/), leading our...',
+          description: "",
+          section: "News",},{id: "news-our-paper-auditing-apple-39-s-differentialprivacy-framework-https-doi-ieeecomputersociety-org-10-1109-sp63933-2026-00225-won-a-distinguished-paper-award-at-ieee-s-amp-p-2026-https-sp2026-ieee-security-org-we-ran-the-first-independent-audit-of-the-differential-privacy-code-running-on-billions-of-apple-devices",
+          title: 'Our paper [**Auditing Apple&amp;#39;s DifferentialPrivacy.framework**](https://doi.ieeecomputersociety.org/10.1109/SP63933.2026.00225) won a **Distinguished Paper Award** at [IEEE S&amp;amp;P...',
+          description: "",
+          section: "News",},{id: "projects-last-iterate-dp-sgd-bound",
+          title: 'Last-iterate DP-SGD bound',
+          description: "Last-iterate privacy guarantees for DP-SGD",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/DPdynamics/";
+            },},{id: "projects-elichika-compiler",
+          title: 'Elichika Compiler',
+          description: "Python to Onnx compiler for Chainer ML",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/elichika/";
+            },},{id: "projects-grasping-dp",
+          title: 'Grasping DP',
+          description: "A useful interpretation of differential privacy using Laplace transforms",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/laplace/";
+            },},{id: "projects-dp-auditing",
+          title: 'DP Auditing',
+          description: "An auditor for detecting violations of Differential Privacy",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/litmus/";
+            },},{id: "projects-machine-unlearning",
+          title: 'Machine Unlearning',
+          description: "Deleting information efficiently and reliably from ML models",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/unlearning/";
+            },},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/resume.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%72%69%73%68%61%76@%62%65%74%74%65%72%64%61%74%61.%61%69", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=UEAtkFYAAAAJ", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/Rishav1", "_blank");
+        },
+      },{
+        id: 'social-bluesky',
+        title: 'Bluesky',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://bsky.app/profile/rishav84ia.bsky.social", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script> <script src="/assets/al_search/js/shortcut-key.js"></script> </body> </html>

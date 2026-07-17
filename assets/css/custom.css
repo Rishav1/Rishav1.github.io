@@ -1,0 +1,245 @@
+/* ==========================================================================
+   Custom site styles — local override, loaded last in <head>.
+   1) Code blocks: emacs-inspired light palette + a clean, high-contrast slab
+      (kills the washed-out magenta tint). Dark mode keeps the native palette.
+   2) LaTeX-style environment boxes (theorem / lemma / definition / example /
+      note / question / proof / remark / …) ported and refreshed to be
+      theme-aware. Used across the DP + unlearning blog posts.
+   Theme-aware via the `data-theme` attribute set on <html> by theme.js.
+   ========================================================================== */
+
+/* ---- Code blocks --------------------------------------------------------- */
+
+:root {
+  --global-code-bg-color: #f6f8fa; /* light: soft neutral slab, not pink */
+}
+html[data-theme="dark"] {
+  --global-code-bg-color: #1b1f24; /* dark: deep slate */
+}
+
+pre {
+  border: 1px solid var(--global-divider-color, rgba(0, 0, 0, 0.08));
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  line-height: 1.45;
+}
+html[data-theme="light"] pre,
+html[data-theme="light"] pre code {
+  color: #2b2b2b; /* readable default (emacs) instead of magenta */
+}
+html[data-theme="dark"] pre,
+html[data-theme="dark"] pre code {
+  color: #e6e6e6;
+}
+
+/* inline code: a subtle chip instead of loud accent-colored text */
+:not(pre) > code {
+  padding: 0.12em 0.4em;
+  border-radius: 4px;
+  background-color: var(--global-code-bg-color);
+  color: var(--global-theme-color);
+  font-size: 0.88em;
+}
+
+/* Emacs rouge palette — light mode only (dark keeps the native theme). */
+html[data-theme="light"] .highlight .c,
+html[data-theme="light"] .highlight .cm,
+html[data-theme="light"] .highlight .c1,
+html[data-theme="light"] .highlight .cp {
+  color: #008800;
+  font-style: italic;
+} /* comments */
+html[data-theme="light"] .highlight .k,
+html[data-theme="light"] .highlight .kc,
+html[data-theme="light"] .highlight .kd,
+html[data-theme="light"] .highlight .kn,
+html[data-theme="light"] .highlight .ow {
+  color: #aa22ff;
+  font-weight: bold;
+} /* keywords */
+
+html[data-theme="light"] .highlight .nb,
+html[data-theme="light"] .highlight .nd,
+html[data-theme="light"] .highlight .bp {
+  color: #aa22ff;
+} /* types */
+html[data-theme="light"] .highlight .o {
+  color: #666666;
+} /* operators */
+html[data-theme="light"] .highlight .m,
+html[data-theme="light"] .highlight .mf,
+html[data-theme="light"] .highlight .mh,
+html[data-theme="light"] .highlight .mi,
+html[data-theme="light"] .highlight .mo {
+  color: #666666;
+} /* numbers */
+html[data-theme="light"] .highlight .s,
+html[data-theme="light"] .highlight .s2,
+html[data-theme="light"] .highlight .sh,
+html[data-theme="light"] .highlight .na {
+  color: #bb4444;
+} /* strings */
+html[data-theme="light"] .highlight .se {
+  color: #bb6622;
+  font-weight: bold;
+}
+html[data-theme="light"] .highlight .nc,
+html[data-theme="light"] .highlight .nn {
+  color: #0000ff;
+  font-weight: bold;
+} /* class / namespace */
+html[data-theme="light"] .highlight .nf {
+  color: #00a000;
+} /* function */
+html[data-theme="light"] .highlight .no {
+  color: #880000;
+} /* constant */
+
+html[data-theme="light"] .highlight .vi {
+  color: #b8860b;
+} /* variables / symbols */
+html[data-theme="light"] .highlight .nt {
+  color: #008000;
+  font-weight: bold;
+} /* tags */
+html[data-theme="light"] .highlight .ne {
+  color: #d2413a;
+  font-weight: bold;
+}
+html[data-theme="light"] .highlight .gi {
+  color: #00a000;
+}
+
+/* ---- LaTeX-style environment boxes -------------------------------------- */
+/* Semi-transparent accent tints so they read well in light AND dark mode.   */
+
+.theorem,
+.lemma,
+.definition,
+.example,
+.note,
+.question {
+  display: block;
+  margin: 1.25rem 0;
+  padding: 0.85rem 1.1rem;
+  border-left: 4px solid;
+  border-radius: 6px;
+  text-align: justify;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.theorem:hover,
+.lemma:hover,
+.example:hover,
+.question:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+.theorem > *:last-child,
+.lemma > *:last-child,
+.definition > *:last-child,
+.example > *:last-child,
+.note > *:last-child,
+.question > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Theorem — blue, italic (classic look) */
+.theorem {
+  background-color: rgba(74, 144, 226, 0.12);
+  border-left-color: #4a90e2;
+  font-style: italic;
+}
+.theorem::before {
+  content: "Theorem. ";
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Lemma — cyan, italic */
+.lemma {
+  background-color: rgba(0, 183, 234, 0.12);
+  border-left-color: #00b7ea;
+  font-style: italic;
+}
+.lemma::before {
+  content: "Lemma. ";
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Definition — indigo */
+.definition {
+  background-color: rgba(99, 102, 241, 0.1);
+  border-left-color: #6366f1;
+  line-height: 1.55;
+}
+.definition::before {
+  content: "Definition. ";
+  font-weight: 700;
+}
+
+/* Example & Note — warm orange */
+.example {
+  background-color: rgba(252, 98, 56, 0.1);
+  border-left-color: #fc6238;
+}
+.example::before {
+  content: "Example. ";
+  font-weight: 700;
+}
+.note {
+  background-color: rgba(252, 98, 56, 0.1);
+  border-left-color: #fc6238;
+}
+.note::before {
+  content: "Note. ";
+  font-weight: 700;
+}
+.example em,
+.example i,
+.note em {
+  font-style: italic !important;
+}
+
+/* Question — violet */
+.question {
+  background-color: rgba(168, 85, 247, 0.12);
+  border-left-color: #a855f7;
+}
+.question::before {
+  content: "Question. ";
+  font-weight: 700;
+}
+
+/* Inline label-only environments (no box), matching the old site */
+.proof,
+.remark {
+  display: block;
+  margin: 0.75rem 0;
+}
+.proof::before {
+  content: "Proof. ";
+  font-style: italic;
+}
+.proof::after {
+  content: "\25FC";
+  float: right;
+}
+.remark::before {
+  content: "Remark. ";
+  font-weight: 700;
+}
+
+/* ---- Small niceties ------------------------------------------------------ */
+
+/* Old-site call-to-action button, kept for posts that use it */
+
+/* Slightly warmer blockquotes so long-form posts feel less bland */
+blockquote {
+  border-left: 3px solid var(--global-theme-color);
+  background-color: var(--global-code-bg-color);
+  border-radius: 0 6px 6px 0;
+}

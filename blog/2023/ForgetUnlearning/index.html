@@ -1,0 +1,421 @@
+<!DOCTYPE html> <html> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> Failure in Machine Unlearning and How to Guarantee Deletion | Rishav Chourasia </title> <meta name="author" content="Rishav Chourasia"> <meta name="description" content="Rishav Chourasia — Head of Product at Betterdata and Ph.D. (NUS) working on differential privacy, private optimization, privacy auditing, and machine unlearning. "> <meta name="keywords" content="Rishav Chourasia, differential privacy, privacy auditing, machine unlearning, private optimization, Betterdata, NUS"> <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;"> <style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style> <link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="/assets/img/favicon.png?v=5a6655cbde81d8d5849dbbed8761ec35"> <link rel="stylesheet" href="/assets/css/main.css?v=f0b101217084a90093badfe99ff9a7d1"> <link rel="canonical" href="https://rishav1.github.io/blog/2023/ForgetUnlearning/"> <script src="/assets/js/theme.js?v=7af685e2ba20b37fef545c97b8064050"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> <link rel="stylesheet" href="/assets/css/custom.css?v=6c4714f6ff69b3745e6236aee8c8114f"> <link rel="stylesheet" href="/assets/css/al-folio-distill.css?v=fb7196ec07cb5299d51b2cbdc69c23d7"> <script src="/assets/js/distillpub/template.v2.js"></script> <script src="/assets/js/distillpub/transforms.v2.js"></script> </head> <body> <d-front-matter> <script async type="text/json">
+      {
+            "title": "Failure in Machine Unlearning and How to Guarantee Deletion",
+            "description": "",
+            "published": "February 15, 2023",
+            "authors": [
+              
+              {
+                "author": "Rishav Chourasia",
+                "authorURL": "https://comp.nus.edu.sg/~rishav1",
+                "affiliations": [
+                  {
+                    "name": "NUS, Singapore",
+                    "url": ""
+                  }
+                ]
+              },
+              
+              {
+                "author": "Neil Shah",
+                "authorURL": "https://www.linkedin.com/in/neil-shah-",
+                "affiliations": [
+                  {
+                    "name": "",
+                    "url": ""
+                  }
+                ]
+              }
+              
+            ],
+            "katex": {
+              "delimiters": [
+                {
+                  "left": "$",
+                  "right": "$",
+                  "display": false
+                },
+                {
+                  "left": "$$",
+                  "right": "$$",
+                  "display": true
+                }
+              ]
+            }
+          }
+    </script> </d-front-matter> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/"> <span class="font-weight-bold">Rishav</span> Chourasia </a> <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav"> <ul class="navbar-nav navbar-menu-list flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/">about </a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog/">blog </a> </li> <li class="nav-item "> <a class="nav-link" href="/publications/">publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/projects/">projects </a> </li> <li class="nav-item "> <a class="nav-link" href="/cv/">cv </a> </li> <li class="nav-item "> <a class="nav-link" href="/teaching/">teaching </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="post distill"> <d-title> <h1>Failure in Machine Unlearning and How to Guarantee Deletion</h1> <p></p> </d-title> <d-byline></d-byline> <d-article> <d-contents> <nav class="l-text figcaption"> <h3>Contents</h3> <div> <a href="#machine-unlearning">Machine Unlearning</a> </div> <div> <a href="#"></a> </div> <ul> <li> <a href="#adaptive-unlearning">Adaptive Unlearning</a> </li> </ul> <div> <a href="#flaws-in-unlearning">Flaws in Unlearning</a> </div> <div> <a href="#"></a> </div> <ul> <li> <a href="#threat-model">Threat Model</a> </li> <li> <a href="#failure-under-adaptivity">Failure under Adaptivity</a> </li> <li> <a href="#failure-with-hidden-states">Failure with Hidden-States</a> </li> <li> <a href="#incompleteness">Incompleteness</a> </li> </ul> <div> <a href="#trustworthy-data-deletion">Trustworthy Data-Deletion</a> </div> <div> <a href="#"></a> </div> <ul> <li> <a href="#link-to-differential-privacy">Link to Differential Privacy</a> </li> </ul> <div> <a href="#conclusion">Conclusion</a> </div> </nav> </d-contents> <p style="display: none;"> $$ \newcommand{\dif}[1]{\mathrm{d} #1} \newcommand{\der}[2]{\frac{\dif{#1}}{\dif{#2}}} \newcommand{\doh}[2]{\frac{\partial #1}{\partial #2}} \newcommand{\graD}[1]{\nabla #1} \newcommand{\divR}[1]{\mathrm{div} \left(#1\right)} \newcommand{\lapL}[1]{\Delta #1} \newcommand{\hesS}[1]{\nabla^2 #1} \newcommand{\jacO}[1]{\mathbf{J} #1} \newcommand{\tra}[1]{\textsf{Tr}\left(#1\right)} \newcommand{\dotP}[2]{\left\langle#1,#2\right\rangle} \newcommand{\detR}{\mathrm{det}} \newcommand{\norm}[1]{\left\Vert #1 \right\Vert_2} \newcommand{\ve}{\ensuremath{\mathbf v}} \newcommand{\V}{V} % Probability related macros \newcommand{\prob}[2]{\underset{#1}{\mathbb{P}}\left[#2\right]} \newcommand{\pspace}{\mathcal{P}} \newcommand{\lap}[1]{\text{Lap}\left(#1\right)} \newcommand{\expec}[2]{\underset{#1}{\mathbb{E}}\left[#2\right]} \newcommand{\Gaus}[2]{\mathcal{N}\left(#1, #2\right)} \newcommand{\Id}{\mathbb{I}_\dime} \newcommand{\noise}{\sigma} \newcommand{\Z}{\mathbf{Z}} \newcommand{\forget}{u} \newcommand{\Out}{O} \newcommand{\Outb}{\bar{\Out}} \newcommand{\Ze}{\mathbf{W}} \newcommand{\indic}[1]{\mathbbm{1}\left\{#1\right\}} \newcommand{\W}{\mathbf{W}} \newcommand{\pI}{\uppi} % Asmyptotic distribution \newcommand{\psI}{\psi} \newcommand{\Gen}{\mathcal G} % Generator of Langevin diffusion \newcommand{\carre}{\Gamma} \newcommand{\Ent}{\mathrm{Ent}} \newcommand{\entropy}{\textrm H} \newcommand{\p}{p} \newcommand{\nU}{\upnu} \newcommand{\mU}{\upmu} \newcommand{\rhO}{\uprho} % ERM \newcommand{\X}{\mathcal{X}} % Data space \newcommand{\Y}{\mathcal{Y}} % Output space \newcommand{\C}{\mathcal{O}} % Output/parameter space \newcommand{\dime}{d} % Dimension of parameters \newcommand{\domain}{\R^\dime} % Parameter space for deep learning \newcommand{\R}{\mathbb{R}} % Real numbers \newcommand{\N}{\mathbb{N}} % Natural numbers \newcommand{\Pub}{\Phi} % space of publishable outcomes \newcommand{\pub}{\phi} % publishable outcomes \newcommand{\D}{\mathcal{D}} % Database \newcommand{\n}{n} % Number of records in database \newcommand{\Lrn}{\mathrm{A}} \newcommand{\Unlrn}{\bar{\Lrn}} % Unlearning algorithm \newcommand{\Nsgd}{\text{Noisy-GD}} \newcommand{\Pgd}{\text{PGD}} \newcommand{\x}{\mathbf{x}} % Single datapoint from data universe \newcommand{\thet}{\theta} % Parameter value \newcommand{\Thet}{\Theta} % Parameter random variable \newcommand{\loss}{\boldsymbol{\ell}} % Loss function on a datapoint \newcommand{\rloss}{\bar\loss} \newcommand{\reg}{\mathbf{r}} % Regularizer \newcommand{\ltwo}{L2} % L2 norm \newcommand{\Loss}{\mathcal{L}} % Loss function on a database \newcommand{\rLoss}{\Loss} % Regularized loss function on a database \newcommand{\err}{\mathrm{err}} % Empirical risk \newcommand{\risk}{\alpha} \newcommand{\q}{q} % Renyi divergence order \newcommand{\eps}{\varepsilon} % Privacy/indistinguishability budget parameter \newcommand{\epsdp}{\eps_{\mathrm{dp}}} % RDP budget parameter \newcommand{\epsdd}{\eps_{\mathrm{dd}}} % Data deletion budget parameter \newcommand{\del}{\delta} % Probability of breach in Privacy/indistinguishability \newcommand{\cost}{C} % Computational cost \newcommand{\step}{\eta} % Step size \newcommand{\K}{K} % Number of steps \newcommand{\ze}{\zeta} % mapping iteration k to dataset i \newcommand{\batch}{\mathcal{B}} % subsampled batch \newcommand{\bsize}{b} % batch size \newcommand{\h}{h} % subgaussian \newcommand{\Sam}{\mathcal{S}} % sampling mechanism \newcommand{\cvx}{\lambda} \newcommand{\lip}{L} \newcommand{\Clip}{\mathrm{Clip}} \newcommand{\Proj}{\mathrm{Proj}} \newcommand{\smh}{\beta} \newcommand{\G}{G} % Sub-Gaussian \newcommand{\B}{B} % bound on loss \newcommand{\conv}{\circledast} \newcommand{\grad}{\mathbf{g}} % stochastic gradient % Unlearning \newcommand{\y}{\mathbf{y}} % Single datapoint from data universe \newcommand{\up}{u} % Database update request \newcommand{\Up}{U} % Database update request random variable \newcommand{\ind}{\mathrm{ind}} \newcommand{\U}{\mathcal{U}} % Database update reqeust space \newcommand{\reps}{r} % Max number of records edited \newcommand{\delete}{\mathbf{I}_d} \newcommand{\append}{\D_a} \newcommand{\sen}{S} \newcommand{\prox}{\mathrm{prox}} \newcommand{\publish}{f_{\mathrm{pub}}} \newcommand{\updreq}{\mathcal{Q}} % Data-deletion \newcommand{\pubs}{p} % Unlearning vs. Data-deletion notations \newcommand{\query}{h} % Notation for count query \newcommand{\median}{\mathrm{med}} % Notation for median % LSI \newcommand{\LS}{\mathrm{LS}} \newcommand{\lsi}{c} % LSI constant \newcommand{\T}{T} % bijective map % \newcommand{\alp}{\alpha} % \newcommand{\bet}{\beta} \newcommand{\eqdef}{\stackrel{\text{def}}{=}} % divergence measures \newcommand{\approxDP}[1]{\overset{#1}{\approx}} % (\eps, \del)-indistinguishability \newcommand{\KL}[2]{\mathrm{KL}\left(#1\middle\Vert#2\right)} % KL divergence \newcommand{\Fis}[2]{\mathrm{I}\left(#1\middle\Vert#2\right)} % Fisher information \newcommand{\Was}[2]{\mathrm{W}_2\left(#1,#2\right)} \newcommand{\Ren}[3]{\mathrm{R}_{#1}\left(#2\middle\Vert#3\right)} % Renyi divergence \newcommand{\Eren}[3]{\mathrm{E}_{#1}\left(#2\middle\Vert#3\right)} % qth moment of likelihood ratio \newcommand{\Gren}[3]{\mathrm{I}_{#1}\left(#2\middle\Vert#3\right)} % qth moment of likelihood ratio \newcommand{\TV}[1]{\mathbf{TV}\left(#1\right)} \newcommand{\Test}{\text{Test}} \newcommand{\Testb}{\overline{\text{Test}}} $$ </p> <p>Unlearning algorithms aim to remove deleted data’s influence from trained models at a cost lower than full retraining. However, we show that <strong>existing Machine Unlearning definitions don’t protect the privacy of deleted records in the real world</strong>. The primary reason is that when users request deletion as a function of models trained on their data, records in a database become interdependent—past records influence what future records might be present. So, even retraining a fresh model after deletion of a record doesn’t ensure its privacy because by looking at the current behavior due to present records, an attacker can infer the kinds of records that existed in the past, even if they were since deleted. Secondly, we show that unlearning algorithms that cache partial computations to speed up the processing can leak deleted information over a series of releases, violating the privacy of deleted records in the long run. To address these, we propose a sound deletion guarantee and show that the <strong>privacy of existing records is necessary for the privacy of deleted records in the future</strong>. Under this notion, we propose an accurate, computationally efficient, and secure machine unlearning algorithm based on Noisy Gradient Descent. Check out our work’s <a href="https://arxiv.org/abs/2210.08911" rel="external nofollow noopener" target="_blank">full version &gt;</a> (edit: or <a href="/assets/pdf/Phd-thesis.pdf">my PhD thesis &gt;</a>).</p> <h2 id="machine-unlearning">Machine Unlearning</h2> <p>Machine Unlearning is a relatively new notion of deletion privacy that is becoming increasingly important. The need for deletion arises from an evolved understanding that data privacy requires a strong commitment to <strong>self-determinism</strong>, which is <em>the power of individuals to decide if, to what extent, and how their personal information is collected, used, and shared</em><d-cite key="berman2001privacy,rouvroy2009right,debatin2011ethics"></d-cite>. Modern day privacy policies, such as General Data Protection Regulation (GDPR) in the European Union and California Consumer Protection Act (CCPA) in the United States, enforces the principle of self-determination by granting individuals the right to <em>rectify or erase their data</em>.</p> <p>In the era of Deep Learning, information in modern ML models, such as neural networks, is no longer encoded in human interpretable way, making it extremely challenging to selectively edit. The conventional (and fool-proof) way is to modify the underlying dataset and retrain the models from scratch to reflect the changes. However, retraining fresh ML models from scratch every time the dataset changes is computationally expensive. Therefore there is a growing interest in designing cheap <strong>machine unlearning algorithms</strong> for erasing the influence of deleted data from already trained models. To quantify how well an unlearning algorithm erases the requested information in the worst-case,<d-cite key="ginart2019making"></d-cite> propose a DP like $(\eps, \del)$-indistinguishability between the unlearning algorithm’s output and that of fresh retraining.</p> <div id="goal-unlearning" class="definition"> <b>($(\eps, \del)$-unlearning).</b> For a fixed dataset $\D \in \X^*$, remove set $\forget \subset \D$, a randomized learning algorithm $\Lrn$ and a publish function $\publish$, an unlearning algorithm $\Unlrn$ is $(\eps, \del)$-unlearning with respect to $(\D, \forget, \Lrn)$ if for all $S \subset \Y$ where $\Y$ denotes the output space, we have: $$ \begin{align*} \prob{}{\publish(\Unlrn(\D, \forget, \Lrn(\D))) \in S}&amp;\leq e^\eps \cdot \prob{}{\publish(\Lrn(\D \setminus \forget)) \in S} + \del, \quad \text{and} \\\\ \prob{}{\publish(\Lrn(\D \setminus \forget)) \in S} &amp;\leq e^\eps \cdot \prob{}{\publish(\Unlrn(\D, \forget, \Lrn(\D))) \in S} + \del. \end{align*} $$ </div> <p>The idea behind this definition is very simple. If there is no way to distinguish the published observable $\publish(\cdot)$ of an unlearned model $\Unlrn(\D, \forget, \Lrn(\D))$ from that of a fresh model $\Lrn(\D \setminus \forget)$ trained without the deleted data-points, then the unlearned model must not contain any information about the deleted records anymore. Several unlearning certifications, that follow the same intuition, have since been proposed and used to certify numerous unlearning algorithms that belong to the family of iterative first-order gradient methods<d-cite key="guo2019certified,izzo2021approximate,neel2021descent,ullah2021machine"></d-cite>.</p> <p>Almost all real-world applications of machine unlearning need to handle <strong>streaming addition/deletion requests</strong>, first studied by Neel et al., 2021<d-cite key="neel2021descent"></d-cite>. In this setting, a stream of <em>edit requests</em>, comprised of a batch of addition, deletion or replacement operations, arrives sequentially.</p> <div class="definition"> <b>(Edit request).</b> A replacement operation $\langle \ind, \y \rangle \in [\n] \times \X$ on a database ${\D = (\x_1, \cdots, \x_n) \in \X^\n}$ performs the following modification: $$ \begin{equation} \D \circ \langle \ind, \y \rangle = (\x_1, \cdots, \x_{\ind-1}, \y, \x_{\ind+1}, \cdots, \x_\n). \end{equation} $$ An edit request $\up = \{\langle \ind_1, \y_1\rangle, \cdots, \langle \ind_\reps, \y_\reps\rangle \}$ on $\D$ is defined as batch of $\reps \leq \n$ replacement operations modifying distinct indices atomically, i.e. $$ \begin{equation} \D \circ \up = \D \circ \langle \ind_1, \y_1\rangle \circ \cdots \circ \langle \ind_\reps, \y_\reps\rangle, \end{equation} $$ where $\ind_i \neq \ind_j$ for all $i \neq j$. </div> <figure id="edit_request"> <picture> <source srcset="/assets/img/blog/ForgetUnlearning/edit_request.png" media="(min-width: 768px)"></source> <img srcset="edit_request.png" alt="Example of an edit request"> <figcaption>Depiction of an edit request modifying a dataset.</figcaption> </picture> </figure> <aside> <p>Over a period of time, some individuals may request additions, while others may request deletions. We model this using batched replacement edits and handle any disparity in the number of additions and deletions by inserting or replacing dummy records $\bot$.</p> </aside> <p>The <em>data curator</em>, characterized by a pair of learning and unlearning algorithms $(\Lrn, \Unlrn)$, executes the learning algorithm $\Lrn$ on the initial dataset $\D_0$ during the setup stage before the arrival of the first edit request to generate the initial model $\Theta_0 = \Lrn(\D_0)$. Thereafter, at any edit step $i \geq 1$, to reflect an edit request $\forget_i$ that transforms the dataset $\D_{i-1} \circ \forget_i \rightarrow \D_i$, the curator runs the unlearning algorithm $\Unlrn$ to get the next model $\Theta_i = \Unlrn(\Theta_{i-1}, \forget_i, \D_{i-1})$. Furthermore, the curator keeps the (un)learned models $(\Thet_i)_{i\geq0}$ secret, only releasing corresponding <em>publishable objects</em> $\pub_i = \publish(\Thet_i)$, generated using some publish function $\publish$. Such publishable objects could be model predictions on an external dataset, noisy model releases, or any downstream model use.</p> <figure id="unlearning_setup_advanced"> <picture> <source srcset="/assets/img/blog/ForgetUnlearning/unlearning_setup_advanced.png" media="(min-width: 768px)"></source> <img srcset="unlearning_setup_advanced.png" alt="Adaptive Unlearning Setup"> <figcaption>Detailed visualization of the streaming unlearning setup.</figcaption> </picture> </figure> <aside> Edit requests $\up_i$ depend on (a subset of) the history of the observable objects $(\phi_0, \cdots, \phi_{i-1})$ published in the past. The update requester $\updreq$ (introduced a bit later) models such arbitary dependences among requests that may arise in a real world setting. </aside> <h3 id="adaptive-unlearning">Adaptive Unlearning</h3> <p>In real world, <strong>deletion requests are often adaptive in nature</strong>, influenced by the behavior of prior published outcomes. For instance, security researchers may demonstrate privacy attacks targeting a minority subpopulation on publicly available models, causing people in that subpopulation to request deletion of their information from training data. Gupta et al., 2021<d-cite key="gupta2021adaptive"></d-cite> model such an interactive environment through an <em>adaptive update requester</em>. We provide the following generalized definition of Gupta et al., 2021<d-cite key="gupta2021adaptive"></d-cite>’s update requester and describe its interaction with a data curator in <a href="#goal-interact">Algorithm 1</a>.</p> <div id="dfn:updreq" class="definition"> <b>(Update requester<d-cite key="gupta2021adaptive"></d-cite>).</b> At any step $i \in \N$, an update requester $\updreq$ inputs a subset of interaction history $(\phi_0, \up_1, \phi_1, \cdots, \up_{i-1}, \phi_{i-1})$ between themself and the curator $(\Lrn, \Unlrn)$ to generate the subsequent edit request $\up_i$. That is, for an ordered set of integers $(s_1, \cdots, s_j) \subset [i]$ denoting all the steps before $i$ that requester $\updreq$ can observe, the edit request $\up_i$ generated by $\updreq$ on interaction with the curator is given by $$ \begin{equation} \up_i = \updreq(\underbrace{\pub_{s_1}, \pub_{s_2}, \cdots, \pub_{s_j}}_{\eqdef \pub_{\vec{s} &lt; i}}; \underbrace{\up_1, \up_2, \cdots, \up_{i-1}}_{\eqdef \up_{&lt; i}}). \end{equation} $$ </div> <aside> The update requester $\updreq$ encapsulates the curator's interactions with the entire collection of users---with all their unregulatable communications and complex interdependences arising in the real-world outside of view. </aside> <p>It is useful to consider the sequence of indices $\vec{s}$ as the <b>planned versions of publishable outcomes to be released</b> as and when generated by the curator. Outcomes at these time steps will have an influence on the world, which in-turn will affect the subsequent requests and corresponding releases.</p> <figure id="adaptive_requester"> <picture> <source srcset="/assets/img/blog/ForgetUnlearning/adaptive_requester.png" media="(min-width: 768px)"></source> <img srcset="adaptive_requester.png" alt="Example of an edit request"> <figcaption>Visualization of an adaptive edit requester $\updreq$ that looks at a (subset of) past outcome releases to (stochastically) determine the next edit request to issue.</figcaption> </picture> </figure> <p>The above figure depicts an example of an adaptive requester $\updreq$ modelling the interactive nature of the real-world edit requests inserting, deleting, or replacing entries in response to past outcomes released by the curator $(\Lrn, \Unlrn, \publish)$.</p> <pre id="read-interact" style="display:none;">
+\begin{algorithm}
+\caption{Interacting curator $(\mathrm{A}, {\mathrm{\bar A}}, f_{\mathrm{pub}})$ \&amp; requester $\mathbb{Q}$}
+\begin{algorithmic}
+\REQUIRE dataset $D_0 \in \mathcal{X}^n$, observable indices $\vec{s} \in \mathbb{N}^{p}$.
+\STATE {Initialize $\Theta_0 \leftarrow \mathrm{A}(D_0)$}
+\STATE {Publish $\phi_0 \leftarrow f_{\mathrm{pub}}(\Theta_0)$}
+\FOR{$i = 1, 2, \cdots$}
+\STATE {Get next request $u_i \leftarrow \mathbb{Q}(\phi_{\vec{s}&lt;i}; u_{&lt;i})$}
+\STATE {Update model $\Theta_i \leftarrow {\mathrm{\bar A}}(D_{i-1}, u_i, \Theta_{i-1})$}
+\STATE {Publish $\phi_i \leftarrow f_{\mathrm{pub}}(\Theta_i)$}
+\STATE {Update dataset $D_i \leftarrow D_{i-1} \circ u_i$}
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+</pre> <div id="goal-interact"></div> <script type="text/javascript">
+    var code = document.getElementById("read-interact").textContent;
+    var parentEl = document.getElementById("goal-interact");
+    var options = {
+        lineNumber: true
+    };
+    pseudocode.render(code, parentEl, options);
+</script> <p>We refer to a requester $\updreq$ that never gets to see any of the past releases (i.e., $\pub_{\vec{s} &lt;i} = \emptyset$ for all $i \in \N$) as being <strong>non-adaptive</strong>. Similarly, we consider a requester that gets to see all the past releases (i.e., $\pub_{\vec{s} &lt; i} = (\pub_0, \cdots, \pub_{i-1})$) as being <strong>fully-adaptive</strong>. A middle-ground is an update requester that gets to see at most $\pubs$ releases ever (i.e., $\vert\vec{s}\vert \leq \pubs$), which we say is <strong>$\pubs$-adaptive</strong>.</p> <div id="dfn:adaptive_unlearning" class="definition"> <b>(Adaptive Machine unlearning<d-cite key="neel2021descent,gupta2021adaptive"></d-cite>).</b> We say that an algorithm $\Unlrn$ is a <b>non-adaptive $(\eps, \del)$-unlearning</b> algorithm for $\Lrn$ under a publish function $\publish$, if for all initial datasets $\D_0 \in \X^\n$ and all non-adaptive requesters $\updreq$, the following condition holds. For every edit step $i \geq 1$, and for all generated edit sequences ${\up_{\leq i} \eqdef (\up_1, \cdots, \up_i)}$, $$ \begin{equation} \label{eqn:unlearn_neel} \publish(\Unlrn(\D_{i-1}, \up_i, \Theta_{i-1})) \big|_{\up_{\leq i}} \approxDP{\eps,\del} \publish(\Lrn(\D_i)), \end{equation} $$ where $X\approxDP{\eps,\del}Y$, for any two random variables $X, Y$, denotes $(\eps, \del)$-DP like indistinguishability between them. If the above equations holds for all fully-adaptive requesters $\updreq$, we say that $\Unlrn$ is an <b>$(\eps, \del)$-adaptive-unlearning</b> algorithm for $\Lrn$. </div> <h2 id="flaws-in-unlearning">Flaws in Unlearning</h2> <p class="epigraph"> "The controller shall have the obligation to erase personal data without undue delay where ... the data subject withdraws consent ..." <span class="epigraph-source">— Right to be Forgotten, Article 17(1)(b), GDPR.</span> </p> <style>
+.epigraph {
+  text-align: center;
+  font-style: italic;
+  margin-bottom: 20px;
+  text-indent: 2em; /* Indent the epigraph text */
+}
+
+.epigraph-source {
+  font-size: smaller;
+  text-align: right; 
+}
+</style> <p>Now we expose some critical limitations of prior unlearning certifications when it comes to upholding the ``Right to be Forgotten’’. These limitations manifest under a threat model that is actualized in reality. We highlight multiple reasons why both adaptive and non-adaptive machine unlearning, as described in its <a href="#goal-unlearning">definition</a>, are inadequate in addressing the following threat model.</p> <h3 id="threat-model">Threat Model</h3> <p>The RTBF guidelines in GDPR and CCPA require <em>permanent deletion</em> of personal information, <em>regardless of its form</em>, and without <em>undue delay after receipt of a legitimate deletion request from the user</em>. Considering that data curators are given a grace period to process deletion requests, we must assume in our threat model that an attacker targeting a record deleted at the $i^\mathrm{th}$ step can <em>only observe releases by the curator after deletion</em>. In other words, the <strong>attacker sees all post-deletion releases ${\pub_{\geq i} \eqdef (\pub_i, \pub_{i+1}, \cdots)}$.</strong></p> <aside id="4"> Our threat model doesn't include attacks which involve comparing releases before and after deletion (such as Chen et al.'s<d-cite key="chen2021machine"></d-cite>). Succeeding in such attacks technically do not violate RTBF as the model that was released before the issue of the deletion request was the true source of information. </aside> <p>Furthermore, we make another assumption about the attacker that makes it considerably stronger—<strong>the attacker has arbitrary knowledge about how some users may react to certain published outcomes</strong>. This assumption is central to the attack vector arising due to the adaptive nature of the real-world. Even though our attacker can only see published objects <em>after</em> the deletion request has been processed, she can try and deduce what was deleted by looking for patterns among other data records arising due to the <strong>original presence</strong> of the deleted data based on her understanding of the world. That is to say, our attacker knows a little about how people react to things in general, without actually knowing what they reacted to and how in this specific interactions with the curator. Since $\updreq$ encapsulates all the interactions the entire collection of users can have with the curator, our assumption is simple—<strong>attacker knows $\updreq$</strong>.</p> <div class="goal"> The goal of the attacker is to figure out what was deleted at step $i$ by the request $\up_i$. </div> <style>
+.goal {
+  display: block;
+  margin: 16px 0;
+  padding: 12px;
+  background-color: lightblue;
+  border-left: 4px solid darken(lightblue, 10%);
+  border-radius: 4px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.goal:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.goal::before {
+  content: "Goal: ";
+  font-weight: bold;
+  margin-right: 6px;
+}
+</style> <h3 id="failure-under-adaptivity">Failure under Adaptivity</h3> <p>Machine Unlearning guarantees are <strong>not trustworthy</strong> when the addition/deletion requests are <em>adaptive</em>. Before we dive into the technical reasons, let’s look at a couple of illustrative examples to identify the root cause of the failure.</p> <div class="example"> Consider the case of <a href="https://www.instagram.com/samdoesarts" rel="external nofollow noopener" target="_blank">Sam Yang</a>, a renowned Canadian digital illustrator with hundreds of artworks posted on Instagram and a follower count exceeding 2.1 million. <a id="ref-a" href="#fig-a">Figure (a)</a> below shows an original artwork by Sam titled "Night scene with Kara." <figure> <div style="display: flex; justify-content: space-between; gap: 10px;"> <div id="fig-a" style="text-align: center; width: 32%;"> <picture> <img src="/assets/img/blog/ForgetUnlearning/night_scene_with_kara(resized).jpeg" alt="Original 'Night scene with Kara'" style="width: 100%;"> </picture> <figcaption>(<a href="#ref-a">a</a>)) Original "Night scene with Kara".</figcaption> </div> <div id="fig-b" style="text-align: center; width: 32%;"> <picture> <img src="/assets/img/blog/ForgetUnlearning/samdoesarts_model_v2.png" alt="A stylistic copy via the SamDoesArt-V3 model" style="width: 100%;"> </picture> <figcaption>(<a href="#ref-b">b</a>) 1st gen copy <a href="https://huggingface.co/Sandro-Halpo/SamDoesArt-V3" rel="external nofollow noopener" target="_blank">SamDoesArt-V3</a>.</figcaption> </div> <div id="fig-c" style="text-align: center; width: 32%;"> <picture> <img src="/assets/img/blog/ForgetUnlearning/a_free_samdoesart_model_v0.png" alt="A second-generation stylistic copy" style="width: 100%;"> </picture> <figcaption>(<a href="#ref-c">c</a>) 2nd gen copy.</figcaption> </div> </div> <figcaption>A real-life example where even retraining does not ensure total deletion.</figcaption> </figure> <p>Recently, a Redditor utilized Stability AI, a deep-learning platform for creating custom generative models, to train a stable-diffusion model<d-cite key="zhang2023adding"></d-cite>—denoted as $\Theta_0$—using a dataset $\D_0$ exclusively comprised of Sam's artworks. The Redditor then posted examples of generated images online (denoted as $\pub_0$), such as the one shown in <a id="ref-a" href="#fig-b">Figure (b)</a> above. Soon after, internet users began generating and <a href="https://www.reddit.com/r/StableDiffusion/search/?q=samdoesarts" rel="external nofollow noopener" target="_blank">posting stylistic copies</a> on Reddit.</p> <p>Infuriated by this, Sam Yang, along with several other illustrators, filed a class-action lawsuit against Stability AI and Midjourney for copyright infringement<d-cite key="shanti2024midjourney"></d-cite>. Since the uploads of stylistic copies and the deletion of original artworks occurred almost simultaneously, let's refer to these actions collectively as a <it>single batched edit request</it> $\up_1$. In response to the lawsuit, an anonymous Redditor curated a dataset $\D_1 = \D_0 \circ \up_1$ that contained only the stylistic copies, excluding Sam's originals, to circumvent copyright infringement<d-cite key="reddit2022post"></d-cite>. <a id="ref-a" href="#fig-c">Figure (c)</a> above depicts a second-generation stylistic copy $\pub_1$ produced by a model $\Theta_1 = \Lrn(\D_1)$ trained solely on synthetic images. It is evident that Sam's distinctive art style persists, even after retraining from scratch without his original works!</p> </div> <p>To understand the cause of this problem under adaptivity more analytically, let’s consider a simplified variant of this problem.</p> <div class="example"> For a data domain $\X = \{-2, -1, 1, 2\}$, consider the following learning and unlearning algorithms $(\Lrn, \Unlrn)$. For any dataset $\D \subset \X$ and any subset $S \subset \D$ of records to be deleted, $$ \begin{equation} \Lrn(\D) = \sum_{\x \in \D} \x, \quad \text{and} \quad \Unlrn(\D, S, \Lrn(\D)) = \sum_{\x \in \D \setminus S} \x, \end{equation} $$ Note that the unlearning algorithm $\Unlrn$ perfectly imitates the learning algorithm $\Lrn$ as for any deletion request $\up \subset \D$, we have $\Unlrn(\D, \up, \Lrn(\D)) = \Lrn(\D \setminus \up)$. Now consider two neighboring datasets $\D_{-1} = \{-2, -1, 2\}$, $\D_{1} = \{-2, 1, 2\}$ and the following dependence between the learned model $\Lrn(\D)$ and deletion request $\up$: $$ \begin{equation} \up = \begin{cases} \{\x \in \X | \x &lt; 0\} &amp;\text{if}\ \Lrn(\D) &lt; 0, \\ \{\x \in \X | \x \geq 0\} &amp;\text{otherwise.}\end{cases} \end{equation} $$ <p>Knowing this dependence, an attacker can distinguish whether $\D$ is $\D_{-1}$ or $\D_{1}$ by looking solely at $\Unlrn(\D, \x, \Lrn(\D))$. This is because if $\D = \D_{-1}$, then the output after deletion is positive, and if $\D = \D_{1}$ the output is negative. Note that even though $\Unlrn$ perfectly imitates retraining via $\Lrn$ and the attacker does not observe either the model $\Lrn(\D)$ or the request $\up$, she can still ascertain the identity ($-1$ or $1$) of a deleted record. This example demonstrates two things:</p> <p><b>A)</b> Adaptive requests can cause the curator's dataset to have patterns specific to the identity of a target record being deleted.</p> <p><b>B)</b> An attacker knowing the relationship between unobserved releases and deletion requests can infer the identity of the target record by observing only the unlearned model, even if the curator did full retraining.</p> </div> <aside id="5"> Note: An edit request containing only deletion operations, i.e., replacement with $\bot$, can be equivalently denoted as a set $\up \subset \D$ consisting of the records at indices stated in the edit request. </aside> <p>Given the adaptive nature of the real-world interactions, several data deletion definitions in the literature, such as those proposed by <d-cite key="ginart2019making"></d-cite>, <d-cite key="guo2019certified"></d-cite>, and <d-cite key="sekhari2021remember"></d-cite>, that quantify data-deletion based on indistinguishability from retraining do not provide reliable certifications for the <em>“Right to be Forgotten”</em>. Even the <a href="#dfn:adaptive_unlearning">Adaptive unlearning definition</a>, which was specifically designed to ensure RTBF under adaptive deletion requests, fails catastrophically under adaptivity!</p> <h3 id="failure-with-hidden-states">Failure with Hidden-States</h3> <p>Both adaptive and non-adaptive unlearning guarantees are bounds on information leakage about a deleted record through a <i>single released output</i>. However, a <a href="#threat-model">real-world adversary</a> would most likely observe multiple (potentially all) releases $\phi_{&gt;i}$ after deletion. This can lead to another violation of RTBF, even when edit <i>requests are non-adaptive</i>.</p> <figure id="secret_states"> <picture> <img src="/assets/img/blog/ForgetUnlearning/secret_states.png" alt="The problem with deletion when using secret states." style="width: 100%;"> <figcaption>Demonstrating the problem with secret states in $(\eps,\del)$-unlearning as <a href="#dfn:adaptive_unlearning">defined here</a>. Consider a data-point deleted by first edit request $\up_1$. Secret states $\Theta_1, \Theta_2, \cdots$ can carry unbounded information about this deleted record while $\publish$ ensures each individual release carries no more than $(\eps, \del)$ amount of information about deleted records. Since each future release can reveal this much <i>new</i> information, the total leakage composes without any limits.</figcaption> </picture> </figure> <p>This vulnerability arises because many unlearning definitions permit the curator to store secret models<d-cite key="ginart2019making,gupta2021adaptive"></d-cite> while requiring indistinguishability only over the output of a publishing function $\publish$. These secret models may propagate encoded information about records even after their deletion from the dataset. So, every subsequent release by an unlearning algorithm can reveal <i>new information</i> about a record that was purportedly erased multiple edits earlier. That is, an adversary that <b>observes enough future releases</b> may learn <i>everything</i> about the deleted record through the <i>post-deletion</i> releases!</p> <h3 id="incompleteness">Incompleteness</h3> <p>Finally, the <a href="#goal-unlearning">$(\eps, \del)$-unlearning guarantee</a> disregards perfectly valid deletion algorithms. For instance, an algorithm $\Unlrn$ that outputs a <i>fixed untrained model</i> $\theta \in \Y$ in response to any deletion request $\forget$ is a valid deletion algorithm because its output contains no information about the deleted records in $\forget$. However, since its fixed output $\theta$ is easy to tell apart from that of retraining done by any sensible learning algorithm $\Lrn$, the algorithm $\Unlrn$ cannot satisfy <a href="#goal-unlearning">this definition</a>, or <a href="#dfn:adaptive_unlearning">this definition</a>, or any other unlearning variants in literature<d-cite key="sekhari2021remember,ginart2019making,guo2019certified"></d-cite>. In other words, <b>machine unlearning guarantees are incomplete quantifiers of data deletion</b>.</p> <h2 id="trustworthy-data-deletion">Trustworthy Data-Deletion</h2> <p>To address these issues with existing notions of unlearning, let’s introduce a new definition of deletion privacy.</p> <div id="def:deletion" class="definition"> <b>($(\eps, \del)$-deletion privacy).</b> An algorithm pair $(\Lrn, \Unlrn)$ satisfies $(\eps, \del)$-deletion privacy if for all datasets $\D$ and all edit requests $\forget$ (potentially chosen reactively after seeing $\Lrn(\D)$), we have that for all records $\x \in \D$ that gets deleted by $\forget$, there exists a random variable $\Theta_\x$ that is independent of the data-point $\x$ such that $$ \begin{equation} \forall S \in \Y, \quad \prob{}{\Unlrn(\D, \forget, \Lrn(\D)) \in S} \leq e^\eps \cdot \prob{}{ \Theta_\x \in S} + \del. \end{equation} $$ </div> <aside id="6"> Think of $\Theta_\x$ as a model that is free of any influence due to the <b>original presence</b> of $\x$ in $\D$. A satisfying construction of $\Theta_\x$ could be the output from an alternate run of the interatction between curator $(\Lrn, \Unlrn)$ and the requester $\updreq$ on a neighbouring dataset $\D' = \D \setminus \{\x\}$ that never contained $\x$. </aside> <p>Firstly, using secret states that depend on deleted records to speed up unlearning can violate RTBF. To prevent such violations, our definition directly quantify deletion for an unlearned model rather than after applying any publish function, i.e., setting $\publish(\theta) = \theta$</p> <p>Secondly, as demonstrated previously, adaptive requests can encode patterns specific to a target record which persists in the dataset even after deletion of the target record, making indistinguishable-from-retraining based deletion certifications unreliable. Our definition accounts for the worst-case influence adaptive requests by measuring the indistinguishability of an unlearning mechanism’s output from that of some constructed random variable $\Theta_\x$ that must be independent of the deleted record <i>by design</i>.</p> <p><b>Soundness of $(\eps, \del)$-deletion privacy.</b> The above <a href="#def:deletion">definition</a> reliably safeguards the <i>“Right to be Forgotten”</i> as the random variable $\Theta_\x$ stays independent of the deleted record $\x$ by design, even when the update requester $\updreq$ is fully-adaptive. When an attacker aims to identify a record in $\D$ that is being deleted in edit request $\up$, the inequality in the definition ensures that any observer of the unlearned model $\Unlrn(\D, \up, \Lrn(\D))$ cannot be overly certain that the observation was <i>not</i> $\Theta_\x$ instead. Hence, the unlearned model itself must possess minimal information regarding the deleted record $\x$. This argument allows us to establish the following guarantee of soundness.</p> <div id="thm:soundness" class="theorem"> If the algorithm pair $(\Lrn, \Unlrn)$ satisfies $(\eps, \del)$-deletion privacy guarantee under all $\pubs$-adaptive requesters, then any attacker ${\text{MI}: \Y^* \rightarrow \{0,1\}}$ observing only the post-deletion models $\Theta_{\geq i} = (\Theta_i, \Theta_{i+1}, \cdots) \in \Y^*$ after processing the request $\up_i$ has an advantage $$ \begin{equation} \text{Adv}(\mathrm{MI}) \eqdef \prob{}{\mathrm{MI}(\Theta_{\geq i}) = 1 \big| \x} - \prob{}{\mathrm{MI}(\Theta_{\geq i}) = 1 \big| \x'} \end{equation} $$ for disambiguating between two possible values $\x, \x' \in \X$ of a record in $\D_{i-1}$ deleted by request $\up_i$ bounded as follows. $$ \begin{equation} \label{eqn:adv_sound} \text{Adv}(\mathrm{MI}) \leq e^\eps - 1 + 2\del. \end{equation} $$ </div> <h3 id="link-to-differential-privacy">Link to Differential Privacy</h3> <p>A differential privacy guarantee on $\Lrn$ and $\Unlrn$ sets a limit on the information present in an unlearned model regarding individual records that <i>remain in the dataset</i>. However, our concept of deletion privacy specifically restricts the information concerning <i>only the deleted records</i>. These two notions are <b>orthogonal</b>—an algorithm pair $(\Lrn, \Unlrn)$ can satisfy $(\epsdd,\del)$-deletion privacy without providing $(\epsdp,\del)$-differential privacy for any $\infty &gt; \epsdp &gt; 0$. These two notions are also <b>compatible</b>—an algorithm pair $(\Lrn, \Unlrn)$ can simultaneously satisfy $(\epsdp,\del)$-differential privacy and $(\epsdd, \del)$-deletion privacy with $\epsdd \ll \epsdp$ for non-adaptive update requesters $\updreq$.</p> <p>However, the two types of privacy certifications are connected—an $(\epsdp,\del)$-differential privacy is both a <b>necessary</b> and a <b>sufficient</b> condition to ensure that a non-adaptive $(\epsdd, \del)$-deletion privacy guarantee for $(\Lrn, \Unlrn)$ extends to adaptive settings (which is significantly more challenging) with a <i>graceful degradation</i> in deletion certification.</p> <h4 id="sufficiency">Sufficiency</h4> <p>For the <b>sufficient</b> part, note that when $\Lrn$ and $\Unlrn$ are both differentially private, they prevent an adaptive requester from establishing dependencies between records in the curator’s dataset. By leveraging this property, we establish a reduction from adaptive to non-adaptive deletion privacy only assuming that $\Lrn$ and $\Unlrn$ also satisfy $(\epsdp,\del)$-differential privacy.</p> <figure id="dp_dependence"> <picture> <img src="/assets/img/blog/ForgetUnlearning/dp_deletion.png" alt="Relationship between diffential and deletion privacy." style="width: 100%;"> <figcaption>Differential privacy guarantee controls how much inter-dependence an adaptive userbase can introduce between the entries in the dataset over a period of time (or, in our case, number of planned releases $\pubs$).</figcaption> </picture> </figure> <div id="thm:reduction" class="theorem"> If an algorithm pair $(\Lrn, \Unlrn)$ satisfies $(\epsdd, \del)$-deletion privacy under all non-adaptive requesters and is also $(\epsdp, \del)$-differentially private, then pair $(\Lrn, \Unlrn)$ also satisfies $(\epsdd', (\pubs + 2)\del)$-deletion privacy under all $\pubs$-adaptive requesters, for $$ \begin{equation} \epsdd' = \epsdd + \pubs \epsdp(e^\epsdp - 1) + \epsdp\sqrt{2\pubs \log(1/\del)}. \end{equation} $$ </div> <aside id="7"> This theorem is essentially the same as composition of the $\pubs$-fold $(\epsdp, \del)$-differential privacy guarantees with a singular $(\epsdd,\del)$-deletion privacy guarantee. </aside> <p>When $\epsdd \ll \epsdp$, note that the adaptive deletion privacy guarantee is barely larger than just the DP bound on the total information revealed about the deleted record through the past releases before the deletion request was issued. That is to say, when $\Lrn, \Unlrn$ are differentially private, any deletion privacy guarantee under non-adaptivity <i>gracefully reduces to deletion-privacy under adaptivity</i> with the worst-case degradation being equivalent to the composition of the two bounds.</p> <p>The great thing about this theorem is that it simplifies the certification process for unlearning algorithms to ensure RTBF compliance. Under the assumption that deletion requests are independent of previous releases, i.e., non-adaptive, showing that the algorithm pair $(\Lrn, \Unlrn)$ is both differentially private and provides deletion privacy is sufficient!</p> <h4 id="necessity">Necessity</h4> <p>In order to guarantee deletion privacy for erased records in the real-world setting, it is <b>necessary</b> for the unlearning algorithm to uphold the privacy of records that remain undeleted. This is because the only effective means of preventing the adaptive world from reacting to the presence of a target record before deletion is by ensuring it never becomes aware of its existence.</p> <div id="thm:necessary" class="theorem"> Let $\Test: \Y \rightarrow \{0, 1\}$ be a membership inference test for $\Lrn$ to distinguish between neighboring datasets $\D, \D' \in \X^\n$. Similarly, let $\Testb: \Y \rightarrow \{0, 1\}$ be a membership inference test for $\Unlrn$ to distinguish between $\bar\D, \bar\D' \in \X^\n$. If $\text{Adv}(\Test) &gt; \Delta_\Lrn$ and $\text{Adv}(\Testb) &gt; \Delta_\Unlrn$, then the pair $(\Lrn, \Unlrn)$ <i>cannot</i> satisfy $(\eps, \del)$-deletion privacy under all $1$-adaptive requester for any $$ \begin{equation} \eps &lt; \log(1 + \Delta_\Lrn \cdot \Delta_\Unlrn - 2\del). \end{equation} $$ </div> <aside id="8"> In layman terms, this theorem says that if membership inference attacks are possible for the records not being deleted (i.e., no differential privacy), then there exists some adaptive requester for which it is impossible to guarantee $(\epsdd, \del)$-deletion privacy with tiny values of $(\epsdd, \del)$. </aside> <p>This theorem shows that without membership privacy, which is ensured by differential privacy, it isn’t possible to provide any non-trivial deletion privacy guarantees under adaptivity. Therefore, for building reliable unlearning algorithms, we should look towards differentially-private algorithms.</p> <h4 id="clarifying-the-need-for-differential-privacy">Clarifying the need for Differential Privacy.</h4> <p>It is important to emphasize that we are not advocating for unlearning solely through differentially private mechanisms, as they uniformly limit the information content of all records, whether deleted or not. Instead, an effective unlearning algorithm should offer two distinct information retainment bounds: one for the records currently present in the dataset, provided by a differential privacy guarantee, and a significantly smaller bound for the records previously deleted, ensured through a non-adaptive deletion privacy guarantee. Together, these two bounds ensure privacy of deleted records under adaptivity, thanks to <a href="#thm:reduction">this theorem</a>.</p> <h2 id="conclusion">Conclusion</h2> <p>In this blog post, we highlighted that existing unlearning certifications in literature are unreliable in real-world scenarios, mainly due to their failure in handling adaptive deletion requests and because they permit unchecked propagation of deleted information through internal states as they only measure indistinguishability for outputs. To mitigate these, we proposed a new deletion guarantee that safeguards the ``Right to be Forgotten’’ in a provably secure way. We also showed the importance of protecting the privacy of existing records in order to ensure privacy of deleted records under adaptive deletions, and established connections between deletion privacy and differential privacy.</p> </d-article> <d-appendix> <d-footnote-list></d-footnote-list> <d-citation-list></d-citation-list> </d-appendix> <d-bibliography src="/assets/bibliography//2023-02-15-ForgetUnlearning.bib"></d-bibliography> <d-article> <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2> <p class="mb-2">Here are some more articles you might like to read next:</p> <ul class="list-disc pl-7 my-3 space-y-2 marker:text-[var(--global-theme-color)]"> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2025/AuditingDP/">Auditing ε-DP using Reconstruction Attacks</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2021/DPDynamics/">DP Dynamics of Noisy Gradient Descent (Part 2)</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2020/understanding-privacy-leakage-in-machine-learning-part1/">Understanding Privacy leakage in Machine Learning (Part 1)</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2019/gsoc19-project-introduction/">GSoC 2019 Project: Extending Chainer compiler to support python jump syntax</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2018/Understanding-GAIL/">Understanding Generative Adverserial Imitation Learning</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2018/iitg-proxy-checker-ubuntu-install/">IITG proxy-checker and autoconfiguration package for ubuntu.</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2017/iitg-netspeed-hack-using-ssh-tunneling/">How to establish SSH behind a firewall, and use it to bypass port restrictions (Better than OpenVPN).</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2017/simple-swarm-intelligence-optimization-for-cartpole-balancing-problem/">Particle Swarm Optimization balancing Cart-Pole</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2016/mario-bros-RL/">Mario Bros Rl</a> </li> </ul> <br> <br> </d-article> </div> <footer class="sticky-bottom mt-5" role="contentinfo"> <div class="container"> © Copyright 2026 Rishav Chourasia. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. Photos from <a href="https://unsplash.com" target="_blank" rel="external nofollow noopener">Unsplash</a>. Last updated: July 17, 2026. </div> </footer> <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script> <script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script> <script src="/assets/js/distillpub/overrides.js"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script> <script src="/assets/al_math/js/mathjax-setup.js"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script> <script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script> <script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script> <script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-N54C9YQE94"></script> <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "G-N54C9YQE94");
+</script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/assets/al_img_tools/js/zoom.js"></script> <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script> <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script> <script>
+    addBackToTop();
+  </script> <script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script> <ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys> <script src="/assets/al_search/js/search-setup.js"></script> <script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-blog",
+          title: "blog",
+          description: "",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/blog/";
+          },
+        },{id: "nav-publications",
+          title: "publications",
+          description: "publications by categories in reversed chronological order. generated by jekyll-scholar.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-projects",
+          title: "projects",
+          description: "Research threads and side projects — privacy, ML, and compilers.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/projects/";
+          },
+        },{id: "nav-cv",
+          title: "cv",
+          description: "My full CV / résumé (PDF).",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/cv/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "My teaching experience.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "post-auditing-ε-dp-using-reconstruction-attacks",
+        
+          title: "Auditing ε-DP using Reconstruction Attacks",
+        
+        description: "Auditing Differential Privacy using Reconstruction Attacks",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2025/AuditingDP/";
+          
+        },
+      },{id: "post-failure-in-machine-unlearning-and-how-to-guarantee-deletion",
+        
+          title: "Failure in Machine Unlearning and How to Guarantee Deletion",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2023/ForgetUnlearning/";
+          
+        },
+      },{id: "post-dp-dynamics-of-noisy-gradient-descent-part-2",
+        
+          title: "DP Dynamics of Noisy Gradient Descent (Part 2)",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2021/DPDynamics/";
+          
+        },
+      },{id: "post-understanding-privacy-leakage-in-machine-learning-part-1",
+        
+          title: "Understanding Privacy leakage in Machine Learning (Part 1)",
+        
+        description: "Understanding Privacy leakage in Machine Learning (Part 1)",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2020/understanding-privacy-leakage-in-machine-learning-part1/";
+          
+        },
+      },{id: "post-gsoc-2019-project-extending-chainer-compiler-to-support-python-jump-syntax",
+        
+          title: "GSoC 2019 Project: Extending Chainer compiler to support python jump syntax",
+        
+        description: "GSoC 2019 Project: Extending Chainer compiler to support python jump syntax",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2019/gsoc19-project-introduction/";
+          
+        },
+      },{id: "post-understanding-generative-adverserial-imitation-learning",
+        
+          title: "Understanding Generative Adverserial Imitation Learning",
+        
+        description: "Understanding Generative Adverserial Imitation Learning",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2018/Understanding-GAIL/";
+          
+        },
+      },{id: "post-iitg-proxy-checker-and-autoconfiguration-package-for-ubuntu",
+        
+          title: "IITG proxy-checker and autoconfiguration package for ubuntu.",
+        
+        description: "IITG proxy-checker and autoconfiguration package for ubuntu.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2018/iitg-proxy-checker-ubuntu-install/";
+          
+        },
+      },{id: "post-how-to-establish-ssh-behind-a-firewall-and-use-it-to-bypass-port-restrictions-better-than-openvpn",
+        
+          title: "How to establish SSH behind a firewall, and use it to bypass port...",
+        
+        description: "How to establish SSH behind a firewall, and use it to bypass port restrictions (Better than OpenVPN).",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2017/iitg-netspeed-hack-using-ssh-tunneling/";
+          
+        },
+      },{id: "post-particle-swarm-optimization-balancing-cart-pole",
+        
+          title: "Particle Swarm Optimization balancing Cart-Pole",
+        
+        description: "Particle Swarm Optimization balancing Cart-Pole",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2017/simple-swarm-intelligence-optimization-for-cartpole-balancing-problem/";
+          
+        },
+      },{id: "post-mario-bros-rl",
+        
+          title: "Mario Bros Rl",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2016/mario-bros-RL/";
+          
+        },
+      },{id: "news-updated-my-blog-on-differential-privacy-in-ml-site-baseurl-blog-2020-understanding-privacy-leakage-in-machine-learning-part1",
+          title: 'Updated my blog on [Differential Privacy in ML]({{ site.baseurl }}/blog/2020/understanding-privacy-leakage-in-machine-learning-part1/)!',
+          description: "",
+          section: "News",},{id: "news-my-paper-on-differential-privacy-dynamics-of-langevin-diffusionand-noisy-gradient-descent-https-arxiv-org-abs-2102-05855-got-accepted-as-spotlight-https-proceedings-neurips-cc-paper-2021-hash-7c6c1a7bfde175bed616b39247ccace1-abstract-html-at-neurips-2021-among-3-of-submissions",
+          title: 'My paper on [Differential Privacy Dynamics of Langevin Diffusionand Noisy Gradient Descent](https://arxiv.org/abs/2102.05855) got...',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-interning-at-google-brain-this-summer-collaborating-with-krishnamurthy-dvijotham-https-dj-research-netlify-app-and-abhradeep-thakurta-https-athakurta-squarespace-com-in-the-privacy-and-security-research-team",
+          title: 'I&amp;#39;ll be interning at Google Brain this summer, collaborating with [Krishnamurthy Dvijotham](https://dj-research.netlify.app/) and...',
+          description: "",
+          section: "News",},{id: "news-added-a-blog-post-on-flaws-in-machine-unlearning-site-baseurl-blog-2023-forgetunlearning",
+          title: 'Added a blog post on [Flaws in Machine Unlearning]({{ site.baseurl }}/blog/2023/ForgetUnlearning/)!',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-giving-a-talk-on-my-icml-2023-paper-forget-unlearning-towards-true-data-deletion-in-machine-learning-https-arxiv-org-pdf-2210-08911-pdf-at-forc-2023-https-responsiblecomputing-org-forc-2023-at-stanford-university",
+          title: 'I&amp;#39;ll be giving a talk on my ICML 2023 paper [Forget Unlearning: Towards...',
+          description: "",
+          section: "News",},{id: "news-i-joined-betterdata-https-www-betterdata-ai-as-a-part-time-student-researcher-i-39-ll-be-working-on-privacy-auditing-for-tabular-synthetic-data-generators",
+          title: 'I joined **[Betterdata](https://www.betterdata.ai/)** as a part-time student researcher. I&amp;#39;ll be working on privacy...',
+          description: "",
+          section: "News",},{id: "news-i-successfully-cleared-my-thesis-proposal-with-wonderful-reviews-assets-pdf-proposal-feedback-pdf",
+          title: 'I successfully cleared my thesis proposal with **[wonderful reviews](assets/pdf/proposal-feedback.pdf)**!',
+          description: "",
+          section: "News",},{id: "news-betterdata-won-the-us-department-of-homeland-security-39-s-s-amp-t-awards-contract-https-www-dhs-gov-science-and-technology-news-2024-10-08-st-awards-contracts-four-startups-develop-privacy-enhancing-synthetic-data-generation-capabilities-to-develop-privacy-enhancing-synthetic-data-generation-capabilities",
+          title: 'Betterdata won the **[US Department of Homeland Security&amp;#39;s S&amp;amp;T Awards Contract](https://www.dhs.gov/science-and-technology/news/2024/10/08/st-awards-contracts-four-startups-develop-privacy-enhancing-synthetic-data-generation-capabilities)** to develop...',
+          description: "",
+          section: "News",},{id: "news-i-submitted-my-ph-d-thesis-quot-learning-and-unlearning-with-noisy-gradient-descent-quot-assets-pdf-phd-thesis-pdf-for-evaluation",
+          title: 'I submitted my Ph.D. thesis [&amp;quot;Learning and Unlearning with Noisy Gradient Descent&amp;quot;](assets/pdf/Phd-thesis.pdf) for...',
+          description: "",
+          section: "News",},{id: "news-my-paper-on-laplace-transform-interpretation-of-differential-privacy-https-arxiv-org-abs-2411-09142-was-accepted-at-forc-2025-https-responsiblecomputing-org-forc-2025-accepted-papers",
+          title: 'My paper on [Laplace Transform Interpretation of Differential Privacy](https://arxiv.org/abs/2411.09142) was accepted at [FORC...',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-giving-a-talk-on-laplace-transform-interpretation-of-differential-privacy-https-arxiv-org-abs-2411-09142-at-the-ppai-workshop-https-ppai-workshop-github-io-accepted-papers",
+          title: 'I&amp;#39;ll be giving a talk on [Laplace Transform Interpretation of Differential Privacy](https://arxiv.org/abs/2411.09142) at...',
+          description: "",
+          section: "News",},{id: "news-i-39-m-giving-a-contributed-talk-at-tpdp-2025-https-tpdp-journalprivacyconfidentiality-org-2025-which-is-being-held-at-google-in-mountain-view-ca-on-june-2-3-2025",
+          title: 'I&amp;#39;m giving a contributed talk at [TPDP 2025](https://tpdp.journalprivacyconfidentiality.org/2025/), which is being held at...',
+          description: "",
+          section: "News",},{id: "news-i-39-m-giving-a-talk-at-forc-2025-https-tpdp-journalprivacyconfidentiality-org-2025-being-organized-this-year-at-stanford-university-on-june-4-7-2025",
+          title: 'I&amp;#39;m giving a talk at [FORC 2025](https://tpdp.journalprivacyconfidentiality.org/2025/), being organized this year at Stanford...',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-defending-my-ph-d-thesis-on-may-26th-venue-sr9-com1-02-09-school-of-computing-national-university-of-singapore",
+          title: 'I&amp;#39;ll be **[defending my Ph.D. Thesis on May 26th]()**. Venue: SR9 COM1 02-09,...',
+          description: "",
+          section: "News",},{id: "news-my-paper-on-one-run-privacy-auditing-for-structured-generative-and-foundation-models-site-baseurl-assets-pdf-chourasiaone-pdf-was-accepted-at-the-fmsd-workshop-https-icml-structured-fm-workshop-github-io-in-icml-2025",
+          title: 'My paper on [One-Run Privacy Auditing for Structured Generative and Foundation Models]({{ site.baseurl...',
+          description: "",
+          section: "News",},{id: "news-i-39-ve-taken-on-the-role-of-head-of-product-at-betterdata-https-www-betterdata-ai-leading-our-privacy-preserving-synthetic-data-platform",
+          title: 'I&amp;#39;ve taken on the role of **Head of Product** at [Betterdata](https://www.betterdata.ai/), leading our...',
+          description: "",
+          section: "News",},{id: "news-our-paper-auditing-apple-39-s-differentialprivacy-framework-https-doi-ieeecomputersociety-org-10-1109-sp63933-2026-00225-won-a-distinguished-paper-award-at-ieee-s-amp-p-2026-https-sp2026-ieee-security-org-we-ran-the-first-independent-audit-of-the-differential-privacy-code-running-on-billions-of-apple-devices",
+          title: 'Our paper [**Auditing Apple&amp;#39;s DifferentialPrivacy.framework**](https://doi.ieeecomputersociety.org/10.1109/SP63933.2026.00225) won a **Distinguished Paper Award** at [IEEE S&amp;amp;P...',
+          description: "",
+          section: "News",},{id: "projects-last-iterate-dp-sgd-bound",
+          title: 'Last-iterate DP-SGD bound',
+          description: "Last-iterate privacy guarantees for DP-SGD",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/DPdynamics/";
+            },},{id: "projects-elichika-compiler",
+          title: 'Elichika Compiler',
+          description: "Python to Onnx compiler for Chainer ML",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/elichika/";
+            },},{id: "projects-grasping-dp",
+          title: 'Grasping DP',
+          description: "A useful interpretation of differential privacy using Laplace transforms",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/laplace/";
+            },},{id: "projects-dp-auditing",
+          title: 'DP Auditing',
+          description: "An auditor for detecting violations of Differential Privacy",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/litmus/";
+            },},{id: "projects-machine-unlearning",
+          title: 'Machine Unlearning',
+          description: "Deleting information efficiently and reliably from ML models",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/unlearning/";
+            },},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/resume.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%72%69%73%68%61%76@%62%65%74%74%65%72%64%61%74%61.%61%69", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=UEAtkFYAAAAJ", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/Rishav1", "_blank");
+        },
+      },{
+        id: 'social-bluesky',
+        title: 'Bluesky',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://bsky.app/profile/rishav84ia.bsky.social", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script> <script src="/assets/al_search/js/shortcut-key.js"></script> </body> </html>

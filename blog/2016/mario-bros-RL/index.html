@@ -1,0 +1,646 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd"> <html><body> <p>– layout: post title: “AI learns to play Super Mario Bros” date: 2016-10-29 05:12:00-0530 description: “AI learns to play Super Mario Bros” keywords: “mario, Markovian Decision Process, MDP, Monte Carlo, FCEUX, Lua” categories: [Rein_learning] tags: [mario, Markovian Decision Process, MDP, Monte Carlo, FCEUX, Lua] icon: icon-htmlddd comments: true —</p> <p class="text-justify">This project was inspired by the Mario AI that went viral recently. The AI was designed to learn how to play Super Mario Bros game using a genetic algorithm, popularly known as Neural Evolution through Augmenting Topologies(NEAT). The logic behind NEAT is that by using a method to carefully selectively breed good performing Neural nets, and by mutating them slightly, the model can learn to optimize any black-box function effectively.</p> <div align="center"> <iframe id="ytplayer" type="text/html" width="640" height="480" src="https://www.youtube.com/embed/qv6UVOQ0F44" frameborder="0" fs="0"></iframe> <p>A NEAT model playing Super Mario Bros.</p> </div> <p class="text-justify">This inspired me to try out some basic reinforcement learning models on my own. I read about Markovian Decision Process based RL models from a really good book, <a href="web.stanford.edu/class/psych209/Readings/SuttonBartoIPRLBook2ndEd.pdf">“Reinforcement Learning: An Introduction” by Richard S. Sutton and Andrew G. Barto</a>. Among the models presented in the book, I used a model based on Monte Carlo, which utilizes the positive properties of Dynamic Programming and Monte-Carlo models(also MDP based).</p> <p class="text-justify">For the purpose of creating an environment for the RL model, I used an open-sourced Nintendo Entertainment System(NES) simulator <a href="www.fceux.com/web/home.html">FCEUX v2.2.2</a>, that supports <a href="www.lua.org/">Lua</a> scripting to read/write RAM map and automate joy-pad inputs. A famous Lua library named <a href="torch.ch/">Torch</a> was used for some mathematical computations. I reused some code of the MarI/O NEAT implementation by Seth Bling to read RAM map and setup the environment for my RL model. In this blog, I have tried to explain the concept of Monte Carlo learning model and my implementation of a modification to this model that learns to play Mario.</p> <p class="text-justify">Markov Decision process is a discrete time stochastic control process, that satisfies the condition that the state the system moves to, when the agent takes an action, depends only on the current state and not on the entire path of states it took to reach the current state. If the dynamics of the system, i.e. the transition probabilities <strong>p(s’|s,a)</strong> of reaching some state <strong>s’</strong> when an action <strong>a</strong> was taken at some state <strong>s</strong>, is completely know, we can find the probability of the system being in a state using the theory for Markov Decision Processes. If for each <strong>s</strong> to <strong>s’</strong> state transition, the agent is given a reward <strong>r(s,s’)</strong>, and the agent wants to select actions for each state so that the net long-term λ-discounted rewards is maximized, then our problem reduces to finding an optimal <strong>Policy</strong> (mapping of states to actions) that gives the best long-term rewards. An iterative method of finding the optimal <strong>Policy</strong> for such an MDP is called Dynamic Programing, and is explained in Chapter 4 of <a href="web.stanford.edu/class/psych209/Readings/SuttonBartoIPRLBook2ndEd.pdf">this book</a>. In Dynamic Programing, we iteratively calculate the optimal <strong>Value</strong> function, i.e. the function giving net expected returns for the optimal <strong>Policy</strong> starting from the input state, and using this optimal value function, the optimal policy is calculated.</p> <p align="center"><img src="/assets/img/blog/Mario/MDP.png" alt="blog-image" width="640" height="480"></p> <p align="center">An example MDP with three states corresponding actions with transition probabilities.</p> <p align="center"><img src="/assets/img/blog/Mario/DP.png" alt="blog-image" width="640" height="480"></p> <p align="center">Psuedocode of Dynamic Programming model for finding optimal Policy.</p> <p class="text-justify">The environment of Mario is a bit tricky. We don’t completely know the transition probabilities of any action(Buttons to press on joy-pad) taken for any state(the grid of block world surrounding Mario). In other words, we don’t know beforehand what next screen input would we see (and with what probability) if we decide to make Mario jump on the current screen input. To tackle this problem, we will use another RL method that works on similar grounds as Dynamic Programming, called Monte-Carlo method. The difference in this method is that instead of having using the transition probabilities(which is unavailable in our case) to find the <strong>Value</strong> function, it runs episodes of environment simulations to approximate the optimal <strong>Quality</strong> function (similar to <strong>Value</strong> function), using which, it computes the optimal <strong>Policy</strong>. The benefit of this method is that we don’t have to know the dynamics of the environment beforehand, just a way to extract data from this dynamic environment by running episodic simulations (which can be done in our case). A shortcoming of this method however is that it requires “Exploring Start”, i.e. the freedom to start randomly from different states for different episodes, which is tough to implement(randomly initialize Mario from any place in the game) in our case.</p> <p align="center"><img src="/assets/img/blog/Mario/MC-ES.png" alt="blog-image" width="640" height="480"></p> <p align="center">Psuedocode of Monte Carlo model with exploring starts for finding optimal Policy.</p> <p class="text-justify">We can do away with the requirement of having exploring start by using an ϵ-soft policy, i.e. regardless of whatever optimal policy we know of yet, their is always a small probability ϵ that a non-optimal random action is taken at each state, which helps the algorithm to keep on exploring new optimal policies. The psuedocode of this algorithm is given below.</p> <p align="center"><img src="/assets/img/blog/Mario/epsilon-MC.png" alt="blog-image" width="640" height="480"></p> <p align="center">Psuedocode of ϵ-soft policy Monte Carlo algorithm.</p> <p class="text-justify">The above model can be used for training our Mario AI. Let’s first create an environment for the model, and then we will proceed on to the implementation of the model.</p> <figure class="highlight"><pre><code class="language-lua" data-lang="lua"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+</pre></td> <td class="code"><pre><span class="n">player1</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">BoxRadius</span><span class="o">=</span><span class="mi">6</span>
+<span class="n">InputSize</span> <span class="o">=</span> <span class="p">(</span><span class="n">BoxRadius</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">BoxRadius</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">TIMEOUT</span><span class="o">=</span><span class="mi">50</span>
+
+<span class="c1">-- Import the requires libraries.</span>
+<span class="k">function</span> <span class="nf">set_imports</span><span class="p">()</span>
+  <span class="nb">require</span><span class="p">(</span><span class="s2">"torch"</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c1">-- Function to set a particular level and world.</span>
+<span class="k">function</span> <span class="nf">set_level</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="n">level</span><span class="p">)</span>
+  <span class="n">memory</span><span class="p">.</span><span class="n">writebyte</span><span class="p">(</span><span class="mh">0x75F</span><span class="p">,</span><span class="n">world</span><span class="p">)</span>
+  <span class="n">memory</span><span class="p">.</span><span class="n">writebyte</span><span class="p">(</span><span class="mh">0x75C</span><span class="p">,</span><span class="n">level</span><span class="p">)</span>
+  <span class="n">memory</span><span class="p">.</span><span class="n">writebyte</span><span class="p">(</span><span class="mh">0x760</span><span class="p">,</span><span class="n">level</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c1">-- Function to set the global Mario location.</span>
+<span class="k">function</span> <span class="nf">getPositions</span><span class="p">()</span>
+  <span class="n">marioX</span> <span class="o">=</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x6D</span><span class="p">)</span> <span class="o">*</span> <span class="mh">0x100</span> <span class="o">+</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span> <span class="mh">0x86</span> <span class="p">)</span>
+  <span class="n">marioY</span> <span class="o">=</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x03B8</span><span class="p">)</span><span class="o">+</span><span class="mi">16</span>
+  <span class="n">screenX</span> <span class="o">=</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x03AD</span><span class="p">)</span>
+  <span class="n">screenY</span> <span class="o">=</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x03B8</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c1">-- Function to get a particular tile with respect to Mario.</span>
+<span class="k">function</span> <span class="nf">getTile</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+  <span class="kd">local</span> <span class="n">x</span> <span class="o">=</span> <span class="n">marioX</span> <span class="o">+</span> <span class="n">dx</span> <span class="o">+</span> <span class="mi">8</span>
+  <span class="kd">local</span> <span class="n">y</span> <span class="o">=</span> <span class="n">marioY</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">-</span> <span class="mi">16</span>
+
+  <span class="kd">local</span> <span class="n">page</span> <span class="o">=</span> <span class="nb">math.floor</span><span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="mi">256</span><span class="p">)</span><span class="o">%</span><span class="mi">2</span>
+  <span class="kd">local</span> <span class="n">subx</span> <span class="o">=</span> <span class="nb">math.floor</span><span class="p">((</span><span class="n">x</span><span class="o">%</span><span class="mi">256</span><span class="p">)</span><span class="o">/</span><span class="mi">16</span><span class="p">)</span>
+  <span class="kd">local</span> <span class="n">suby</span> <span class="o">=</span> <span class="nb">math.floor</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="mi">32</span><span class="p">)</span><span class="o">/</span><span class="mi">16</span><span class="p">)</span>
+  <span class="kd">local</span> <span class="n">addr</span> <span class="o">=</span> <span class="mh">0x500</span> <span class="o">+</span> <span class="n">page</span><span class="o">*</span><span class="mi">13</span><span class="o">*</span><span class="mi">16</span><span class="o">+</span><span class="n">suby</span><span class="o">*</span><span class="mi">16</span><span class="o">+</span><span class="n">subx</span>
+
+  <span class="k">if</span> <span class="n">suby</span> <span class="o">&gt;=</span> <span class="mi">13</span> <span class="ow">or</span> <span class="n">suby</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">then</span>
+          <span class="k">return</span> <span class="mi">0</span>
+  <span class="k">end</span>
+
+  <span class="k">if</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span> <span class="o">~=</span> <span class="mi">0</span> <span class="k">then</span>
+          <span class="k">return</span> <span class="mi">1</span>
+  <span class="k">else</span>
+          <span class="k">return</span> <span class="mi">0</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1">-- Function to get the enemy tile locations.</span>
+<span class="k">function</span> <span class="nf">getSprites</span><span class="p">()</span>
+  <span class="kd">local</span> <span class="n">sprites</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="k">for</span> <span class="n">slot</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mi">4</span> <span class="k">do</span>
+    <span class="kd">local</span> <span class="n">enemy</span> <span class="o">=</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span> <span class="mh">0xF</span><span class="o">+</span><span class="n">slot</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">enemy</span> <span class="o">~=</span> <span class="mi">0</span> <span class="k">then</span>
+      <span class="kd">local</span> <span class="n">ex</span> <span class="o">=</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span> <span class="mh">0x6E</span> <span class="o">+</span> <span class="nb">tonumber</span><span class="p">(</span><span class="n">slot</span><span class="p">))</span><span class="o">*</span> <span class="mh">0x100</span> <span class="o">+</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span> <span class="mh">0x87</span> <span class="o">+</span> <span class="nb">tonumber</span><span class="p">(</span><span class="n">slot</span><span class="p">))</span>
+      <span class="kd">local</span> <span class="n">ey</span> <span class="o">=</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span> <span class="mh">0xCF</span> <span class="o">+</span> <span class="n">slot</span><span class="p">)</span> <span class="o">+</span> <span class="mi">24</span>
+      <span class="n">sprites</span><span class="p">[</span><span class="o">#</span><span class="n">sprites</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{[</span><span class="s2">"x"</span><span class="p">]</span><span class="o">=</span><span class="n">ex</span><span class="p">,[</span><span class="s2">"y"</span><span class="p">]</span><span class="o">=</span><span class="n">ey</span><span class="p">}</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  <span class="k">return</span> <span class="n">sprites</span>
+<span class="k">end</span>
+
+<span class="c1">-- Function to create a Box around Mario and return an input vector of the same. Free Free tile is 0, enemy tile is -1 and block tile is 1.</span>
+<span class="k">function</span> <span class="nf">getInputs</span><span class="p">()</span>
+  <span class="n">getPositions</span><span class="p">()</span>
+  <span class="n">sprites</span> <span class="o">=</span> <span class="n">getSprites</span><span class="p">()</span>
+  <span class="kd">local</span> <span class="n">inputs</span> <span class="o">=</span> <span class="p">{}</span>
+
+  <span class="k">for</span> <span class="n">dy</span><span class="o">=-</span><span class="n">BoxRadius</span><span class="o">*</span><span class="mi">16</span><span class="p">,</span><span class="n">BoxRadius</span><span class="o">*</span><span class="mi">16</span><span class="p">,</span><span class="mi">16</span> <span class="k">do</span>
+    <span class="k">for</span> <span class="n">dx</span><span class="o">=-</span><span class="n">BoxRadius</span><span class="o">*</span><span class="mi">16</span><span class="p">,</span><span class="n">BoxRadius</span><span class="o">*</span><span class="mi">16</span><span class="p">,</span><span class="mi">16</span> <span class="k">do</span>
+      <span class="n">inputs</span><span class="p">[</span><span class="o">#</span><span class="n">inputs</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+      <span class="n">tile</span> <span class="o">=</span> <span class="n">getTile</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">tile</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">marioY</span><span class="o">+</span><span class="n">dy</span> <span class="o">&lt;</span> <span class="mh">0x1B0</span> <span class="k">then</span>
+        <span class="n">inputs</span><span class="p">[</span><span class="o">#</span><span class="n">inputs</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+      <span class="k">end</span>
+
+      <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="o">#</span><span class="n">sprites</span> <span class="k">do</span>
+        <span class="n">distx</span> <span class="o">=</span> <span class="nb">math.abs</span><span class="p">(</span><span class="n">sprites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">"x"</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">marioX</span><span class="o">+</span><span class="n">dx</span><span class="p">))</span>
+        <span class="n">disty</span> <span class="o">=</span> <span class="nb">math.abs</span><span class="p">(</span><span class="n">sprites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">"y"</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">marioY</span><span class="o">+</span><span class="n">dy</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">distx</span> <span class="o">&lt;=</span> <span class="mi">8</span> <span class="ow">and</span> <span class="n">disty</span> <span class="o">&lt;=</span> <span class="mi">8</span> <span class="k">then</span>
+          <span class="n">inputs</span><span class="p">[</span><span class="o">#</span><span class="n">inputs</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  <span class="k">return</span> <span class="n">inputs</span>
+<span class="k">end</span>
+
+<span class="c1">-- Function returns true if Mario is in air.</span>
+<span class="k">function</span> <span class="nf">isInAir</span><span class="p">()</span>
+  <span class="k">if</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x001D</span><span class="p">)</span> <span class="o">~=</span> <span class="mh">0x00</span> <span class="k">then</span>
+    <span class="k">return</span> <span class="kc">true</span>
+  <span class="k">else</span> 
+    <span class="k">return</span> <span class="kc">false</span> 
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1">-- Function returns true of Mario dies.</span>
+<span class="k">function</span> <span class="nf">isDead</span> <span class="p">()</span>
+  <span class="k">if</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x000E</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x0B</span> <span class="ow">or</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x000E</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x06</span> <span class="k">then</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+
+<span class="c1">-- Function to create a save state at the start of a selected world and level.</span>
+<span class="k">function</span> <span class="nf">set_state</span> <span class="p">()</span>
+  <span class="k">while</span><span class="p">(</span><span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x0772</span><span class="p">)</span><span class="o">~=</span><span class="mh">0x03</span> <span class="ow">or</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x0770</span><span class="p">)</span><span class="o">~=</span><span class="mh">0x01</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">set_level</span><span class="p">(</span><span class="mi">01</span><span class="p">,</span><span class="mi">01</span><span class="p">)</span>
+    <span class="n">emu</span><span class="p">.</span><span class="n">frameadvance</span><span class="p">()</span>
+  <span class="k">end</span>
+  <span class="n">level_start</span> <span class="o">=</span> <span class="n">savestate</span><span class="p">.</span><span class="n">object</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">savestate</span><span class="p">.</span><span class="n">save</span><span class="p">(</span><span class="n">level_start</span><span class="p">)</span>
+<span class="k">end</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p class="text-justify">We need to call <strong>set_state()</strong> before the start of the execution of the model, to create a loadable save point at the beginning of the game level. The function <strong>getInputs()</strong> is used to get an input vector of size <strong>InputSize</strong> that describes the state of the process. Each state of the MDP process is determined using the tiles surrounding Mario. The function cuts a box of edge size 2*<strong>BoxRadius</strong> around Mario and returns it in a vectored form. A tile in the box is represented by 0 if it is an empty space, 1 if it is a block space(like ground or brick-tiles) and -1 if their is an enemy on the tile. Now lets look at the Monte Carlo implementation.</p> <figure class="highlight"><pre><code class="language-lua" data-lang="lua"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td> <td class="code"><pre><span class="k">function</span> <span class="nf">set_values</span><span class="p">()</span>
+  <span class="n">Returns</span><span class="o">=</span><span class="p">{}</span>
+  <span class="n">Policy</span><span class="o">=</span><span class="p">{}</span>
+  <span class="n">TIMEOUT</span><span class="o">=</span><span class="mi">50</span>
+  <span class="n">TIMEOUT_AIR</span><span class="o">=</span><span class="mi">10</span>
+  <span class="n">EPSILON</span><span class="o">=</span><span class="mi">0</span><span class="p">.</span><span class="mi">05</span>
+<span class="k">end</span>
+
+<span class="k">function</span> <span class="nf">getHashReturns</span><span class="p">(</span><span class="n">Inputs</span><span class="p">,</span> <span class="n">Action</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">getHashPolicy</span><span class="p">(</span><span class="n">Inputs</span><span class="p">)</span><span class="o">..</span><span class="s2">"-&gt;"</span><span class="o">..</span><span class="n">Action</span>
+<span class="k">end</span>
+
+<span class="k">function</span> <span class="nf">getHashPolicy</span><span class="p">(</span><span class="n">Inputs</span><span class="p">)</span>
+  <span class="kd">local</span> <span class="n">I_value</span><span class="o">=</span><span class="s2">""</span>
+  <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">#</span><span class="n">Inputs</span> <span class="k">do</span>
+    <span class="n">I_value</span><span class="o">=</span><span class="n">Inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">..</span><span class="n">I_value</span>
+  <span class="k">end</span>
+  <span class="k">return</span> <span class="n">I_value</span>
+<span class="k">end</span>
+
+<span class="k">function</span> <span class="nf">getReturnsForPair</span><span class="p">(</span><span class="n">Inputs</span><span class="p">,</span><span class="n">Action</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">Returns</span><span class="p">[</span><span class="n">getHashReturns</span><span class="p">(</span><span class="n">Inputs</span><span class="p">,</span><span class="n">Action</span><span class="p">)]</span><span class="o">==</span><span class="kc">nil</span> <span class="k">then</span>
+    <span class="k">return</span> <span class="mi">0</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="n">Returns</span><span class="p">[</span><span class="n">getHashReturns</span><span class="p">(</span><span class="n">Inputs</span><span class="p">,</span><span class="n">Action</span><span class="p">)][</span><span class="mi">1</span><span class="p">]</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p class="text-justify">I created a hash function that converts the <strong>Input</strong> into a string and then hashes it. This is for quick retrial of policies based on the hashing string. The <strong>getHashReturns(Inputs, Action)</strong> concatenates the <strong>Action</strong> as a string to the <strong>Input</strong> hash. The function <strong>getReturnsForPair(Inputs,Action)</strong> returns the <strong>Returns</strong> of the <strong>Input</strong>, <strong>Action</strong> pair.</p> <figure class="highlight"><pre><code class="language-lua" data-lang="lua"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+</pre></td> <td class="code"><pre><span class="k">function</span> <span class="nf">getButtonsForAction</span><span class="p">(</span><span class="n">Action</span><span class="p">)</span>
+  <span class="kd">local</span> <span class="n">action_hash</span><span class="o">=</span><span class="n">Action</span>
+  <span class="n">b_str</span><span class="o">=</span><span class="s2">""</span>
+  <span class="kd">local</span> <span class="n">buttons</span> <span class="o">=</span> <span class="p">{[</span><span class="s2">"A"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span><span class="p">,[</span><span class="s2">"B"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span><span class="p">,[</span><span class="s2">"up"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span><span class="p">,[</span><span class="s2">"down"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span><span class="p">,[</span><span class="s2">"left"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span><span class="p">,[</span><span class="s2">"right"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span><span class="p">}</span>
+  <span class="k">if</span> <span class="n">action_hash</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">1</span> <span class="k">then</span>
+    <span class="n">buttons</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]</span><span class="o">=</span><span class="kc">true</span>
+    <span class="n">buttons</span><span class="p">[</span><span class="s2">"left"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span>
+    <span class="n">b_str</span><span class="o">=</span><span class="n">b_str</span><span class="o">..</span><span class="s2">"right, "</span>
+  <span class="k">else</span>
+    <span class="n">buttons</span><span class="p">[</span><span class="s2">"right"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span>
+    <span class="n">buttons</span><span class="p">[</span><span class="s2">"left"</span><span class="p">]</span><span class="o">=</span><span class="kc">true</span>
+    <span class="n">b_str</span><span class="o">=</span><span class="n">b_str</span><span class="o">..</span><span class="s2">"left, "</span>
+  <span class="k">end</span>
+  <span class="n">action_hash</span><span class="o">=</span><span class="nb">math.floor</span><span class="p">(</span><span class="n">action_hash</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">action_hash</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">1</span> <span class="k">then</span>
+    <span class="n">buttons</span><span class="p">[</span><span class="s2">"up"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span>
+  <span class="k">else</span>
+    <span class="n">buttons</span><span class="p">[</span><span class="s2">"up"</span><span class="p">]</span><span class="o">=</span><span class="kc">true</span>
+    <span class="n">b_str</span><span class="o">=</span><span class="n">b_str</span><span class="o">..</span><span class="s2">"up, "</span>
+  <span class="k">end</span>
+  <span class="n">action_hash</span><span class="o">=</span><span class="nb">math.floor</span><span class="p">(</span><span class="n">action_hash</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">action_hash</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">1</span> <span class="k">then</span>
+    <span class="n">buttons</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]</span><span class="o">=</span><span class="kc">true</span>
+    <span class="n">b_str</span><span class="o">=</span><span class="n">b_str</span><span class="o">..</span><span class="s2">"B, "</span>
+  <span class="k">else</span>
+    <span class="n">buttons</span><span class="p">[</span><span class="s2">"B"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span>
+  <span class="k">end</span>
+  <span class="n">action_hash</span><span class="o">=</span><span class="nb">math.floor</span><span class="p">(</span><span class="n">action_hash</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">action_hash</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">1</span> <span class="k">then</span>
+    <span class="n">buttons</span><span class="p">[</span><span class="s2">"A"</span><span class="p">]</span><span class="o">=</span><span class="kc">true</span>
+    <span class="n">b_str</span><span class="o">=</span><span class="n">b_str</span><span class="o">..</span><span class="s2">"A, "</span>
+  <span class="k">else</span>
+    <span class="n">buttons</span><span class="p">[</span><span class="s2">"A"</span><span class="p">]</span><span class="o">=</span><span class="kc">false</span>
+  <span class="k">end</span>
+  <span class="n">action_hash</span><span class="o">=</span><span class="nb">math.floor</span><span class="p">(</span><span class="n">action_hash</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">action_hash</span><span class="o">==</span><span class="mi">0</span> <span class="k">then</span>
+    <span class="n">eum</span><span class="p">.</span><span class="n">message</span><span class="p">(</span><span class="s2">"error, set button for hash didn't receive correct value</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+  <span class="k">end</span>
+  <span class="n">emu</span><span class="p">.</span><span class="n">message</span><span class="p">(</span><span class="n">b_str</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">buttons</span>
+<span class="k">end</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p class="text-justify">The <strong>Action</strong> parameter is an integer value, whose binary representation gives the combination of buttons to press. For simplicity and ease of training, I have added some constraints that at any time either Left or Right button must be pressed and Down button is never pressed. The function returns a dictionary of Buttons with their corresponding boolean values indicating if the button is pressed.</p> <figure class="highlight"><pre><code class="language-lua" data-lang="lua"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td> <td class="code"><pre><span class="k">function</span> <span class="nf">generateAction</span><span class="p">(</span><span class="n">Inputs</span><span class="p">)</span>
+  <span class="kd">local</span> <span class="n">action_taken</span>
+  <span class="n">g_str</span><span class="o">=</span><span class="s2">""</span>
+  <span class="k">if</span> <span class="n">Policy</span><span class="p">[</span><span class="n">getHashPolicy</span><span class="p">(</span><span class="n">Inputs</span><span class="p">)]</span><span class="o">==</span><span class="kc">nil</span> <span class="k">then</span>
+    <span class="n">action_taken</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">16</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">action_taken</span><span class="o">=</span><span class="n">action_taken</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">g_str</span><span class="o">=</span><span class="n">g_str</span><span class="o">..</span><span class="s2">",new "</span>
+  <span class="k">else</span>
+    <span class="n">g_str</span><span class="o">=</span><span class="n">g_str</span><span class="o">..</span><span class="s2">",found "</span>
+    <span class="kd">local</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">max</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">Policy</span><span class="p">[</span><span class="n">getHashPolicy</span><span class="p">(</span><span class="n">Inputs</span><span class="p">)]),</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">action_taken</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">Policy</span><span class="p">[</span><span class="n">getHashPolicy</span><span class="p">(</span><span class="n">Inputs</span><span class="p">)]),</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">action_taken</span><span class="o">=</span><span class="n">action_taken</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">action_taken</span><span class="o">==</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">then</span>
+      <span class="n">g_str</span><span class="o">=</span><span class="n">g_str</span><span class="o">..</span><span class="s2">",taken "</span>
+    <span class="k">else</span>
+      <span class="n">g_str</span><span class="o">=</span><span class="n">g_str</span><span class="o">..</span><span class="s2">",not taken "</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  <span class="n">action_taken</span><span class="o">=</span> <span class="n">action_taken</span><span class="o">-</span><span class="mi">1</span>
+  <span class="k">return</span> <span class="n">action_taken</span>
+<span class="k">end</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p class="text-justify">The above function generates an action based on the <strong>Input</strong> state and the current <strong>Policy</strong>. If the state is being seen for the first time, a random action is taken. If the state is not new, an action is chosen based on the <strong>Policy</strong>. Since the Policy is an ϵ-soft Monte Carlo, their is always a non-zero probability of choosing a non optimal action for any <strong>Input</strong> state.</p> <figure class="highlight"><pre><code class="language-lua" data-lang="lua"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td> <td class="code"><pre><span class="c1">-- The reward function.</span>
+<span class="k">function</span> <span class="nf">getReward</span><span class="p">()</span>
+  <span class="kd">local</span> <span class="n">time_left</span><span class="o">=</span><span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x07F8</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span> <span class="o">+</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x07F9</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span> <span class="o">+</span> <span class="n">memory</span><span class="p">.</span><span class="n">readbyte</span><span class="p">(</span><span class="mh">0x07FA</span><span class="p">)</span>
+  <span class="kd">local</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">marioX</span>
+  <span class="k">return</span> <span class="n">time_left</span><span class="o">*</span><span class="n">dist</span>
+<span class="k">end</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p>The above function is the reward function being called at the end of each episode to get the reward. The reward is the product of distance traveled and the time remaining. We want the AI to reach the end of the level as quick as possible.</p> <figure class="highlight"><pre><code class="language-lua" data-lang="lua"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+</pre></td> <td class="code"><pre><span class="k">function</span> <span class="nf">run_episode</span><span class="p">()</span>
+  <span class="n">savestate</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">level_start</span><span class="p">)</span>
+  <span class="n">maxMario</span><span class="o">=</span><span class="kc">nil</span>
+  <span class="kd">local</span> <span class="n">memory</span><span class="o">=</span><span class="p">{}</span>
+  <span class="kd">local</span> <span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="kd">local</span> <span class="n">action_for_state</span><span class="o">=</span><span class="kc">nil</span>
+  
+  <span class="k">while</span> <span class="kc">true</span> <span class="k">do</span>
+    <span class="n">state</span><span class="o">=</span><span class="n">getInputs</span><span class="p">()</span>
+    <span class="n">action_for_state</span><span class="o">=</span><span class="n">generateAction</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">joypad</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">player1</span><span class="p">,</span><span class="n">getButtonsForAction</span><span class="p">(</span><span class="n">action_for_state</span><span class="p">))</span>
+    <span class="n">emu</span><span class="p">.</span><span class="n">frameadvance</span><span class="p">()</span>
+    <span class="n">memory</span><span class="p">[</span><span class="o">#</span><span class="n">memory</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="n">state</span><span class="p">,</span><span class="n">action_for_state</span><span class="p">}</span>
+    
+    <span class="k">if</span> <span class="n">isDead</span><span class="p">()</span> <span class="k">then</span>
+      <span class="n">emu</span><span class="p">.</span><span class="n">message</span><span class="p">(</span><span class="s2">"Dead"</span><span class="p">)</span>
+      <span class="k">break</span>
+    <span class="k">end</span>
+
+    <span class="kd">local</span> <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT</span>
+    <span class="kd">local</span> <span class="n">timeout_air</span><span class="o">=</span><span class="n">TIMEOUT_AIR</span>
+    <span class="kd">local</span> <span class="n">long_idle</span><span class="o">=</span><span class="kc">false</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">getHashPolicy</span><span class="p">(</span><span class="n">getInputs</span><span class="p">())</span><span class="o">==</span><span class="n">getHashPolicy</span><span class="p">(</span><span class="n">state</span><span class="p">))</span> <span class="k">do</span>
+      <span class="n">joypad</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">player1</span><span class="p">,</span><span class="n">getButtonsForAction</span><span class="p">(</span><span class="n">action_for_state</span><span class="p">))</span>
+      <span class="n">emu</span><span class="p">.</span><span class="n">frameadvance</span><span class="p">()</span>
+      <span class="k">if</span> <span class="n">timeout</span><span class="o">==</span><span class="mi">0</span> <span class="k">then</span>
+        <span class="n">long_idle</span><span class="o">=</span><span class="kc">true</span>
+        <span class="k">break</span>
+      <span class="k">end</span>
+      <span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span><span class="o">-</span><span class="mi">1</span>
+    <span class="k">end</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">isInAir</span><span class="p">())</span> <span class="k">do</span>
+      <span class="n">joypad</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">player1</span><span class="p">,</span><span class="n">getButtonsForAction</span><span class="p">(</span><span class="n">action_for_state</span><span class="p">))</span>
+      <span class="n">emu</span><span class="p">.</span><span class="n">frameadvance</span><span class="p">()</span>
+      <span class="k">if</span> <span class="n">timeout_air</span><span class="o">==</span><span class="mi">0</span> <span class="k">then</span>
+        <span class="k">break</span>
+      <span class="k">end</span>
+      <span class="n">timeout_air</span> <span class="o">=</span> <span class="n">timeout_air</span><span class="o">-</span><span class="mi">1</span>
+    <span class="k">end</span>
+
+    <span class="k">if</span> <span class="n">long_idle</span> <span class="k">then</span>
+      <span class="n">emu</span><span class="p">.</span><span class="n">message</span><span class="p">(</span><span class="s2">"Killed Due to timeout"</span><span class="p">)</span>
+      <span class="k">break</span>
+    <span class="k">end</span>
+
+  <span class="k">end</span>
+  <span class="k">return</span> <span class="n">memory</span>
+<span class="k">end</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p class="text-justify">The above function runs an episode of the game. It reloads to the start point (which is saved while initializing the environment). The function repetitively takes the input state of the environment and takes an action based on <strong>Policy</strong>. I added a timeout to end episode if it stays idle for too long. Also I disabled taking an action while in air to reduce the size of the <strong>memory</strong> list. The function keeps track of all the <strong>Input</strong>, <strong>Action</strong> pairs seen in the form of a <strong>memory</strong> list, and returns this list at the end of the episode.</p> <figure class="highlight"><pre><code class="language-lua" data-lang="lua"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+</pre></td> <td class="code"><pre><span class="k">function</span> <span class="nf">start_training</span><span class="p">()</span>
+  <span class="kd">local</span> <span class="n">Policy_number</span><span class="o">=</span><span class="mi">1</span>
+  <span class="k">while</span> <span class="kc">true</span> <span class="k">do</span>
+  
+    <span class="n">run_memory</span><span class="o">=</span><span class="n">run_episode</span><span class="p">()</span>
+    <span class="n">run_reward</span><span class="o">=</span><span class="n">getReward</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Policy is "</span><span class="o">..</span><span class="n">Policy_number</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Run is "</span><span class="o">..</span><span class="n">i</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Reward-&gt;"</span><span class="o">..</span><span class="n">run_reward</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"memory size-&gt;"</span><span class="o">..#</span><span class="n">run_memory</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">new_states</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">#</span><span class="n">run_memory</span> <span class="k">do</span>
+      <span class="kd">local</span> <span class="n">hashed_pair</span><span class="o">=</span><span class="n">getHashReturns</span><span class="p">(</span><span class="n">run_memory</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="n">run_memory</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+      <span class="k">if</span> <span class="n">Returns</span><span class="p">[</span><span class="n">hashed_pair</span><span class="p">]</span><span class="o">==</span><span class="kc">nil</span> <span class="k">then</span>
+        <span class="n">new_states</span> <span class="o">=</span> <span class="n">new_states</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">Returns</span><span class="p">[</span><span class="n">hashed_pair</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="n">run_reward</span><span class="p">,</span><span class="mi">1</span><span class="p">}</span>
+      <span class="k">else</span>
+        <span class="n">Returns</span><span class="p">[</span><span class="n">hashed_pair</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="p">(</span><span class="n">Returns</span><span class="p">[</span><span class="n">hashed_pair</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">run_reward</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">Returns</span><span class="p">[</span><span class="n">hashed_pair</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">Returns</span><span class="p">[</span><span class="n">hashed_pair</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="n">Returns</span><span class="p">[</span><span class="n">hashed_pair</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Number of New States is "</span><span class="o">..</span><span class="n">new_states</span><span class="p">)</span>
+  
+
+    <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">#</span><span class="n">run_memory</span> <span class="k">do</span>
+      
+      <span class="kd">local</span> <span class="n">max</span><span class="o">=-</span><span class="mi">1</span>
+      <span class="kd">local</span> <span class="n">optimal_action</span><span class="o">=-</span><span class="mi">1</span>
+      <span class="k">if</span> <span class="n">Policy</span><span class="p">[</span><span class="n">getHashPolicy</span><span class="p">(</span><span class="n">run_memory</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])]</span><span class="o">==</span><span class="kc">nil</span> <span class="k">then</span>
+        <span class="n">Policy</span><span class="p">[</span><span class="n">getHashPolicy</span><span class="p">(</span><span class="n">run_memory</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])]</span><span class="o">=</span><span class="p">{}</span>
+      <span class="k">end</span>
+      
+      <span class="k">for</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="mi">15</span> <span class="k">do</span> 
+        <span class="k">if</span> <span class="n">getReturnsForPair</span><span class="p">(</span><span class="n">run_memory</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="n">j</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max</span> <span class="k">then</span>
+          <span class="n">max</span><span class="o">=</span><span class="n">getReturnsForPair</span><span class="p">(</span><span class="n">run_memory</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="n">j</span><span class="p">)</span>
+          <span class="n">optimal_action</span><span class="o">=</span><span class="n">j</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+            
+      <span class="k">for</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="mi">11</span> <span class="k">do</span>
+        <span class="k">if</span> <span class="n">j</span><span class="o">==</span><span class="n">optimal_action</span> <span class="k">then</span>
+          <span class="n">Policy</span><span class="p">[</span><span class="n">getHashPolicy</span><span class="p">(</span><span class="n">run_memory</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])][</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">EPSILON</span> <span class="o">+</span><span class="n">EPSILON</span><span class="o">/</span><span class="mi">11</span>
+        <span class="k">else</span>
+          <span class="n">Policy</span><span class="p">[</span><span class="n">getHashPolicy</span><span class="p">(</span><span class="n">run_memory</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])][</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="n">EPSILON</span><span class="o">/</span><span class="mi">11</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="n">Policy_number</span><span class="o">=</span><span class="n">Policy_number</span><span class="o">+</span><span class="mi">1</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p class="text-justify">The above function trains the AI by running episodes and updating the <strong>Policy</strong>. It gets the <strong>memory</strong> of the episode and then iterates through all the state-action pairs, updating the <strong>Returns</strong> dictionary. Then it iterates through the memory again to update the <strong>Policy</strong> for the states seen in the last episode. Since the policy is an Epsilon soft policy, we have to keep a minimum non-zero probability for all actions.</p> <figure class="highlight"><pre><code class="language-lua" data-lang="lua"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td> <td class="code"><pre><span class="k">function</span> <span class="nf">init</span> <span class="p">()</span>
+  <span class="n">set_imports</span><span class="p">()</span>
+  <span class="n">set_state</span><span class="p">()</span>
+  <span class="n">set_values</span><span class="p">()</span>
+  <span class="n">emu</span><span class="p">.</span><span class="n">speedmode</span><span class="p">(</span><span class="s2">"maximum"</span><span class="p">)</span>
+<span class="k">end</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p class="text-justify">The <strong>init()</strong> function is called before <strong>start_training()</strong> function to set the imports, the environment, to initialize the dictionary and global values, and to set the emulator speed. Now all that is left is to call the functions and observe the training of AI.</p> <figure class="highlight"><pre><code class="language-lua" data-lang="lua"><table class="rouge-table"><tbody><tr>
+<td class="gutter gl"><pre class="lineno">1
+2
+</pre></td> <td class="code"><pre><span class="n">init</span><span class="p">()</span>
+<span class="n">start_training</span><span class="p">()</span>
+</pre></td> </tr></tbody></table></code></pre></figure> <p>Here’s the first 1.5 minutes of the training of the model. We can clearly see how the AI improves as it discovers better paths.</p> <div align="center"> <iframe id="ytplayer" type="text/html" width="640" height="480" src="https://www.youtube.com/embed/eKQA3UmfcVM" frameborder="0" fs="0"></iframe> <p>First 1.5 minutes of ϵ-soft Monte Carlo training run.</p> </div> <p>The model was able to complete Level 1 of World 1 after around 3 hours of training. Though this model is not as strong as NEAT model, which trains the AI to be able to play any level once trained, this model is simple enough for beginners to try and get impressive results.</p> <p>The code for this project is open sourced, and can be found <a href="github.com/Rishav1/Super-Mario-Bros-RL-AI">here</a>.</p> </body></html>

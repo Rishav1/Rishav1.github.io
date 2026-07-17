@@ -1,0 +1,372 @@
+<!DOCTYPE html> <html> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> Understanding Privacy leakage in Machine Learning (Part 1) | Rishav Chourasia </title> <meta name="author" content="Rishav Chourasia"> <meta name="description" content="Understanding Privacy leakage in Machine Learning (Part 1)"> <meta name="keywords" content="Differential Privacy, Machine Learning, Composition Theorems"> <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;"> <style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style> <link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="/assets/img/favicon.png?v=5a6655cbde81d8d5849dbbed8761ec35"> <link rel="stylesheet" href="/assets/css/main.css?v=f0b101217084a90093badfe99ff9a7d1"> <link rel="canonical" href="https://rishav1.github.io/blog/2020/understanding-privacy-leakage-in-machine-learning-part1/"> <script src="/assets/js/theme.js?v=7af685e2ba20b37fef545c97b8064050"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> <link rel="stylesheet" href="/assets/css/custom.css?v=6c4714f6ff69b3745e6236aee8c8114f"> <link rel="stylesheet" href="/assets/css/al-folio-distill.css?v=fb7196ec07cb5299d51b2cbdc69c23d7"> <script src="/assets/js/distillpub/template.v2.js"></script> <script src="/assets/js/distillpub/transforms.v2.js"></script> <style type="text/css">
+        .fake-img {
+  background: #bbb;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
+} .fake-img p {
+  font-family: monospace;
+  color: white;
+  text-align: left;
+  margin: 12px 0;
+  text-align: center;
+  font-size: 16px;
+}
+
+      </style> </head> <body> <d-front-matter> <script async type="text/json">
+      {
+            "title": "Understanding Privacy leakage in Machine Learning (Part 1)",
+            "description": "Understanding Privacy leakage in Machine Learning (Part 1)",
+            "published": "February 29, 2020",
+            "authors": [
+              
+              {
+                "author": "Rishav Chourasia",
+                "authorURL": "",
+                "affiliations": [
+                  {
+                    "name": "NUS, Singapore",
+                    "url": ""
+                  }
+                ]
+              }
+              
+            ],
+            "katex": {
+              "delimiters": [
+                {
+                  "left": "$",
+                  "right": "$",
+                  "display": false
+                },
+                {
+                  "left": "$$",
+                  "right": "$$",
+                  "display": true
+                }
+              ]
+            }
+          }
+    </script> </d-front-matter> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/"> <span class="font-weight-bold">Rishav</span> Chourasia </a> <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav"> <ul class="navbar-nav navbar-menu-list flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/">about </a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog/">blog </a> </li> <li class="nav-item "> <a class="nav-link" href="/publications/">publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/projects/">projects </a> </li> <li class="nav-item "> <a class="nav-link" href="/cv/">cv </a> </li> <li class="nav-item "> <a class="nav-link" href="/teaching/">teaching </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="post distill"> <d-title> <h1>Understanding Privacy leakage in Machine Learning (Part 1)</h1> <p>Understanding Privacy leakage in Machine Learning (Part 1)</p> </d-title> <d-byline></d-byline> <d-article> \[\require{cancel}\] <p class="text-justify">This post assumes the reader has considerable understanding of concepts in probability and differential privacy<d-cite key="dwork2014algorithmic"></d-cite>. The objective of this blog is to help understand various prominent privacy analysis techniques developed for gradient based optimization algorithms.</p> <h2 id="background"><strong>Background</strong></h2> <p>Let’s first take a look at some definitions and theorems that would be useful in the analysis presented.</p> <p><strong>Definition 1:</strong> (<em>\((\epsilon,\delta)\) Differential Privacy<d-cite key="dwork2006calibrating"></d-cite></em>) For any two neighbouring databases \(D, D'\), if a mechanism \(M\)’s output distribution on them are such that for any set \(O\) in the output range,</p> \[\begin{align} Pr[M(D) \in O] \leq e^\epsilon Pr[M(D') \in O] + \delta, \end{align}\] <p>then the mechanism \(M\) is said to be \((\epsilon, \delta)\) differentially private.</p> <p><strong>Lemma 1:</strong> (<em>Azuma’s Inequality</em>) Let \(C_1, C_2, ..., C_T\) be real valued random variables such that for every \(t \in [T]\), \(Pr[\lvert C_t \rvert \leq \alpha] = 1\), and for every \((c_1, c_2,...,c_{t-1}) \in Supp(C_1, C_2,...,C_{t-1})\), we have</p> \[\begin{align} \mathbb{E}[C_t | C_1=c_1, C_2=c_2, ..., C_{t-1}=c_{t-1}] \leq \beta, \end{align}\] <p>then for every \(z \geq 0\), we have</p> \[\begin{align} Pr\big[ \sum_{t=1}^T C_t \geq T\beta + z\sqrt{T} \cdot \alpha \big] \leq e^{-z^2 / 2}. \end{align}\] <h2 id="problem-setting"><strong>Problem Setting</strong></h2> <p class="text-justify">Gradient based empirical risk mimimization algorithms deals with training a model iteratively by updating it’s parameters in a direction that minimizes a target loss objective, typically over a dataset. These learning algorithms are sometimes susceptible to memorizing outlier datapoints<d-cite key="carlini2018secret"></d-cite> in a dataset, which can be extracted via membership attacks<d-cite key="shokri2017membership"></d-cite>. To prevent this, privacy preserving interventions such as objective perturbation<d-cite key="chaudhuri2011differentially"></d-cite>, output perturbation<d-cite key="chaudhuri2008privacy"></d-cite>, and gradient perturbation<d-cite key="bassily2014private"></d-cite> have been introduced. Gradient perturbation techniques have so far been most effective in terms of utility as it auguments the inherent noise in gradients due to batch subsampling.</p> <p class="text-justify">However, privacy analysis of perturbed SGD has been challenging. We don’t really know the output distribution of this algorithm for general loss functions. The approach usually followed therefore is to analyze the privacy leak incurred in releasing the gradients computed at every update step and then compose the guarantees to get the overall bound on privacy leakage for releasing the trained model. This is easier to do because of the simplicity of a singular gradient update step, but also gives loose bounds as the adversary is assumed to be much stronger. The adversary sees not only the output model but also the intermediate (noisy) gradients computed in each step of the update.</p> <p class="text-justify">To get familiar with the composition theorems in differential privacy, we will analyze the following ML training algorithm.</p> <p><img src="/assets/img/blog/DiffPrivacy/Modified_SGD.png" alt="Modified SGD" width="600px" style="display: block; margin: 0 auto"></p> <h3 id="modifications-in-perturbed-sgd"><strong>Modifications in Perturbed SGD</strong></h3> <p>Note that the above modified SGD (known as Perturbed SGD) is slightly different in the following aspects:</p> <ol> <li>Batches are formed by sampling uniformly from dataset with replacement. This is done to make sampling probabilities independent.</li> <li>Gradients are Clipped to L2 norm value of 1. This bounds the sensitivity of gradient computation mechanism which helps in privacy loss analysis.</li> <li>Some noise is added to the mean gradient before model update. We will analyze the value of the noise variance that guarantees \((\epsilon, \delta)\) differential privacy.</li> </ol> <h2 id="composition-theorems"><strong>Composition Theorems</strong></h2> <p class="text-justify">Our goal is to compute the total privacy loss of releasing \(T\) gradients updates that results in the output model. We will refer to gradient computation at time \(t\) as mechanism \(M_t\) and the entire training process as mechanism \(M_{1:T}\). Note that the computed gradient at time \(t\) depends on all the gradient outputs at steps \(\langle 1,2,...,t-1 \rangle\) as it is computed on the model parameters that resulted from the previous \(t-1\) updates. In other words, mechanism \(M_{t}\)’s is selected (stochastically of deterministically) based on the outputs \(o_{1:t-1}\). One should therefore understand that the composed mechanism \(M_{1:T}\) is not the same as the product mechanism \(\langle M_1, M_2, ..., M_T \rangle\), as the former doesn’t know the exact mechanisms selected at every step but only the gradients, while the later knows both. However, given the outputs of the first \(T-1\) steps, the exact sequence of \(M_{1:T}\) gets defined and therefore,</p> \[\begin{align} Pr[M_{1:T}(D) = o_{1:T}] = \prod_{t=1}^T Pr[M_t(D) = o_t \lvert o_{1:t-1}]. \tag{1} \end{align}\] <p class="text-justify">In the context of privacy loss, when the mechanisms at consequent step depends on the previous outputs, privacy leakage can be significantly higher as the sequence of mechanisms themselves could potentially diverge. In differential privacy literature, we have some composition theorems that bounds the privacy leak of mechanism \(M_{1:T}\) by cleverly aggregating losses incurred at every step. We will try to understand these theorems sequentially. First we will look at the weak composition theorem which naively bounds the privacy loss of a mechanisms \(M_{1:T}\). Then, we will try to understand the advanced composition theorem that improves the bounds using Azuma inequality. This bound will further be refined by utilyzing the properties of the noisy distributions’ higher order moments which the advanced composition theorem doesn’t take into account.</p> <p><strong>Theorem 1:</strong> (<em>Composition Theorem</em>) Let \(M_{1:T}\) be a composition of \(T\) mechanisms, such that \(M_t\lvert o_{1:t-1}\) is \((\epsilon_t, \delta_t)\) differentially private for all \(t \in [T]\). Then \(M_{1:T}\) is \((\sum_{t=1}^T \epsilon_t, \sum_{t=1}^T \delta_t)\) differentially private.</p> <p class="text-justify"><em>Proof:</em> We will prove this for \(T=2\) as using induction, one can then derive the result for \(T &gt; 2\). Let \(D', D'\) be two neighbouring datasets and \(S_1, S_2\) be arbitrary subsets in the range of \(M_1\) and \(M_2\) respectively. Also, let \(\mu(S)\) be defined as follows:</p> \[\begin{align} \mu(S) = max\big(0, Pr[M_1(D) \in S] - e^\epsilon Pr[M_1(D') \in S] \big). \end{align}\] <p>Since \(M_1\) is \((\epsilon, \delta)\) differentially private, we have \(\mu(S) \leq \delta\) for all subsets of range of \(M_1\). We now prove the theorem as follows:</p> \[\begin{align*} Pr[M_{1:2}&amp;(D) \in S_1 \times S_2] = \sum_{s_1 \in S_1} Pr[M_{1:2}(D) \in {s_1} \times {S_2}] \\ &amp;= \sum_{s_1 \in S_1} Pr[M_1(D) \in \{s_1\}] \times Pr[M_2(D) \in S_2 \big\lvert s_1] \\ &amp;\leq \sum_{s_1 \in S_1} Pr[M_1(D) \in \{s_1\}] \times (e^{\epsilon_2} Pr[M_2(D') \in S_2 \big\lvert s_1] + \delta_2) \\ &amp;= \sum_{s_1 \in S_1} e^{\epsilon_2} \times Pr[M_1(D) \in \{s_1\}] \times Pr[M_2(D') \in S_2 \big\lvert s_1] \\ &amp;\quad + \delta_2 \times \cancelto{1}{\sum_{s_1 \in S_1}Pr[M_1(D) \in \{s_1\}]} \\ &amp;\leq \delta_2 + e^{\epsilon_2} \sum_{s_1 \in S_1} \big( e^{\epsilon_1} Pr[M_1(D') \in \{s_1\}] + \mu(\{s_1\}) \big) \\ &amp;\quad\quad\quad\quad\quad\quad\quad \times Pr[M_2(D') \in S_2 \big\lvert s_1] \\ &amp;= \delta_2 + e^{\epsilon_1 + \epsilon_2} \sum_{s_1 \in S_1} \big(Pr[M_1(D') \in \{s_1\}] \times Pr[M_2(D') \in S_2 \big\lvert s_1]\big) \\ &amp;\quad + \cancelto{\leq 1 }{e^{\epsilon_2} \times Pr[M_2(D') \in S_2 \big\lvert s_1]} \sum_{s_1 \in S_1} \mu(\{s_1\}) \\ &amp;\leq \delta_2 + \mu(S_1) + e^{2\times\epsilon} \sum_{s_1 \in S_1} e^\epsilon Pr[M_{1:2}(D') \in \{s_1\} \times S_2] \\ &amp;\leq e^{\epsilon_1 + \epsilon_2} Pr[M_{1:2}(D') \in S_1 \times S_2] + \delta_1 + \delta_2 \\ &amp;\tag*{$\blacksquare$} \end{align*}\] <p class="text-justify">The above composition is considered a naive and loose bound because it only relies on the inequality in the definition of \((\epsilon, \delta)\) differential privacy. To understand why this bound is loose, let’s consider an accountant that is tasked with tracking the sequence of privacy losses seen from step \(1\) through \(T\). At every step \(t\), the algorithm stochastically releases an outcome which, by DP assumtion, leaks less than \(\epsilon_t\) in log-likelihood privacy ratio with probability more than \(1 - \delta_t\). The naive accountant exactly allows every step a freedom of \(\delta_t\) probability to leak more than \(\epsilon_t\). Therefore the probability that one or more steps leaks more than their \(\epsilon_t\) qouta becomes \(1 - \prod_{t=1}^T(1 - \delta_t)\) which is less than \(1 - \sum_{t=1}^T \delta_t\). That’s basically how, we get the \((\sum_{t=1}^T \epsilon_t, \sum_{t=1}^T \delta_t)\) differential privacy guarantee. By allowing slightly more freedom to every step can significantly improve the privacy guarantees as seen in the consequent stronger composition theorem.</p> <p class="text-justify"><strong>Theorem 2:</strong> (<em>Advanced Composition Theorem</em>) Let \(M_{1:T}\) be a composition of \(T\) mechanisms, such that \(M_t\lvert o_{1:t-1}\) is \((\epsilon, \delta)\) differentially private for all \(t \in [T]\). Then, for all \(\epsilon, \delta, \delta'\), the composed mechanism \(M_{1:T}\) is \((\epsilon', T\delta + \delta')\) differentially private, where</p> \[\begin{align} \epsilon' = \sqrt{2T\ln(1/\delta')\epsilon} + T\epsilon(e^\epsilon - 1). \tag{2} \end{align}\] <p><em>Proof:</em> Lets assume that \(D,D'\) are two neigbouring datasets. For any mechanism \(M\), we define the privacy loss at an outcome \(o\) as</p> \[\begin{align} c(o; M, D, D') \triangleq log \frac{Pr[M(D) = o]}{Pr[M(D') = o]}. \tag{3} \end{align}\] <p>We choose this definition of privacy loss because it is closely related to the \((\epsilon, \delta)\) differential privacy definition. To see this, consider \(B\) to be defined as the following set:</p> \[\begin{align} B = \{o: Pr[M(D) = o] \geq e^{\epsilon'} Pr[M(D') = o]\}. \tag{4} \end{align}\] <p>Showing that \(M\) is \((\epsilon, \delta)\) differentially private is equivalent to showing that</p> \[\begin{align} \underset{o \sim M(D)}{Pr} [c(o; M, D, D') \geq \epsilon] \leq \delta. \tag{5} \end{align}\] <p>The reason is due to the following:</p> \[\begin{align*} Pr[M(D) \in S] &amp;= Pr[M(D) \in S \cap B] + Pr[M(D) \in S \cap B^c] \\ &amp;\leq e^{\epsilon} Pr[M(D') \in S \cap B^c] + Pr[M(D) \in B] \\ &amp;= e^{\epsilon} Pr[M(D') \in S \cap B^c] \\ &amp;\quad + \underset{o \sim M(D)}{Pr} [c(o; M, D, D') \leq \epsilon] \quad\ \ \text{(From (3) and (4))} \\ &amp;\leq e^{\epsilon} Pr[M(D') \in S] + \delta \quad\quad\quad\quad\quad\quad\quad\quad \text{(From (5))} \\ \end{align*}\] <p class="text-justify">Therefore, we will show that (5) is true for mechanism $M_{1:T}$. To do this we will use (1) to break the total privacy loss of \(M_{1:T}\) as the sum of independent privacy loss of every intermediate step t. Then using Azuma’s inequality, for any given \(\delta'\), we will bound the probabily of the total loss exceeding \(\epsilon'\) (defined in (2)) to be less than \(\delta'\).</p> <p>For an observation \(o_{1:T}\), privacy loss of the composed mechanism \(M_{1:T}\) is given by:</p> \[\begin{align} c(o_{1:T}; M_{1:T}, D, D') &amp;= log \frac{Pr[M_{1:T}(D) = o_{1:T}]}{Pr[M_{1:T}(D') = o_{1:T}]}\\ &amp;= log \prod_{t=1}^T \frac{Pr[M_t(D) = o_t | o_{1:t-1}]}{Pr[M_t(D') = o_t | o_{1:t-1}]} \tag{From (1)} \\ &amp;= \sum_{t=1}^T log \frac{Pr[M_t(D) = o_t | o_{1:t-1}]}{Pr[M_t(D') = o_t | o_{1:t-1}]} \\ &amp;= \sum_{t=1}^T c(o_t;M_t \lvert o_{1:t-1}, D, D') \tag{From (1)} \\ \end{align}\] <p>Notice that for \(o_{1:T} \sim M_{1:T}(D)\), \(C_t \triangleq c(o_t; M_{1:T} \lvert o_{1:t-1}, D, D')\) are independent random variables \(\forall t \in [T]\). We can therefore bound L.H.S of equation (5) using Azuma’s inequality as follows:</p> \[\begin{align*} \underset{o \sim M_{1:T}(D)}{Pr} [c(o; M_{1:T}, D, D') \geq \epsilon'] &amp;= Pr[\sum_{t=1}^T C_t \geq \epsilon'] \\ &amp;\quad\quad\quad\quad\quad\quad\quad\text{(Where $\epsilon'$ is given by (2))}\\ &amp;\leq T\delta + \delta' \\ &amp;\quad\quad\quad\quad\quad\quad\quad\text{(By Azuma's Inequality.)} \\ &amp;\text{($\alpha=\epsilon$, $\beta=\epsilon(e^\epsilon - 1)$ and $T\delta + \delta' = e^{-z^2/2}$)} \\ &amp;\tag*{$\blacksquare$} \end{align*}\] <p class="text-justify">So what is the difference between these two composition theorems? For starters, one can see that the \(\delta\) term in composition theorem 2 is weaker than that in theorem 1 (by \(\delta'\) precisely), but the \(\epsilon\) term is considerably smaller. Why are we getting such a big improvement? It’s because the accountant behind advanced composition theorem allows more freedom to every step. Rather than allowing a fixed probability budget of \(\delta\) per step to violate privacy loss bounds, the advanced accountant allows a fixed total budget of \(T\delta + \delta'\) across all steps. This flexibility across steps significantly reduces the privacy loss \(\epsilon'\) that we can promise and is given by equation (2).</p> <p class="text-justify">Can this bound be improved further? What else can we exploit to get even tighter bounds? It turns out that Azuma’s Inequality used in step (5) above is a bottleneck because it assumes we only know the bound on first moment of the conditional random variables \(C_t \lvert C_{1:t-1} = c_{1:t-1}\). When nothing is known about the individual step mechanisms other than the fact that they are \((\epsilon, \delta)\) differentially private, only a bound on the first moment can be derived from the definition and so the bound from theorem 2 is the best available. However, if there is more knowledge available about the distributions (for instance in the modified SGD above, we know that the distributions are Gaussian), it is possible to derive a tighter bound than what is given by Azuma’s Inequality, and is precisely what we would capitalize in the next composition theorem.</p> <p class="text-justify"><strong>Theorem 3:</strong> (<em>Moments’ Accountant Theorem from [Abadi Et al. 2016]</em>) For any mechanism \(M\) and two neighbouring datasets \(D, D'\), let \(\alpha_M\) be defined as the log of the moment generating function for privacy loss random variable \(c(o; M, D, D')\) when \(o \sim M(D)\), i.e.</p> \[\begin{align} \alpha_M(\lambda; D, D') = log \underset{o \sim M(D)}{\mathbb{E}} \big[exp\big(\lambda c(o; M, D, D')\big) \big], \tag{6} \end{align}\] <p>Then, for any \(\epsilon \geq 0\), the composed mechanism \(M_{1:T}\) is \((\epsilon, \delta)\) differentially private for \(\delta\) that satisfies</p> \[\begin{align} \delta \geq exp\big(\sum_{t=1}^T \alpha_{M_t \lvert o_{1:t-1}}(\lambda; D, D') - \lambda \epsilon\big) \tag{7} \end{align}\] <p>for all neighbouring \(D, D'\) and some \(\lambda \geq 0\).</p> <p class="text-justify"><em>Proof:</em> The proof follows the same chain of arguments as the composition theorem 2 but instead of breaking the total privacy loss as a sum of random variables \(\langle C_1, ..., C_T\rangle\), we break the moment generating function of total privacy loss into the sum of a sequence of moment generating functions corresponding to step losses. This is advantageous because the moment generating function can generate all the moments of a random variable and bounds based on it will be tighter than any tail bounding method (such as Azuma’s Inequality) which focuses on a single moment. We show this decomposition as follows:</p> <p>Consider any pair of neighbouring databases \(D, D'\) and any \(\lambda \geq 0\). Following the definition of \(\alpha\) (defined in (6)) on the composed mechanism \(M_{1:T}\), we have the following decomposition:</p> \[\begin{align} \alpha_{M_{1:T}}(&amp;\lambda; D, D') = log \underset{o_{1:T} \sim M_{1:T}(D)}{\mathbb{E}} \big[exp(\lambda c(o_{1:T}; M_{1:T}, D, D')) \big] \\ &amp;= log \underset{o_{1:T} \sim M_{1:T}(D)}{\mathbb{E}} \big[exp(\lambda \times \sum_{t=1}^T c(o_t;M_{t} \lvert o_{1:t-1}, D, D'))\big] \\ &amp;\qquad\qquad \text{(Decomposition of total privacy loss like before)} \nonumber \\ &amp;= log \underset{o_{1:T} \sim M_{1:T}(D)}{\mathbb{E}} \big[ \prod_{t=1}^T exp(\lambda \times c(o_t;M_{t} \lvert o_{1:t-1}, D, D'))\big] \\ &amp;= log \prod_{t=1}^T \underset{o_{1:T} \sim M_{1:T}(D)}{\mathbb{E}} \big[exp(\lambda \times \underbrace{c(o_t;M_{t} \lvert o_{1:t-1}, D, D')}_{C_t})\big]\\ &amp;\qquad\qquad\qquad\qquad\qquad\quad\text{(Because $C_t$s are independent)} \nonumber\\ &amp;= \sum_{t=1}^T \alpha_{M_t} \lvert o_{1:t-1}(\lambda; D, D') \qquad\text{(From definition of $\alpha$)}\\ \end{align}\] <p>Using the above decomposition, for any \(\epsilon\), we can bound L.H.S. in (5) for the composed mechanism \(M_{1:T}\) as shown below.</p> \[\begin{align*} \underset{o_{1:T} \sim M_{1:T}(D)}{Pr} [c(o_{1:T};&amp; M_{1:T}, D, D') \geq \epsilon] \\ &amp;=\underset{o_{1:T} \sim M_{1:T}(D)}{Pr} [exp(\lambda c(o_{1:T}; M_{1:T}, D, D')) \geq \exp(\lambda \epsilon)] \\ &amp;\leq \frac{\underset{o_{1:T} \sim M_{1:T}(D)}{\mathbb{E}} \big[exp(\lambda c(o_{1:T}; M_{1:T}, D, D')) \big]}{exp(\lambda\epsilon)} \\ &amp;\qquad\qquad\qquad\qquad\qquad\qquad\text{(By Markov Inequality)}\\ &amp;= \frac{exp(\alpha_{M_{1:T}}(\lambda; D, D'))}{exp(\lambda \epsilon)} \qquad \text{(From definition of $\alpha$)} \\ &amp;= exp(\sum_{t=1}^T\alpha_{M_t \lvert o_{1:t-1}}(\lambda; D, D') - \lambda\epsilon) \end{align*}\] <p class="text-justify">Therefore, if for all neigbhouring database \(D, D'\), any \(\delta\) that satisfies (7) upperbounds the R.H.S. part above. As we have seen before, the above bound implies \((\epsilon, \delta)\) differential privacy and this completes our proof.</p> \[\begin{align} &amp;\tag*{$\blacksquare$} \end{align}\] <p class="text-justify">Note that unlike the first two composition theorems, we don’t assume \((\epsilon_t, \delta_t)\) differential privacy of every intermediate mechanism in the composition. Instead, we have a stronger assumption that for each of the intermediate mechanism the moment generating function of it’s privacy loss, i.e. \(\alpha_{M_t}\), is known (or a bound on it is known). The reason this is a stronger assumption because knowing \(\alpha_M\), for a mechanism, one can derive tight differential privacy guarantees for the mechanisms, but the reverse is not possible.</p> <h2 id="privacy-bounds-for-perturbed-sgd">Privacy Bounds for Perturbed SGD</h2> <p class="text-justify">We need one more component to get the privacy guarantee for the perturbed SGD algorithm: DP guarantee of a <code class="language-plaintext highlighter-rouge">Gaussian Mechanism</code>. This guarantee would give us the privacy cost incurred for releasing each update step’s noisy gradients to the adversary. We can compose this guarantee across all the steps via various composition theorems discussed to get the total DP guarantee.</p> <p class="text-justify"><strong>Theorem 3:</strong> (<em>DP guarantee for a Gaussian Mechanism</em>) Let \(f(\cdot)\) be an arbitrary function with an \(l_2\) sensitivity defined as \(\Delta_2(f) = \underset{D \sim D'}{\max} \Vert f(D) - f(D')\Vert_2\). For \(c^2 &gt; 2 \ln(1.25/\delta)\), the Gaussian Mechanism with parameter \(\sigma^2 ≥ c \Delta_2(f)/\epsilon\) is \((\epsilon,\delta)\)-differentially private.</p> <p>Based on these three composition theorems, we get the following privacy guarantees:</p> <ul> <li>From <code class="language-plaintext highlighter-rouge">Naive Composition</code>, perturbed SGD satisfies \((\epsilon,\delta)\)-DP with \(\epsilon \geq \frac{4BT\sqrt{\log T/\delta}}{N\sigma}.\)</li> <li>From <code class="language-plaintext highlighter-rouge">Advanced Composition</code>,perturbed SGD satisfies \((\epsilon,\delta)\)-DP with \(\epsilon \geq \frac{4B\sqrt{T\log T\log 1/\delta}}{N\sigma}.\)</li> <li>From <code class="language-plaintext highlighter-rouge">Moments' Accountant</code>, perturbed SGD satisfies \((\epsilon,\delta)\)-DP with \(\epsilon \geq \frac{4B\sqrt{T\log 1/\delta}}{N\sigma}.\)</li> </ul> </d-article> <d-appendix> <d-footnote-list></d-footnote-list> <d-citation-list></d-citation-list> </d-appendix> <d-bibliography src="/assets/bibliography/2020-02-29-machine-learning-with-dp.bib"></d-bibliography> <d-article> <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2> <p class="mb-2">Here are some more articles you might like to read next:</p> <ul class="list-disc pl-7 my-3 space-y-2 marker:text-[var(--global-theme-color)]"> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2025/AuditingDP/">Auditing ε-DP using Reconstruction Attacks</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2023/ForgetUnlearning/">Failure in Machine Unlearning and How to Guarantee Deletion</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2021/DPDynamics/">DP Dynamics of Noisy Gradient Descent (Part 2)</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2019/gsoc19-project-introduction/">GSoC 2019 Project: Extending Chainer compiler to support python jump syntax</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2018/Understanding-GAIL/">Understanding Generative Adverserial Imitation Learning</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2018/iitg-proxy-checker-ubuntu-install/">IITG proxy-checker and autoconfiguration package for ubuntu.</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2017/iitg-netspeed-hack-using-ssh-tunneling/">How to establish SSH behind a firewall, and use it to bypass port restrictions (Better than OpenVPN).</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2017/simple-swarm-intelligence-optimization-for-cartpole-balancing-problem/">Particle Swarm Optimization balancing Cart-Pole</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2016/mario-bros-RL/">Mario Bros Rl</a> </li> </ul> <br> <br> </d-article> </div> <footer class="sticky-bottom mt-5" role="contentinfo"> <div class="container"> © Copyright 2026 Rishav Chourasia. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. Photos from <a href="https://unsplash.com" target="_blank" rel="external nofollow noopener">Unsplash</a>. Last updated: July 17, 2026. </div> </footer> <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script> <script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script> <script src="/assets/js/distillpub/overrides.js"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script> <script src="/assets/al_math/js/mathjax-setup.js"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script> <script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script> <script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script> <script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-N54C9YQE94"></script> <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "G-N54C9YQE94");
+</script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/assets/al_img_tools/js/zoom.js"></script> <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script> <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script> <script>
+    addBackToTop();
+  </script> <script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script> <ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys> <script src="/assets/al_search/js/search-setup.js"></script> <script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-blog",
+          title: "blog",
+          description: "",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/blog/";
+          },
+        },{id: "nav-publications",
+          title: "publications",
+          description: "publications by categories in reversed chronological order. generated by jekyll-scholar.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-projects",
+          title: "projects",
+          description: "Research threads and side projects — privacy, ML, and compilers.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/projects/";
+          },
+        },{id: "nav-cv",
+          title: "cv",
+          description: "My full CV / résumé (PDF).",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/cv/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "My teaching experience.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "post-auditing-ε-dp-using-reconstruction-attacks",
+        
+          title: "Auditing ε-DP using Reconstruction Attacks",
+        
+        description: "Auditing Differential Privacy using Reconstruction Attacks",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2025/AuditingDP/";
+          
+        },
+      },{id: "post-failure-in-machine-unlearning-and-how-to-guarantee-deletion",
+        
+          title: "Failure in Machine Unlearning and How to Guarantee Deletion",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2023/ForgetUnlearning/";
+          
+        },
+      },{id: "post-dp-dynamics-of-noisy-gradient-descent-part-2",
+        
+          title: "DP Dynamics of Noisy Gradient Descent (Part 2)",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2021/DPDynamics/";
+          
+        },
+      },{id: "post-understanding-privacy-leakage-in-machine-learning-part-1",
+        
+          title: "Understanding Privacy leakage in Machine Learning (Part 1)",
+        
+        description: "Understanding Privacy leakage in Machine Learning (Part 1)",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2020/understanding-privacy-leakage-in-machine-learning-part1/";
+          
+        },
+      },{id: "post-gsoc-2019-project-extending-chainer-compiler-to-support-python-jump-syntax",
+        
+          title: "GSoC 2019 Project: Extending Chainer compiler to support python jump syntax",
+        
+        description: "GSoC 2019 Project: Extending Chainer compiler to support python jump syntax",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2019/gsoc19-project-introduction/";
+          
+        },
+      },{id: "post-understanding-generative-adverserial-imitation-learning",
+        
+          title: "Understanding Generative Adverserial Imitation Learning",
+        
+        description: "Understanding Generative Adverserial Imitation Learning",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2018/Understanding-GAIL/";
+          
+        },
+      },{id: "post-iitg-proxy-checker-and-autoconfiguration-package-for-ubuntu",
+        
+          title: "IITG proxy-checker and autoconfiguration package for ubuntu.",
+        
+        description: "IITG proxy-checker and autoconfiguration package for ubuntu.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2018/iitg-proxy-checker-ubuntu-install/";
+          
+        },
+      },{id: "post-how-to-establish-ssh-behind-a-firewall-and-use-it-to-bypass-port-restrictions-better-than-openvpn",
+        
+          title: "How to establish SSH behind a firewall, and use it to bypass port...",
+        
+        description: "How to establish SSH behind a firewall, and use it to bypass port restrictions (Better than OpenVPN).",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2017/iitg-netspeed-hack-using-ssh-tunneling/";
+          
+        },
+      },{id: "post-particle-swarm-optimization-balancing-cart-pole",
+        
+          title: "Particle Swarm Optimization balancing Cart-Pole",
+        
+        description: "Particle Swarm Optimization balancing Cart-Pole",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2017/simple-swarm-intelligence-optimization-for-cartpole-balancing-problem/";
+          
+        },
+      },{id: "post-mario-bros-rl",
+        
+          title: "Mario Bros Rl",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2016/mario-bros-RL/";
+          
+        },
+      },{id: "news-updated-my-blog-on-differential-privacy-in-ml-site-baseurl-blog-2020-understanding-privacy-leakage-in-machine-learning-part1",
+          title: 'Updated my blog on [Differential Privacy in ML]({{ site.baseurl }}/blog/2020/understanding-privacy-leakage-in-machine-learning-part1/)!',
+          description: "",
+          section: "News",},{id: "news-my-paper-on-differential-privacy-dynamics-of-langevin-diffusionand-noisy-gradient-descent-https-arxiv-org-abs-2102-05855-got-accepted-as-spotlight-https-proceedings-neurips-cc-paper-2021-hash-7c6c1a7bfde175bed616b39247ccace1-abstract-html-at-neurips-2021-among-3-of-submissions",
+          title: 'My paper on [Differential Privacy Dynamics of Langevin Diffusionand Noisy Gradient Descent](https://arxiv.org/abs/2102.05855) got...',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-interning-at-google-brain-this-summer-collaborating-with-krishnamurthy-dvijotham-https-dj-research-netlify-app-and-abhradeep-thakurta-https-athakurta-squarespace-com-in-the-privacy-and-security-research-team",
+          title: 'I&amp;#39;ll be interning at Google Brain this summer, collaborating with [Krishnamurthy Dvijotham](https://dj-research.netlify.app/) and...',
+          description: "",
+          section: "News",},{id: "news-added-a-blog-post-on-flaws-in-machine-unlearning-site-baseurl-blog-2023-forgetunlearning",
+          title: 'Added a blog post on [Flaws in Machine Unlearning]({{ site.baseurl }}/blog/2023/ForgetUnlearning/)!',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-giving-a-talk-on-my-icml-2023-paper-forget-unlearning-towards-true-data-deletion-in-machine-learning-https-arxiv-org-pdf-2210-08911-pdf-at-forc-2023-https-responsiblecomputing-org-forc-2023-at-stanford-university",
+          title: 'I&amp;#39;ll be giving a talk on my ICML 2023 paper [Forget Unlearning: Towards...',
+          description: "",
+          section: "News",},{id: "news-i-joined-betterdata-https-www-betterdata-ai-as-a-part-time-student-researcher-i-39-ll-be-working-on-privacy-auditing-for-tabular-synthetic-data-generators",
+          title: 'I joined **[Betterdata](https://www.betterdata.ai/)** as a part-time student researcher. I&amp;#39;ll be working on privacy...',
+          description: "",
+          section: "News",},{id: "news-i-successfully-cleared-my-thesis-proposal-with-wonderful-reviews-assets-pdf-proposal-feedback-pdf",
+          title: 'I successfully cleared my thesis proposal with **[wonderful reviews](assets/pdf/proposal-feedback.pdf)**!',
+          description: "",
+          section: "News",},{id: "news-betterdata-won-the-us-department-of-homeland-security-39-s-s-amp-t-awards-contract-https-www-dhs-gov-science-and-technology-news-2024-10-08-st-awards-contracts-four-startups-develop-privacy-enhancing-synthetic-data-generation-capabilities-to-develop-privacy-enhancing-synthetic-data-generation-capabilities",
+          title: 'Betterdata won the **[US Department of Homeland Security&amp;#39;s S&amp;amp;T Awards Contract](https://www.dhs.gov/science-and-technology/news/2024/10/08/st-awards-contracts-four-startups-develop-privacy-enhancing-synthetic-data-generation-capabilities)** to develop...',
+          description: "",
+          section: "News",},{id: "news-i-submitted-my-ph-d-thesis-quot-learning-and-unlearning-with-noisy-gradient-descent-quot-assets-pdf-phd-thesis-pdf-for-evaluation",
+          title: 'I submitted my Ph.D. thesis [&amp;quot;Learning and Unlearning with Noisy Gradient Descent&amp;quot;](assets/pdf/Phd-thesis.pdf) for...',
+          description: "",
+          section: "News",},{id: "news-my-paper-on-laplace-transform-interpretation-of-differential-privacy-https-arxiv-org-abs-2411-09142-was-accepted-at-forc-2025-https-responsiblecomputing-org-forc-2025-accepted-papers",
+          title: 'My paper on [Laplace Transform Interpretation of Differential Privacy](https://arxiv.org/abs/2411.09142) was accepted at [FORC...',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-giving-a-talk-on-laplace-transform-interpretation-of-differential-privacy-https-arxiv-org-abs-2411-09142-at-the-ppai-workshop-https-ppai-workshop-github-io-accepted-papers",
+          title: 'I&amp;#39;ll be giving a talk on [Laplace Transform Interpretation of Differential Privacy](https://arxiv.org/abs/2411.09142) at...',
+          description: "",
+          section: "News",},{id: "news-i-39-m-giving-a-contributed-talk-at-tpdp-2025-https-tpdp-journalprivacyconfidentiality-org-2025-which-is-being-held-at-google-in-mountain-view-ca-on-june-2-3-2025",
+          title: 'I&amp;#39;m giving a contributed talk at [TPDP 2025](https://tpdp.journalprivacyconfidentiality.org/2025/), which is being held at...',
+          description: "",
+          section: "News",},{id: "news-i-39-m-giving-a-talk-at-forc-2025-https-tpdp-journalprivacyconfidentiality-org-2025-being-organized-this-year-at-stanford-university-on-june-4-7-2025",
+          title: 'I&amp;#39;m giving a talk at [FORC 2025](https://tpdp.journalprivacyconfidentiality.org/2025/), being organized this year at Stanford...',
+          description: "",
+          section: "News",},{id: "news-i-39-ll-be-defending-my-ph-d-thesis-on-may-26th-venue-sr9-com1-02-09-school-of-computing-national-university-of-singapore",
+          title: 'I&amp;#39;ll be **[defending my Ph.D. Thesis on May 26th]()**. Venue: SR9 COM1 02-09,...',
+          description: "",
+          section: "News",},{id: "news-my-paper-on-one-run-privacy-auditing-for-structured-generative-and-foundation-models-site-baseurl-assets-pdf-chourasiaone-pdf-was-accepted-at-the-fmsd-workshop-https-icml-structured-fm-workshop-github-io-in-icml-2025",
+          title: 'My paper on [One-Run Privacy Auditing for Structured Generative and Foundation Models]({{ site.baseurl...',
+          description: "",
+          section: "News",},{id: "news-i-39-ve-taken-on-the-role-of-head-of-product-at-betterdata-https-www-betterdata-ai-leading-our-privacy-preserving-synthetic-data-platform",
+          title: 'I&amp;#39;ve taken on the role of **Head of Product** at [Betterdata](https://www.betterdata.ai/), leading our...',
+          description: "",
+          section: "News",},{id: "news-our-paper-auditing-apple-39-s-differentialprivacy-framework-https-doi-ieeecomputersociety-org-10-1109-sp63933-2026-00225-won-a-distinguished-paper-award-at-ieee-s-amp-p-2026-https-sp2026-ieee-security-org-we-ran-the-first-independent-audit-of-the-differential-privacy-code-running-on-billions-of-apple-devices",
+          title: 'Our paper [**Auditing Apple&amp;#39;s DifferentialPrivacy.framework**](https://doi.ieeecomputersociety.org/10.1109/SP63933.2026.00225) won a **Distinguished Paper Award** at [IEEE S&amp;amp;P...',
+          description: "",
+          section: "News",},{id: "projects-last-iterate-dp-sgd-bound",
+          title: 'Last-iterate DP-SGD bound',
+          description: "Last-iterate privacy guarantees for DP-SGD",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/DPdynamics/";
+            },},{id: "projects-elichika-compiler",
+          title: 'Elichika Compiler',
+          description: "Python to Onnx compiler for Chainer ML",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/elichika/";
+            },},{id: "projects-grasping-dp",
+          title: 'Grasping DP',
+          description: "A useful interpretation of differential privacy using Laplace transforms",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/laplace/";
+            },},{id: "projects-dp-auditing",
+          title: 'DP Auditing',
+          description: "An auditor for detecting violations of Differential Privacy",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/litmus/";
+            },},{id: "projects-machine-unlearning",
+          title: 'Machine Unlearning',
+          description: "Deleting information efficiently and reliably from ML models",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/unlearning/";
+            },},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/resume.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%72%69%73%68%61%76@%62%65%74%74%65%72%64%61%74%61.%61%69", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=UEAtkFYAAAAJ", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/Rishav1", "_blank");
+        },
+      },{
+        id: 'social-bluesky',
+        title: 'Bluesky',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://bsky.app/profile/rishav84ia.bsky.social", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script> <script src="/assets/al_search/js/shortcut-key.js"></script> </body> </html>
