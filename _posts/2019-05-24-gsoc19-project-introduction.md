@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "GSoC 2019 Project: Extending Chainer compiler to support python jump syntax"
-date:   2019-05-25
+title: "GSoC 2019 Project: Extending Chainer compiler to support python jump syntax"
+date: 2019-05-25
 description: "GSoC 2019 Project: Extending Chainer compiler to support python jump syntax"
 keywords: "Chainer, Abstract Syntax Tree, Compiler, Open Neural Network Exchange"
 categories: [Research]
@@ -42,6 +42,7 @@ The basic idea is that we do a [postorder tree traversal](https://www.geeksforge
 {: .text-justify}
 
 **1. Dereferencing attributes:** In python, object variables are assigned by reference. Multiple alias to the same object can exist simultaneously like shown in the following example.
+
 ```Python
 >>> a = list()
 >>> b = a
@@ -49,10 +50,12 @@ The basic idea is that we do a [postorder tree traversal](https://www.geeksforge
 >>> print(a)
 [1]
 ```
+
 In the computation graph however, we cannot have such copies as an operation on either of them won't be reflected in the other. Therefore, the translation logic must have a mechanism to dereference such copies into a singular instance on which all the operations would be performed.
 {: .text-justify}
 
 **2. Versioning attributes:** Scopes in python allow for existence of variables with the same name but different values as shown below.
+
 ```Python
 >>> x = 0
 >>> y = 1
@@ -67,6 +70,7 @@ In the computation graph however, we cannot have such copies as an operation on 
 >>> print(x)
 0
 ```
+
 Declarations with identical variable names in nested scopes are a bit tricky for creating a computation graph. In the above case, since we are overriding `x` inside the function `A` to `y + 1`, but right after the we exit the scope, the value of x is returned back to 0. In terms of generation of computation graph, this scenario calls for a versioning system for attribute `x`, so that we can have multiple stacked version of a variable based on the scope of operation. Whenever a compute node is generated, it looks up the attribute's current version for input (outside `A`, `x`'s version refers to the output of initializer node `0`, but inside `A`, it refers to the output of `Add` compute node).
 {: .text-justify}
 
@@ -76,21 +80,24 @@ This AST to computation graph translation mechanism works on the assumption that
 {: .text-justify}
 
 {% highlight python linenos %}
+
 # Before preprocessing
+
 for i in range(x):
-    do_something1()
-    if cond():
-        continue
-    do_something2()
+do_something1()
+if cond():
+continue
+do_something2()
 
 # After preprocessing
+
 for i in range(x):
-    continued_ = False
-    do_something1()
-    if cond():
-        continued_ = True
-    if not continued_:
-        do_something2()
+continued* = False
+do_something1()
+if cond():
+continued* = True
+if not continued\_:
+do_something2()
 {% endhighlight %}
 
 In addition to enabling striping of jump statements from AST, the preprocessor can be utilized for simplifying the compiler's burden by standardizing some syntax and simplifying the AST. For example, the generated AST for `-1` looks like `gast.gast.UnaryOp(gast.USub, gast.gast.Num(1))`, which can be simplified to be `gast.gast.UnaryOp(gast.gast.Num(-1))` in the preprocessing step. Also, we can replace a single tuple assignment like `x, y, z = 1, 2, 3` to separate assignments or reformat double inequality like `1 < x < 2` as `1 < x and x < 2`. Implementing the first iteration of the preprocessor for the Chainer compiler is my GSoC project for the summer of 2019.
@@ -102,6 +109,7 @@ This task turned out to be not that difficult to handle and was surprisingly ove
 {: .text-justify}
 
 ![example_ast]({{ site.baseurl }}/assets/img/blog/Elichika/example_ast.png){:width="800px" style="display: block; margin: 0 auto" }
+
 <p align="center">Original AST</p>
 
 Our goal is to remove all `continue` nodes from the AST in a manner that the logic stays intact. A key point to understand about any `continue` keyword is that it only affects the immediate ancestor for loop's execution. This nice property enables the use of a stack for handling continue statements inside nested loops. For every level of nesting, the stack has an entry for remembering `continue` keywords encountered in the consequent loop body so far. All the statements in the `loop`'s body is encapsulated in an `if` block with condition that neither of the `continue` keywords in the topmost stack entry has been encountered. This basically achieves the translation we are looking for. A simplified code of this translation is the following:
@@ -111,11 +119,11 @@ Our goal is to remove all `continue` nodes from the AST in a manner that the log
 import gast
 
 class Canonicalizer(gast.NodeTransformer):
-    def __init__(self):
-        super().__init__()
-        self.continued_flag = 'continued_'
-        self.for_continued_stack = []
-        self.flagid = -1
+def **init**(self):
+super().**init**()
+self.continued*flag = 'continued*'
+self.for_continued_stack = []
+self.flagid = -1
 
     def getflag(self):
         self.flagid += 1
@@ -148,12 +156,14 @@ class Canonicalizer(gast.NodeTransformer):
         continued_id = len(self.for_continued_stack)
         replacement = gast.Assign(targets=[gast.Name(id=self.continued_flag + str(continued_id), ctx=gast.Store(), annotation=None)], value=gast.NameConstant(value=True))
         return gast.copy_location(replacement, node)
+
 {% endhighlight %}
 
 The above `NodeTransformer` when ran on the example AST results in the following AST which is the desideratum and reflects the logic for the expected preprocessed transformation in the above example snippet. Similar to this, we can handle `break` statements inside nested `loop` as well as multiple returns inside nested function definitions.  
 {: .text-justify}
 
 ![transformed_ast]({{ site.baseurl }}/assets/img/blog/Elichika/transformed_ast.png){:width="800px" style="display: block; margin: 0 auto"}
+
 <p align="center">Transformed AST</p>
 
 Since the start goal of the project was achieved quite early in the timeline, my tasks have been extended to add other interesting features in the compiler. For instance, support for python `Dict` datatype is an interesting and necessary feature that I implemented recently ([#436](https://github.com/pfnet-research/chainer-compiler/pull/436)). I also added support for compiling `LSTM` and `Resnet50` models ([#229](https://github.com/pfnet-research/chainer-compiler/pull/229), [#529](https://github.com/pfnet-research/chainer-compiler/pull/529)), which are fairly complex chainer model. Currently, I am working on compilation of an even complex model named `FastRCNNPFNResNet50` which requires some interesting SSA friendly compilation.

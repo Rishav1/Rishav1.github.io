@@ -1,7 +1,8 @@
 ---
 layout: post
-title:  "Auditing ε-DP using Reconstruction Attacks"
-date:   2025-06-23 11:00:00 +0800
+mathjax: true
+title: "Auditing ε-DP using Reconstruction Attacks"
+date: 2025-06-23 11:00:00 +0800
 description: "Auditing Differential Privacy using Reconstruction Attacks"
 categories: [Research]
 tags: [Differential Privacy, Generative AI, Auditing]
@@ -16,11 +17,11 @@ Synthetic data generators (SDG) offers a powerful way to create realistic datase
 
 - A bug in the implementation of a DP algorithm can render the guarantee entirely void. These mistakes happen quite a lot, and may sometimes go undetected for long periods of time.
 
-- On the other hand, DP analysis can often be *loose*. That is, the pen-and-paper bound grossly overestimates the actual DP parameters. As a result, more than necessary noise gets injected to meet a DP budget, which hurts the utility.
+- On the other hand, DP analysis can often be _loose_. That is, the pen-and-paper bound grossly overestimates the actual DP parameters. As a result, more than necessary noise gets injected to meet a DP budget, which hurts the utility.
 
 - Many generative approaches have some inherent sources of randomness that may boost the privacy of the generated synthetic data, but these sources often aren't accounted for in the pen-and-paper analysis.
 
-[Privacy auditing]() is an alternative approach to quantifying privacy risk that works in a way that is opposite to formal DP guarantees. If DP guarantees are theoretical upper bounds, a DP audit gives an *empirical lower bound* on the level of privacy risk exhibited by an instantiation of an algorithm. 
+[Privacy auditing]() is an alternative approach to quantifying privacy risk that works in a way that is opposite to formal DP guarantees. If DP guarantees are theoretical upper bounds, a DP audit gives an _empirical lower bound_ on the level of privacy risk exhibited by an instantiation of an algorithm.
 
 <div style="text-align: center;">
     <img src="{{ site.baseurl }}/assets/img/blog/AuditingDP/audit.jpg"
@@ -29,13 +30,11 @@ Synthetic data generators (SDG) offers a powerful way to create realistic datase
     <p style="font-style: italic; font-size: 0.9em;">A caricature of how DP auditing for SDG works in general.</p>
 </div>
 
-
 In this blog, we describe the in-house DP auditing technique that we developed and actively use at [Betterdata](https://www.betterdata.ai/). Our DP auditing technique is state-of-the-art and has these three distinguishing characterestics:
 
 - Our audit strategy is built upon reconstruction attacks and not membership-inference attacks.
-- We view synthetic data as an *unordered reconstruction* of the training data, eliminating the need to design custom attacks for SDGs.
+- We view synthetic data as an _unordered reconstruction_ of the training data, eliminating the need to design custom attacks for SDGs.
 - We quantify memorization using nearest-neighbour distances between synthetic and audit data, which resolves the problem of lacking 1-to-1 matches between audit targets and synthetic samples in SDGs.
-
 
 ### Our Audit Strategy
 
@@ -43,7 +42,7 @@ At its heart, our method relies on the definition of $\epsilon$-DP. Imagine you 
 
 However, if the synthetic data points end up **clustering very closely around specific real data points** (which we call "audit samples" or "canaries"), it's like shining a spotlight on those specific real data points. This phenomenon creates "hot-spots" where it's highly probable that those real examples are located. When this happens, it becomes much easier to pinpoint the original data, which directly violates the $\epsilon$-DP condition. Why? Because the posterior distribution (what you know about the input after seeing the output) is no longer "close" to the prior distribution (what you knew before seeing the output). This closeness is a key requirement for $\epsilon$-DP.
 
-The main finding of our research is that **smaller distances between the real audit samples and their closest synthetic counterparts directly indicate a *lower* privacy guarantee**. More precisely, a smaller nearest-neighbor distance means a provably larger *lower bound* on the system's true $\epsilon$ value. A larger $\epsilon$ value means *less* privacy. This conclusion is reached with a high level of statistical confidence.
+The main finding of our research is that **smaller distances between the real audit samples and their closest synthetic counterparts directly indicate a _lower_ privacy guarantee**. More precisely, a smaller nearest-neighbor distance means a provably larger _lower bound_ on the system's true $\epsilon$ value. A larger $\epsilon$ value means _less_ privacy. This conclusion is reached with a high level of statistical confidence.
 
 <div style="text-align: center;">
     <img src="{{ site.baseurl }}/assets/img/blog/AuditingDP/nn.png"
@@ -69,8 +68,6 @@ The main finding of our research is that **smaller distances between the real au
 \end{algorithm}
 ```
 
-
-
 Here's a step-by-step explanation of our auditin procedure:
 
 1.  **Sampling Audit Examples (Canaries):** The first step involves uniformly selecting $m$ data points. These points, called **audit examples** or **canaries**, are chosen from a $d$-dimensional "hypercube". This hypercube is defined as a space where all coordinates are between 0 and 1, and it has a unit volume. While for convenience, we set one corner of this hypercube at the origin, it can conceptually be anywhere in the $d$-dimensional space. These audit examples are the specific data points that the audit will try to detect in the synthetic output.
@@ -79,7 +76,7 @@ Here's a step-by-step explanation of our auditin procedure:
 
 3.  **Generating Synthetic Samples:** After the generative model is trained, it produces $n$ synthetic feature vectors. Optionally, if it's computationally feasible, these synthetic samples can be constrained to also fall within the same $d$-dimensional hypercube as the audit examples. This is done through "rejection sampling," which basically means if a generated sample falls outside the hypercube, it's discarded and a new one is generated until it falls within the desired range. This restriction can improve the audit's performance.
 
-4.  **Measuring Memorization (Nearest-Neighbor Distance):** This is a crucial step. For each of the $m$ audit examples, the audit finds its **nearest neighbor** among all the $n$ synthetic examples. The "distance" here is the standard Euclidean distance, which is also known as the *Distance to Closest Record* (DCR) in the synthetic-generation literature. Once all these nearest distances are found (one for each audit example), they are summed up to get a value called $\hat\nu$. This value, $\hat\nu$, acts as a proxy for how much the generative model has "memorized" the original audit examples. A smaller $\hat\nu$ suggests more memorization.
+4.  **Measuring Memorization (Nearest-Neighbor Distance):** This is a crucial step. For each of the $m$ audit examples, the audit finds its **nearest neighbor** among all the $n$ synthetic examples. The "distance" here is the standard Euclidean distance, which is also known as the _Distance to Closest Record_ (DCR) in the synthetic-generation literature. Once all these nearest distances are found (one for each audit example), they are summed up to get a value called $\hat\nu$. This value, $\hat\nu$, acts as a proxy for how much the generative model has "memorized" the original audit examples. A smaller $\hat\nu$ suggests more memorization.
 
 5.  **Estimating the Privacy Lower Bound:** In the final phase, the calculated $\hat\nu$ value is used to estimate a lower bound on the true $\epsilon$ value of the system's differential privacy. This lower bound is denoted as $\epsilon_{\mathrm{lower}}$. This means that the system's actual $\epsilon$ value is guaranteed to be at least $\epsilon_{\mathrm{lower}}$ with certain statistical significance. That is, the calculation considers a "significance level" $\beta$, which basically determines the confidence of the lower bound holding. For example, if $\beta = 0.05$, it means there's a 95% confidence that the true $\epsilon$ is at least $\epsilon_{\mathrm{lower}}$.
 
@@ -104,11 +101,11 @@ where $\hat\nu = \sum_{i=1}^m \inf_{j \in [n]} \Vert X_i - S_j\Vert_2$ is the su
 
 This theorem provides a rigorous mathematical relationship between the observed nearest-neighbor distance sum and the differential privacy guarantee. It states that if a synthetic data generation algorithm $\mathcal{A}$ truly satisfies $\epsilon$-differential privacy, then there's a limit to how "close" the synthetic samples can get to the original audit examples. Specifically, if we uniformly pick $m$ audit examples ($\mathbf{X}$) and then generate $n$ synthetic samples ($\mathbf{S}$) using $\mathcal{A}$, the probability of the sum of the nearest-neighbor distances ($\hat\nu$) being less than or equal to some constant is bounded. This constant is a formula of the significance threshold ($\beta$), the number of audit examples ($m$), synthetic samples ($n$), the dimension of the data ($d$), and importantly, the privacy parameter $\epsilon$.
 
-To put it more simply, this theorem provides a way to formally test the hypothesis: "Algorithm $\mathcal{A}$ is $\epsilon$-DP." If we observe a value for $\hat\nu$ that is *smaller* than this calculated threshold, we can confidently **reject the claim that the algorithm $\mathcal{A}$ satisfies $\epsilon$-DP**. The **p-value** of the hypothesis test, which represents the probability of incorrectly rejecting the null hypothesis (i.e., concluding it's not $\epsilon$-DP when it actually is), is determined by our chosen significance level $\beta$. So, if we choose a $\beta$ of, say, 0.05, we have only a 5% chance of being wrong when we reject the claim.
+To put it more simply, this theorem provides a way to formally test the hypothesis: "Algorithm $\mathcal{A}$ is $\epsilon$-DP." If we observe a value for $\hat\nu$ that is _smaller_ than this calculated threshold, we can confidently **reject the claim that the algorithm $\mathcal{A}$ satisfies $\epsilon$-DP**. The **p-value** of the hypothesis test, which represents the probability of incorrectly rejecting the null hypothesis (i.e., concluding it's not $\epsilon$-DP when it actually is), is determined by our chosen significance level $\beta$. So, if we choose a $\beta$ of, say, 0.05, we have only a 5% chance of being wrong when we reject the claim.
 
-Our auditor, as presented in Algorithm 1, leverages this hypothesis test to estimate a *lower bound* on the true $\epsilon$-DP parameter of the algorithm $\mathcal{A}$. The core idea is this: say we observe a specific value of $\hat\nu$ by running the audit. Then, we look at all possible $\epsilon$ values. For each $\epsilon$, if our observed $\hat\nu$ exceeds the threshold constant for that particular $\epsilon$, it means that it's highly unlikely that the algorithm is actually $\epsilon$-DP for that $\epsilon$. Therefore, we can confidently reject the null hypothesis for that specific $\epsilon$. The maximum $\epsilon$ for which we can confidently reject the null hypothesis becomes our $\epsilon_{\text{lower}}$, which serves as a lower bound estimate for the algorithm's true privacy parameter. And the beauty of this approach is that we can guarantee this estimate holds with a high probability (at least $1-\beta$).
+Our auditor, as presented in Algorithm 1, leverages this hypothesis test to estimate a _lower bound_ on the true $\epsilon$-DP parameter of the algorithm $\mathcal{A}$. The core idea is this: say we observe a specific value of $\hat\nu$ by running the audit. Then, we look at all possible $\epsilon$ values. For each $\epsilon$, if our observed $\hat\nu$ exceeds the threshold constant for that particular $\epsilon$, it means that it's highly unlikely that the algorithm is actually $\epsilon$-DP for that $\epsilon$. Therefore, we can confidently reject the null hypothesis for that specific $\epsilon$. The maximum $\epsilon$ for which we can confidently reject the null hypothesis becomes our $\epsilon_{\text{lower}}$, which serves as a lower bound estimate for the algorithm's true privacy parameter. And the beauty of this approach is that we can guarantee this estimate holds with a high probability (at least $1-\beta$).
 
-This means we're not just saying "it's not private enough," but we're also providing a numerical estimate of *how much* privacy is likely being violated, with a clear statistical confidence level. This makes our audit a powerful tool for assessing and verifying the differential privacy guarantees of generative mechanisms. The following figure visually demonstrates our auditing technique when applied to a Gaussian Mixture Model (GMM).
+This means we're not just saying "it's not private enough," but we're also providing a numerical estimate of _how much_ privacy is likely being violated, with a clear statistical confidence level. This makes our audit a powerful tool for assessing and verifying the differential privacy guarantees of generative mechanisms. The following figure visually demonstrates our auditing technique when applied to a Gaussian Mixture Model (GMM).
 
 <div style="text-align: center;">
     <img src="{{ site.baseurl }}/assets/img/blog/AuditingDP/example.png"
@@ -120,9 +117,9 @@ This means we're not just saying "it's not private enough," but we're also provi
 For non-negative integer $n$ the Gamma function $\Gamma(n + 1) = n!$ and $\Gamma\left(n + \frac{1}{2}\right) = \frac{(2n)!}{4^n n!}\sqrt{\pi}$. So, line 7 of our Audit algorithm can be computed in $O(md)$ time, which is less than the time it takes to generate the audit dataset in line 1.
 </div>
 
-#### Problem with Membership-Inference Attacks 
+#### Problem with Membership-Inference Attacks
 
-Almost all the other DP auditing techniques in literature rely exclusively on *membership-inference attacks* (MIA). We discovered that **MIAs have a serious drawback when it comes to DP auditing**. By definition, if a algorithm $\mathcal{A}$ satisfies $\epsilon$-DP, then for all neighbouring datasets $D_0$ and $D_1$ that differ in a single entry and for all sets $S$ in the output domain,
+Almost all the other DP auditing techniques in literature rely exclusively on _membership-inference attacks_ (MIA). We discovered that **MIAs have a serious drawback when it comes to DP auditing**. By definition, if a algorithm $\mathcal{A}$ satisfies $\epsilon$-DP, then for all neighbouring datasets $D_0$ and $D_1$ that differ in a single entry and for all sets $S$ in the output domain,
 
 $$
 \begin{align*}
@@ -143,7 +140,7 @@ $$
 
 Even if a membership-inference attack succeeds on a target with a $$100\%$$ accuracy across **1 million independent runs**, the largest lower-bound on the DP parameter we can infer with a $95\%$ statistical confidence is only $\epsilon_\mathrm{lower} 12.71$. This is because for $\epsilon = 12.71$, the probability of a single membership-inference succeeding in the worst-case is $\frac{1}{e^{-\epsilon} + 1} \approx 0.999997$. Since this probability is extremely close to one, it would take **a million consecutively correct membership-inference guesses** for there to be a significant enough evidence that the DP parameter $\epsilon = 12.71$ is unlikely to hold (i.e., the p-value for the null-hypothesis that $\epsilon$-DP holds with $\epsilon = 12.71$ holds is $\beta = 0.999997^{1000000} < 0.05$).
 
-**Why are reconstruction attacks are superior?** The reason why MIAs have such an unreasonable sample complexity is because they test for a *single bit* at a time---whether the target was included in the training data or not? In contrast, reconstruction attacks attempts to predict *all the bits that make up a target*, which is significantly better for DP audits. To contextualize, our <a href="#thm:main">main result</a> shows that for just $m=n=10$ audit and synthetic samples in $d=10$ dimensions, a nearest-neighbor distance sum $\hat\nu \leq 1$ yields $\epsilon_\mathrm{lower} = 17.34$, $\hat\nu \leq 0.1$ yields $\epsilon_\mathrm{lower} = 40.36$, and $\hat\nu \leq 0.01$ yields $\epsilon_\mathrm{lower} = 63.39$ with $99.9\%$ confidence ($\beta = 0.001$). In fact, as the nearest-neighbour distance sum goes to zero, the lower bound $\epsilon_\mathrm{lower}$ goes to infinity. That is why reconstruction attacks are a whole lot better than membership-inference attacks when it comes to privacy auditing, especially for synthetic data generators.
+**Why are reconstruction attacks are superior?** The reason why MIAs have such an unreasonable sample complexity is because they test for a _single bit_ at a time---whether the target was included in the training data or not? In contrast, reconstruction attacks attempts to predict _all the bits that make up a target_, which is significantly better for DP audits. To contextualize, our <a href="#thm:main">main result</a> shows that for just $m=n=10$ audit and synthetic samples in $d=10$ dimensions, a nearest-neighbor distance sum $\hat\nu \leq 1$ yields $\epsilon_\mathrm{lower} = 17.34$, $\hat\nu \leq 0.1$ yields $\epsilon_\mathrm{lower} = 40.36$, and $\hat\nu \leq 0.01$ yields $\epsilon_\mathrm{lower} = 63.39$ with $99.9\%$ confidence ($\beta = 0.001$). In fact, as the nearest-neighbour distance sum goes to zero, the lower bound $\epsilon_\mathrm{lower}$ goes to infinity. That is why reconstruction attacks are a whole lot better than membership-inference attacks when it comes to privacy auditing, especially for synthetic data generators.
 
 <div style="text-align: center;">
     <img src="{{ site.baseurl }}/assets/img/blog/AuditingDP/epslb.png"
@@ -151,7 +148,7 @@ Even if a membership-inference attack succeeds on a target with a $$100\%$$ accu
     <p style="font-style: italic; font-size: 0.9em;">Comparision of $\epsilon_\mathrm{lower}$ derived from our audit algorithm as the dimension-normalized avgerage nearest-neighbor distance metric ($\hat\nu / m\sqrt{d}$) changes for different choices of parameters $(m,n,d)$.</p>
 </div>
 
-#### Numerically Stable Implementation 
+#### Numerically Stable Implementation
 
 Following codeblock contains an implementation of our DP audit computation. Given an observation of the nearest-neighbor distance sum $\hat\nu$, the first method computes the p-value for a choice of $\epsilon$ and the second method computes the $\epsilon_\mathrm{lower}$ for a choice of significance threshold $\beta$ of the p-value.
 
@@ -190,5 +187,3 @@ def get_epslb(m, n, d, v, p):
     eps_lower = log_gamma_term + log_top_terms - log_bottom_terms
     return np.maximum(0,eps_lower)
 </code></pre>
-
-

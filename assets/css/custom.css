@@ -1,154 +1,31 @@
 /* ==========================================================================
    Custom site styles — local override, loaded last in <head>.
-   1) Code blocks: emacs-inspired light palette + a clean, high-contrast slab
-      (kills the washed-out magenta tint). Dark mode keeps the native palette.
+   1) Code: rely entirely on the theme's shipped Rouge themes (GitHub for light,
+      Native for dark) — the modern, standard highlighting. We add only a couple
+      of neutral tweaks (inline-code chip) and never override token colors.
    2) LaTeX-style environment boxes (theorem / lemma / definition / example /
-      note / question / proof / remark / …) ported and refreshed to be
-      theme-aware. Used across the DP + unlearning blog posts.
+      note / question / proof / remark / … ) and an algorithm box, theme-aware.
    Theme-aware via the `data-theme` attribute set on <html> by theme.js.
    ========================================================================== */
 
-/* ---- Code blocks --------------------------------------------------------- */
+/* ---- Code --------------------------------------------------------------- */
+/* No token-color overrides here: the gem ships jekyll-pygments-themes-github
+   (light) and -native (dark), which own the code-block colors and container.
+   We only refine inline code so it reads as a subtle chip, not loud accent. */
 
 :root {
-  --global-code-bg-color: #f6f8fa; /* light: soft neutral slab, not pink */
+  --global-code-bg-color: #f6f8fa; /* light: soft neutral, not pink */
 }
 html[data-theme="dark"] {
   --global-code-bg-color: #1b1f24; /* dark: deep slate */
 }
 
-pre {
-  border: 1px solid var(--global-divider-color, rgba(0, 0, 0, 0.08));
-  border-radius: 8px;
-  padding: 0.9rem 1.1rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  line-height: 1.45;
-}
-html[data-theme="light"] pre,
-html[data-theme="light"] pre code {
-  color: #2b2b2b; /* readable default (emacs) instead of magenta */
-}
-html[data-theme="dark"] pre,
-html[data-theme="dark"] pre code {
-  color: #e6e6e6;
-}
-
-/* inline code: a subtle chip instead of loud accent-colored text */
 :not(pre) > code {
   padding: 0.12em 0.4em;
   border-radius: 4px;
   background-color: var(--global-code-bg-color);
   color: var(--global-theme-color);
   font-size: 0.88em;
-}
-
-/* Emacs rouge palette — light mode only (dark keeps the native theme). */
-html[data-theme="light"] .highlight .hll {
-  background-color: #ffffcc;
-}
-html[data-theme="light"] .highlight .c,
-html[data-theme="light"] .highlight .cm,
-html[data-theme="light"] .highlight .c1,
-html[data-theme="light"] .highlight .cp {
-  color: #008800;
-  font-style: italic;
-} /* comments */
-html[data-theme="light"] .highlight .cs {
-  color: #008800;
-  font-weight: bold;
-}
-html[data-theme="light"] .highlight .k,
-html[data-theme="light"] .highlight .kc,
-html[data-theme="light"] .highlight .kd,
-html[data-theme="light"] .highlight .kn,
-html[data-theme="light"] .highlight .kr,
-html[data-theme="light"] .highlight .ow {
-  color: #aa22ff;
-  font-weight: bold;
-} /* keywords */
-html[data-theme="light"] .highlight .kp,
-html[data-theme="light"] .highlight .nb,
-html[data-theme="light"] .highlight .nd,
-html[data-theme="light"] .highlight .bp {
-  color: #aa22ff;
-}
-html[data-theme="light"] .highlight .kt {
-  color: #00bb00;
-  font-weight: bold;
-} /* types */
-html[data-theme="light"] .highlight .o {
-  color: #666666;
-} /* operators */
-html[data-theme="light"] .highlight .m,
-html[data-theme="light"] .highlight .mf,
-html[data-theme="light"] .highlight .mh,
-html[data-theme="light"] .highlight .mi,
-html[data-theme="light"] .highlight .mo,
-html[data-theme="light"] .highlight .il {
-  color: #666666;
-} /* numbers */
-html[data-theme="light"] .highlight .s,
-html[data-theme="light"] .highlight .s1,
-html[data-theme="light"] .highlight .s2,
-html[data-theme="light"] .highlight .sb,
-html[data-theme="light"] .highlight .sc,
-html[data-theme="light"] .highlight .sh,
-html[data-theme="light"] .highlight .sx,
-html[data-theme="light"] .highlight .na {
-  color: #bb4444;
-} /* strings */
-html[data-theme="light"] .highlight .sd {
-  color: #bb4444;
-  font-style: italic;
-}
-html[data-theme="light"] .highlight .se {
-  color: #bb6622;
-  font-weight: bold;
-}
-html[data-theme="light"] .highlight .si,
-html[data-theme="light"] .highlight .sr {
-  color: #bb6688;
-}
-html[data-theme="light"] .highlight .nc,
-html[data-theme="light"] .highlight .nn {
-  color: #0000ff;
-  font-weight: bold;
-} /* class / namespace */
-html[data-theme="light"] .highlight .nf {
-  color: #00a000;
-} /* function */
-html[data-theme="light"] .highlight .no {
-  color: #880000;
-} /* constant */
-html[data-theme="light"] .highlight .nv,
-html[data-theme="light"] .highlight .vc,
-html[data-theme="light"] .highlight .vg,
-html[data-theme="light"] .highlight .vi,
-html[data-theme="light"] .highlight .ss {
-  color: #b8860b;
-} /* variables / symbols */
-html[data-theme="light"] .highlight .nt {
-  color: #008000;
-  font-weight: bold;
-} /* tags */
-html[data-theme="light"] .highlight .ne {
-  color: #d2413a;
-  font-weight: bold;
-}
-html[data-theme="light"] .highlight .gh,
-html[data-theme="light"] .highlight .gp {
-  color: #000080;
-  font-weight: bold;
-}
-html[data-theme="light"] .highlight .gu {
-  color: #800080;
-  font-weight: bold;
-}
-html[data-theme="light"] .highlight .gd {
-  color: #a00000;
-}
-html[data-theme="light"] .highlight .gi {
-  color: #00a000;
 }
 
 /* ---- LaTeX-style environment boxes -------------------------------------- */
@@ -281,6 +158,28 @@ html[data-theme="light"] .highlight .gi {
 .corollary::before {
   content: "Corollary. ";
   font-weight: 700;
+}
+
+/* ---- Algorithm box (used by the GAIL post) ------------------------------ */
+.algorithm-box {
+  margin: 1.5rem 0;
+  padding: 0.5rem 1.25rem 1rem;
+  border: 1px solid var(--global-divider-color, rgba(0, 0, 0, 0.1));
+  border-top: 3px solid var(--global-theme-color);
+  border-radius: 6px;
+  background-color: var(--global-code-bg-color);
+}
+.algorithm-box h4 {
+  margin: 0.75rem 0 0.25rem;
+  font-weight: 700;
+}
+.algorithm-box ol {
+  margin: 0.5rem 0 0 1.25rem;
+  padding: 0;
+}
+.algorithm-box li {
+  margin: 0.35rem 0;
+  line-height: 1.5;
 }
 
 /* ---- Small niceties ------------------------------------------------------ */

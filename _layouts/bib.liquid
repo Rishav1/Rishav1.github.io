@@ -188,7 +188,18 @@
       <div class="periodical publication-highlight" style="color: var(--global-theme-color); font-weight: 600;">
         <i class="fa-solid fa-award"></i>
         {%- assign award_label = entry.award_name | default: entry.award -%}
-        {% if entry.award_url %}<a href="{{ entry.award_url }}" target="_blank" rel="noopener noreferrer" style="color: var(--global-theme-color); text-decoration: underline;">{{ award_label }}</a>{% else %}{{ award_label }}{% endif %}
+        {% if entry.award_url -%}
+          <a
+            href="{{ entry.award_url }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: var(--global-theme-color); text-decoration: underline;"
+          >
+            {{- award_label -}}
+          </a>
+        {%- else -%}
+          {{- award_label -}}
+        {%- endif %}
       </div>
     {% endif %}
     {% if entry.spotlight %}
@@ -375,7 +386,7 @@
       {% endif %}
     {% endif %}
 
-    {% if entry.award and entry.award_url == nil %}
+    {% if entry.award and entry.award_url == null %}
       <!-- Hidden Award block (only when the award is not a direct link) -->
       <div class="award hidden d-print-inline">
         <p>{{ entry.award | markdownify }}</p>

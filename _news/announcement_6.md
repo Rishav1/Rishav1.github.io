@@ -5,4 +5,3 @@ inline: true
 ---
 
 I submitted my Ph.D. thesis ["Learning and Unlearning with Noisy Gradient Descent"](assets/pdf/Phd-thesis.pdf) for evaluation!
-

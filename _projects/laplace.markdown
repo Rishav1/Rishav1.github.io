@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Grasping DP 
+title: Grasping DP
 description: A useful interpretation of differential privacy using Laplace transforms
 img: /assets/img/projects/laplace_transform.gif
 redirect: https://arxiv.org/abs/2411.09142
