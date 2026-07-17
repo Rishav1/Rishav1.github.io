@@ -1,0 +1,7 @@
+# social links + usernames (jekyll-socials). Order here = display order.
+cv_pdf: /assets/pdf/resume.pdf # path to CV/resume PDF
+email: rishav@betterdata.ai
+rss_icon: true
+scholar_userid: UEAtkFYAAAAJ # Google Scholar ID
+github_username: Rishav1
+bluesky_url: https://bsky.app/profile/rishav84ia.bsky.social

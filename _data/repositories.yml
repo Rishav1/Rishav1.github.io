@@ -1,0 +1,8 @@
+github_users:
+  - Rishav1
+
+repo_description_lines_max: 2
+
+github_repos:
+  - Rishav1/rishav1.github.io
+  - pfnet-research/chainer-compiler

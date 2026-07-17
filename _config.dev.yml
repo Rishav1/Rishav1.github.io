@@ -1,0 +1,5 @@
+# Local development overrides. Loaded on top of _config.yml by `make serve`.
+# Keeps canonical/absolute links pointing at localhost (not the live domain)
+# while you preview locally.
+url: ""
+baseurl: ""
