@@ -433,7 +433,8 @@ imagemagick:
     - ".jpeg"
     - ".png"
     - ".tiff"
-    - ".gif"
+    # ".gif" excluded: animated GIFs (e.g. project cards) break the animated-WebP
+    # encoder ("Invalid frame dimensions") and don't benefit from responsive resizing.
   output_formats:
     webp: "-auto-orient -quality 85"
 

@@ -28,6 +28,16 @@ html[data-theme="dark"] {
   font-size: 0.88em;
 }
 
+/* ---- Distill sidenotes (aside) ------------------------------------------ */
+/* Distill themes `d-article p/li/hN` with --global-text-color but NOT <aside>.
+   Asides whose text is not wrapped in <p> keep distill's fixed dark gray,
+   which is invisible in dark mode. Make all aside text theme-aware. */
+d-article aside,
+d-article aside p,
+d-article aside li {
+  color: var(--global-text-color) !important;
+}
+
 /* ---- LaTeX-style environment boxes -------------------------------------- */
 /* Semi-transparent accent tints so they read well in light AND dark mode.   */
 

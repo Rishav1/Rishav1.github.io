@@ -20,10 +20,10 @@ Imitation Learning, as the name suggests, is the theory of teaching an agent mim
 There are quite a few approaches to solving this problem of Imitation Learning. My favourite one so far that I am going to explain in this blog is the [Generative Adverserial Imitation Learning](https://arxiv.org/abs/1606.03476). But to be able to appreciate it, lets go over some other approaches that lead upto this. First, let's get over some notations.
 {: .text-justify}
 
-The environment is asumed to be a typical MDP with state space $S$ and action space $A$, a transition probability $P(s'|s,a)$ and a cost function $c \in C = \{c \mid S \times A \rightarrow \mathbb{R}\}$. The slight difference with RL here is that we don't actually know the cost function. However we do have some sampled expert trajectories $\tau_e \sim \pi_e$, which we can use to forumlate a cost function. Here, $\pi_e : S \rightarrow A$ is the expert policy.
+The environment is asumed to be a typical MDP with state space $S$ and action space $A$, a transition probability $P(s' \mid s,a)$ and a cost function $c \in C = \lbrace c \mid S \times A \rightarrow \mathbb{R} \rbrace$. The slight difference with RL here is that we don't actually know the cost function. However we do have some sampled expert trajectories $\tau_e \sim \pi_e$, which we can use to forumlate a cost function. Here, $\pi_e : S \rightarrow A$ is the expert policy.
 {: .text-justify}
 
-**Behavorial Cloning:** The most basic idea to do imitation learning is to view it as supervised learning problem. You train a predictor to imitate the expert by training it on $\{(s_1,a_1),(s_2,a_2),\dots,(s_n,a_n)\} \sim \tau_e$. This is similar to remebering the agent policy as this method dosen't generalize to most states that weren't seen, though actions at some unseen similar states would be very similar to the expert. The problem is that once the agent deviates from the expert at some point and observes a state not in any expert trajectory it trained on, the agent's action becomes very different from what the expert would have taken, and this divergence only grows with time from that point on.
+**Behavorial Cloning:** The most basic idea to do imitation learning is to view it as supervised learning problem. You train a predictor to imitate the expert by training it on $\lbrace (s_1,a_1),(s_2,a_2),\dots,(s_n,a_n) \rbrace \sim \tau_e$. This is similar to remebering the agent policy as this method dosen't generalize to most states that weren't seen, though actions at some unseen similar states would be very similar to the expert. The problem is that once the agent deviates from the expert at some point and observes a state not in any expert trajectory it trained on, the agent's action becomes very different from what the expert would have taken, and this divergence only grows with time from that point on.
 {: .text-justify}
 
 <p align="center"><img src="{{ '/assets/img/blog/GAIL/behaviour-cloning-2.jpg' | relative_url }}" alt="Behaviour cloning" width="480"></p>
@@ -42,7 +42,7 @@ $$
 **Apprenticeship Learning:** The above cost function is dynamic in terms of the learnt policy. It selects a cost function that best penealizes a policy based on how far it is from the expert. The catch is that there is a constraint on the cost functions that can be selected. This is to ensure that a very difficult to learn cost functions isn't selected(such as the 0,1-static policy mentioned earlier). Plus one can carefully engineer a class of cost functions that is tractable to compute as well as allows fast learning. [This seminal idea](https://ai.stanford.edu/~ang/papers/icml04-apprentice.pdf), called Apprenticeship Learning, was proposed by [Andrew Ng](https://twitter.com/AndrewYNg) and [Pieter Abbeel](https://twitter.com/pabbeel) back in 2004. And was a significant improvement over previous IL methods.
 {: .text-justify}
 
-Apprenticeship Learning also presented a cunning and scalable way of doing IL in very large state-action spaces, which in my opinion was the grand prize. In brief, what they did was approximate the policy function and parameterize the cost function via linear weights on a set of selected feature cost functions. So the space of cost functions $C_{selective}$ became a convex set of a preselected cost functions $\phi = \{c_1, c_2, \dots, c_k\}$. So any cost function could be represented using a weight **W** as
+Apprenticeship Learning also presented a cunning and scalable way of doing IL in very large state-action spaces, which in my opinion was the grand prize. In brief, what they did was approximate the policy function and parameterize the cost function via linear weights on a set of selected feature cost functions. So the space of cost functions $C_{selective}$ became a convex set of a preselected cost functions $\phi = \lbrace c_1, c_2, \dots, c_k \rbrace$. So any cost function could be represented using a weight **W** as
 {: .text-justify}
 
 $$
@@ -70,7 +70,7 @@ The algorithm then selected a weight **W** that gave the maximum differene betwe
     <li>Set $i = 0$. Randomly pick a policy $\pi_i$.</li>
     <li>Generate a few trajectories $\tau_i$ using policy $\pi_i$.</li>
     <li>Estimate $\mu_i = \mu(\tau_i)$.</li>
-    <li>Compute $W_i = \arg\max_{W \in [0,1]^k} W^T(\mu_i - \mu_e)$. Halt if $|W_i|$ is less than $\epsilon$.</li>
+    <li>Compute $W_i = \arg\max_{W \in [0,1]^k} W^T(\mu_i - \mu_e)$. Halt if $\lvert W_i \rvert$ is less than $\epsilon$.</li>
     <li>Perform RL using the cost function $c(s,a) = W_i^T \phi(s,a)$, generating trajectories $\tau_{i+1}$.</li>
     <li>Set $i = i+1$. Go to step 4.</li>
   </ol>
@@ -92,7 +92,7 @@ $$
 \bar{L}(\rho, c) = -\bar{H}(\rho) - \psi(c) + \sum_{s,a} \rho(s,a) c(s,a) - \sum_{s,a} \rho_{\pi_E}(s,a) c(s,a)
 $$
 
-The occupancy measure $\rho^*$ of optimal policy $\pi^*$ and the optimal discriminator cost function $c^*$ can be expressed in terms of the above bivariate function as following.
+The occupancy measure $\rho^\ast$ of optimal policy $\pi^\ast$ and the optimal discriminator cost function $c^\ast$ can be expressed in terms of the above bivariate function as following.
 
 $$
 \rho^* \in \arg\min_{\rho} \max_c \bar{L}(\rho, c), \quad c^* \in \arg\max_{c} \min_{\rho} \bar{L}(\rho, c)
