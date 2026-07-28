@@ -14,9 +14,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      # See docs/CUSTOMIZE.md for details on how to set up PAT for triggering subsequent workflows
-      #        with:
-      #          token: ${{ secrets.PAT }}
+        # Commits made with GITHUB_TOKEN deliberately do not trigger other
+        # workflows, so citation updates would never reach the deployed site.
+        # A PAT secret makes the push trigger Deploy; falls back to the default
+        # token when PAT is unset, so this is safe either way.
+        # See docs/CUSTOMIZE.md for PAT setup.
+        with:
+          token: ${{ secrets.PAT || github.token }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
