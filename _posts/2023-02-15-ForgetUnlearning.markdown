@@ -208,7 +208,7 @@ where $\ind_i \neq \ind_j$ for all $i \neq j$.
 <figure id="edit_request">
 <picture>
     <source srcset="{{ site.baseurl }}/assets/img/blog/ForgetUnlearning/edit_request.png" media="(min-width: 768px)" />
-    <img srcset="edit_request.png" alt="Example of an edit request" />
+    <img src="{{ site.baseurl }}/assets/img/blog/ForgetUnlearning/edit_request.png" alt="Example of an edit request" />
     <figcaption>Depiction of an edit request modifying a dataset.</figcaption>
 </picture>
 </figure>
@@ -226,7 +226,7 @@ The *data curator*, characterized by a pair of learning and unlearning algorithm
 <figure id="unlearning_setup_advanced">
 <picture>
     <source srcset="{{ site.baseurl }}/assets/img/blog/ForgetUnlearning/unlearning_setup_advanced.png" media="(min-width: 768px)" />
-    <img srcset="unlearning_setup_advanced.png" alt="Adaptive Unlearning Setup" />
+    <img src="{{ site.baseurl }}/assets/img/blog/ForgetUnlearning/unlearning_setup_advanced.png" alt="Adaptive Unlearning Setup" />
     <figcaption>Detailed visualization of the streaming unlearning setup.</figcaption>
 </picture>
 </figure>
@@ -261,7 +261,7 @@ It is useful to consider the sequence of indices $\vec{s}$ as the <b>planned ver
 <figure id="adaptive_requester">
 <picture>
     <source srcset="{{ site.baseurl }}/assets/img/blog/ForgetUnlearning/adaptive_requester.png" media="(min-width: 768px)" />
-    <img srcset="adaptive_requester.png" alt="Example of an edit request" />
+    <img src="{{ site.baseurl }}/assets/img/blog/ForgetUnlearning/adaptive_requester.png" alt="Example of an edit request" />
     <figcaption>Visualization of an adaptive edit requester $\updreq$ that looks at a (subset of) past outcome releases to (stochastically) determine the next edit request to issue.</figcaption>
 </picture>
 </figure>

@@ -135,7 +135,7 @@ $\Ren{\q}{\mathcal A(\D)}{\mathcal A(\D')} \leq \eps$.
 <figure id="renyi_differential_privacy">
 <picture>
     <source srcset="{{ site.baseurl }}/assets/img/blog/DPDynamics/renyi_differential_privacy.png" media="(min-width: 768px)" />
-    <img srcset="renyi_differential_privacy.png" alt="RDP" />
+    <img src="{{ site.baseurl }}/assets/img/blog/DPDynamics/renyi_differential_privacy.png" alt="RDP" />
 </picture>
 </figure>
 
@@ -194,7 +194,7 @@ These two discrete jumps can be interpolated with two stochastic processes $\the
 <figure id="coupled_diffusion">
 <picture>
     <source srcset="{{ site.baseurl }}/assets/img/blog/DPDynamics/coupled_diffusion.png" media="(min-width: 768px)" />
-    <img srcset="coupled_diffusion.png" alt="RDP" />
+    <img src="{{ site.baseurl }}/assets/img/blog/DPDynamics/coupled_diffusion.png" alt="RDP" />
 </picture>
 </figure>
 
@@ -325,7 +325,7 @@ As per our <a href="#coupled_diffusion">coupled tracing diffusion</a> process, n
 <figure id="privacy_loss_one_step">
 <picture>
     <source srcset="{{ site.baseurl }}/assets/img/blog/DPDynamics/privacy_loss_one_step.png" media="(min-width: 768px)" />
-    <img srcset="privacy_loss_one_step.png" alt="RDP" />
+    <img src="{{ site.baseurl }}/assets/img/blog/DPDynamics/privacy_loss_one_step.png" alt="RDP" />
 </picture>
 </figure>
 
@@ -335,7 +335,7 @@ On solving the DP dynamics PDI and unrolling it over all the $K$ steps of iterat
 <figure id="privacy_loss_total">
 <picture>
     <source srcset="{{ site.baseurl }}/assets/img/blog/DPDynamics/privacy_loss_total.png" media="(min-width: 768px)" />
-    <img srcset="privacy_loss_total.png" alt="RDP" />
+    <img src="{{ site.baseurl }}/assets/img/blog/DPDynamics/privacy_loss_total.png" alt="RDP" />
 </picture>
 </figure>
 
@@ -396,7 +396,7 @@ where $\ptheta^*$ minimizes a constructed $1$-Lipschitz, $1$-strongly convex obj
 <figure id="utility_table">
 <picture>
     <source srcset="{{ site.baseurl }}/assets/img/blog/DPDynamics/utility_table.png" media="(min-width: 768px)" />
-    <img srcset="utility_table.png" alt="RDP" />
+    <img src="{{ site.baseurl }}/assets/img/blog/DPDynamics/utility_table.png" alt="RDP" />
 </picture>
 </figure>
 
