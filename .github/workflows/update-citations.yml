@@ -1,15 +1,15 @@
-# Google Scholar serves a "not a robot" wall to GitHub's runner IP ranges, so
-# the fetch below is expected to FAIL here; the same request succeeds in ~1s
-# from a home network. The actual refresh therefore runs locally, on a
-# schedule installed by bin/install_citation_schedule.sh.
+# Staleness watchdog for _data/citations.yml.
 #
-# This workflow is kept for two reasons:
-#   1. It is a staleness watchdog. A blocked run exits 0 while citations.yml
-#      is under 10 days old, so it stays quiet as long as the local job is
-#      doing its work, and only fails once the data is genuinely stale --
-#      which is the signal that the local schedule has stopped running.
-#   2. If Scholar ever stops blocking CI, this resumes updating on its own.
-name: Update Google Scholar Citations
+# This does NOT update citations. Google Scholar serves a "not a robot" wall
+# to GitHub's runner IP ranges on every attempt, while the identical request
+# succeeds in about a second from a home network, so the refresh runs locally
+# instead -- see bin/refresh_citations.sh and bin/install_citation_schedule.sh.
+#
+# What this job does is notice when that local schedule stops working. The
+# script keeps the existing data when Scholar blocks it and exits 0 while the
+# data is under 10 days old, so this stays quiet as long as the local job is
+# running, and fails once the counts have gone genuinely stale.
+name: Check Google Scholar citation freshness
 
 on:
   schedule:
@@ -24,19 +24,12 @@ on:
         default: false
 
 jobs:
-  update-citations:
+  check-citations:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-        # Commits made with GITHUB_TOKEN deliberately do not trigger other
-        # workflows, so citation updates would never reach the deployed site.
-        # A PAT secret makes the push trigger Deploy; falls back to the default
-        # token when PAT is unset, so this is safe either way.
-        # See docs/CUSTOMIZE.md for PAT setup.
-        with:
-          token: ${{ secrets.PAT || github.token }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -53,46 +46,18 @@ jobs:
           # which this job never uses and which dominated its runtime.
           pip install pyyaml
 
-      - name: Stagger scheduled runs
-        if: github.event_name == 'schedule'
-        run: |
-          # Every cron job on GitHub fires at exactly :00, so Scholar sees a
-          # burst from the shared runner IPs at the top of the hour. Waiting a
-          # random few minutes moves this request off that spike. Manual runs
-          # skip the wait.
-          delay=$((RANDOM % 300))
-          echo "⏳ Sleeping ${delay}s to avoid the top-of-hour request spike..."
-          sleep $delay
-
-      - name: Save current citations.yml hash
-        id: before
-        run: |
-          echo "📦 Checking existing citations.yml hash..."
-          if [ -f _data/citations.yml ]; then
-            sha_before=$(sha256sum _data/citations.yml | awk '{print $1}')
-            echo "sha_before=$sha_before" >> $GITHUB_OUTPUT
-            echo "📝 SHA before: $sha_before"
-          else
-            echo "sha_before=none" >> $GITHUB_OUTPUT
-            echo "📝 No existing citations.yml file found."
-          fi
-
-      - name: Run citation update script
-        id: run_citation_update
+      - name: Check citation freshness
         shell: bash
         run: |
           set +e
-          echo "🚀 Running citation update script..."
-          start_time=$(date)
+          echo "🚀 Checking citation freshness..."
           # The script retries internally and caps its own runtime well under
           # this; the timeout only guards against a hung socket.
           timeout -k 10 300 python bin/update_scholar_citations.py ${{ inputs.force && '--force' || '' }}
           status=$?
-          end_time=$(date)
           set -e
           if [ $status -eq 0 ]; then
-            echo "✅ Citation update finished (started at $start_time, ended at $end_time)."
-            echo "✅ Citation update finished." >> $GITHUB_STEP_SUMMARY
+            echo "✅ Citations are current." >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
           if [ $status -eq 124 ] || [ $status -eq 137 ]; then
@@ -100,48 +65,10 @@ jobs:
           else
             reason="exited with code $status"
           fi
-          # A blocked run that still has recent data exits 0 on purpose, so
-          # reaching here means the data is genuinely stale. Do NOT swallow it:
-          # swallowing a failure is exactly what hid the previous outage.
-          echo "::error title=Citation update failed::Script $reason"
-          echo "❌ Citation update script $reason." >> $GITHUB_STEP_SUMMARY
+          # Reaching here means the data is genuinely stale, not merely that
+          # Scholar blocked this run. Do NOT swallow it: swallowing the
+          # failure is exactly what hid the previous two-week outage.
+          echo "::error title=Citations are stale::Script $reason. Check that the local schedule is still running: bin/install_citation_schedule.sh --status"
+          echo "❌ Citations are stale ($reason)." >> $GITHUB_STEP_SUMMARY
+          echo "The local refresh may have stopped. Check with \`bin/install_citation_schedule.sh --status\`." >> $GITHUB_STEP_SUMMARY
           exit 1
-
-      - name: Save new citations.yml hash
-        id: after
-        run: |
-          echo "🔍 Checking updated citations.yml hash..."
-          if [ -f _data/citations.yml ]; then
-            sha_after=$(sha256sum _data/citations.yml | awk '{print $1}')
-            echo "sha_after=$sha_after" >> $GITHUB_OUTPUT
-            echo "📝 SHA after: $sha_after"
-          else
-            echo "sha_after=none" >> $GITHUB_OUTPUT
-            echo "📝 citations.yml was not created or is missing."
-          fi
-
-      - name: Report citations.yml change in summary
-        run: |
-          echo "📋 Comparing citation file hashes..."
-          if [ "${{ steps.before.outputs.sha_before }}" != "${{ steps.after.outputs.sha_after }}" ]; then
-            echo "✅ _data/citations.yml was updated."
-            echo "✅ _data/citations.yml was updated." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "ℹ️ _data/citations.yml was not changed."
-            echo "ℹ️ _data/citations.yml was not changed." >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Configure Git
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          echo "🔧 Git configured."
-
-      - name: Commit and push if changed
-        run: |
-          git add _data/citations.yml
-          git diff --staged --quiet || (
-            echo "📤 Committing and pushing changes..."
-            git commit -m "Update Google Scholar citations"
-            git push
-          )
