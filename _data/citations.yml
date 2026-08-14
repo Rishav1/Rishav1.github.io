@@ -1,16 +1,16 @@
 metadata:
-  last_updated: '2026-07-27'
+  last_updated: '2026-08-14'
 papers:
   UEAtkFYAAAAJ:9yKSN-GCB0IC:
     citations: 0
     title: 'Optimal Swarm RL: An Improved Deep Exploration Strategy'
     year: Unknown Year
   UEAtkFYAAAAJ:IjCSPb-OGe4C:
-    citations: 22
+    citations: 23
     title: Knowledge cross-distillation for membership privacy
     year: '2021'
   UEAtkFYAAAAJ:UeHWp8X0CEIC:
-    citations: 120
+    citations: 116
     title: Differential privacy dynamics of langevin diffusion and noisy gradient descent
     year: '2021'
   UEAtkFYAAAAJ:WF5omc3nYNoC:
@@ -38,7 +38,7 @@ papers:
     title: Type reduction techniques for two-dimensional interval type-2 fuzzy sets
     year: '2017'
   UEAtkFYAAAAJ:ufrVoPGSRksC:
-    citations: 0
+    citations: 1
     title: 'Auditing Apple''s DifferentialPrivacy. framework: Implementation Bugs, Misconfigurations, and Practical Risks'
     year: '2026'
   UEAtkFYAAAAJ:zYLM7Y9cAGgC:
