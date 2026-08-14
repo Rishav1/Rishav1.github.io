@@ -6,6 +6,11 @@ on:
     - cron: "0 0 * * 3" # Wednesday
     - cron: "0 0 * * 5" # Friday
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Refetch even if citations.yml was already updated today"
+        type: boolean
+        default: false
 
 jobs:
   update-citations:
@@ -70,7 +75,7 @@ jobs:
           start_time=$(date)
           # The script retries internally and caps its own runtime well under
           # this; the timeout only guards against a hung socket.
-          timeout -k 10 300 python bin/update_scholar_citations.py
+          timeout -k 10 300 python bin/update_scholar_citations.py ${{ inputs.force && '--force' || '' }}
           status=$?
           end_time=$(date)
           set -e
