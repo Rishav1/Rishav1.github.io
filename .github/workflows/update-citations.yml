@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         # Commits made with GITHUB_TOKEN deliberately do not trigger other
         # workflows, so citation updates would never reach the deployed site.
         # A PAT secret makes the push trigger Deploy; falls back to the default
@@ -23,7 +23,7 @@ jobs:
           token: ${{ secrets.PAT || github.token }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
@@ -31,7 +31,22 @@ jobs:
         run: |
           echo "🔧 Installing dependencies..."
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          # The script reads the Scholar profile page with the standard
+          # library alone, so pyyaml is the only dependency. Installing the
+          # full requirements.txt would drag in rendercv[full]/nbconvert,
+          # which this job never uses and which dominated its runtime.
+          pip install pyyaml
+
+      - name: Stagger scheduled runs
+        if: github.event_name == 'schedule'
+        run: |
+          # Every cron job on GitHub fires at exactly :00, so Scholar sees a
+          # burst from the shared runner IPs at the top of the hour. Waiting a
+          # random few minutes moves this request off that spike. Manual runs
+          # skip the wait.
+          delay=$((RANDOM % 300))
+          echo "⏳ Sleeping ${delay}s to avoid the top-of-hour request spike..."
+          sleep $delay
 
       - name: Save current citations.yml hash
         id: before
@@ -51,19 +66,30 @@ jobs:
         shell: bash
         run: |
           set +e
-          echo "🚀 Running citation update script (single attempt)..."
+          echo "🚀 Running citation update script..."
           start_time=$(date)
-          timeout 90 python bin/update_scholar_citations.py
+          # The script retries internally and caps its own runtime well under
+          # this; the timeout only guards against a hung socket.
+          timeout -k 10 300 python bin/update_scholar_citations.py
           status=$?
           end_time=$(date)
-          if [ $status -eq 0 ]; then
-            echo "✅ Citation update succeeded (started at $start_time, ended at $end_time)."
-            echo "✅ Citation update succeeded." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ Citation update script failed with exit code $status (started at $start_time, ended at $end_time)."
-            echo "❌ Citation update script failed with exit code $status." >> $GITHUB_STEP_SUMMARY
-          fi
           set -e
+          if [ $status -eq 0 ]; then
+            echo "✅ Citation update finished (started at $start_time, ended at $end_time)."
+            echo "✅ Citation update finished." >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          if [ $status -eq 124 ] || [ $status -eq 137 ]; then
+            reason="timed out after 300s"
+          else
+            reason="exited with code $status"
+          fi
+          # A blocked run that still has recent data exits 0 on purpose, so
+          # reaching here means the data is genuinely stale. Do NOT swallow it:
+          # swallowing a failure is exactly what hid the previous outage.
+          echo "::error title=Citation update failed::Script $reason"
+          echo "❌ Citation update script $reason." >> $GITHUB_STEP_SUMMARY
+          exit 1
 
       - name: Save new citations.yml hash
         id: after

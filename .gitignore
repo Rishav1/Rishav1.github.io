@@ -25,3 +25,7 @@ resume/*.out
 resume/*.synctex.gz
 resume/*.bbl
 resume/*.blg
+
+# Python bytecode
+__pycache__/
+*.py[cod]
