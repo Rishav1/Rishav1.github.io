@@ -1,3 +1,14 @@
+# Google Scholar serves a "not a robot" wall to GitHub's runner IP ranges, so
+# the fetch below is expected to FAIL here; the same request succeeds in ~1s
+# from a home network. The actual refresh therefore runs locally, on a
+# schedule installed by bin/install_citation_schedule.sh.
+#
+# This workflow is kept for two reasons:
+#   1. It is a staleness watchdog. A blocked run exits 0 while citations.yml
+#      is under 10 days old, so it stays quiet as long as the local job is
+#      doing its work, and only fails once the data is genuinely stale --
+#      which is the signal that the local schedule has stopped running.
+#   2. If Scholar ever stops blocking CI, this resumes updating on its own.
 name: Update Google Scholar Citations
 
 on:
